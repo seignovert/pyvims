@@ -74,14 +74,15 @@ class VIMS_GEOJSON(VIMS):
             lonlat.append( (float(self.lon[L[ii],S[ii]]), float(self.lat[L[ii],S[ii]])) )
         return lonlat
 
-    def get(self, save=False):
+    def get(self, fout=False):
         '''Get contour geoJSON'''
         lonlat = self.getGeoContour()
         lonlat.append(lonlat[0]) # Last point need to be the same as initial point
         contour = Polygon([lonlat])
         geojson = Feature(geometry=contour, properties=self.properties)
-        if save:
-            with open('geojson/'+self.imgID+'.geojson', 'w') as f:
+        if fout:
+            if fout == '.' or fout == './': fout = ''
+            with open(fout+self.imgID+'.geojson', 'w') as f:
                 f.write('%s' % geojson)
         return geojson
 
