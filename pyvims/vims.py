@@ -95,31 +95,35 @@ class VIMS:
 
     def readNAV(self):
         '''Read VIMS NAV file'''
-        with open(self.nav) as f:
-            lbl = {}; IDFoffset = 0
-            for line in f.readlines():
-                IDFoffset += len(line)
-                if line == 'END\r\n' or line == 'FIN\r\n' or line == 'FIN\n':
-                    break
-                elif '.ker' in line:
-                    self.flyby = int(line.rstrip('\r\n')[-8:-5])
+        try:
+            with open(self.nav) as f:
+                lbl = {}; IDFoffset = 0
+                for line in f.readlines():
+                    IDFoffset += len(line)
+                    if line == 'END\r\n' or line == 'FIN\r\n' or line == 'FIN\n':
+                        break
+                    elif '.ker' in line:
+                        self.flyby = int(line.rstrip('\r\n')[-8:-5])
 
-        # Read binary file
-        _, nbytes, dtype = self.getType()
-        nbytes *= self.NL
-        shape = (self.NL, self.NS)
+            # Read binary file
+            _, nbytes, dtype = self.getType()
+            nbytes *= self.NL
+            shape = (self.NL, self.NS)
 
-        with open(self.nav, 'rb') as f:
-            f.seek(IDFoffset+2, os.SEEK_SET) # Skip Ascii header
-            self.lon = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) #% 360 # Pixel central longitude [East]
-            self.lat = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Pixel central latitude [North]
+            with open(self.nav, 'rb') as f:
+                f.seek(IDFoffset+2, os.SEEK_SET) # Skip Ascii header
+                self.lon = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) #% 360 # Pixel central longitude [East]
+                self.lat = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Pixel central latitude [North]
 
-        self.lon.setflags(write=1)
-        self.lat.setflags(write=1)
+            self.lon.setflags(write=1)
+            self.lat.setflags(write=1)
 
-        self.nan = (self.lon == NaN)
-        self.lon[self.nan] = np.nan
-        self.lat[self.nan] = np.nan
+            self.nan = (self.lon == NaN)
+            self.lon[self.nan] = np.nan
+            self.lat[self.nan] = np.nan
+        except ValueError:
+            print 'WARNING: The navigation file was not found'
+            pass
         return None
 
     def getType(self):
