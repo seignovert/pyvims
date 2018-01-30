@@ -184,7 +184,7 @@ class VIMS:
             raise ValueError('Line too small (> 0)')
         elif L >= self.NL:
             raise ValueError('Line too large (< %i)' % self.NL )
-        return self.data[:,L-1,S-1]
+        return self.cube[:,L-1,S-1]
 
     def saveJPG(self, band=97, wvln=None, imin=0, imax=None, fout=''):
         '''Save to JPG image file'''
