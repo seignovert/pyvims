@@ -186,7 +186,7 @@ class VIMS:
             raise ValueError('Line too large (< %i)' % self.NL )
         return self.data[:,L-1,S-1]
 
-    def saveJPG(self, band=97, wvln=None, imin=0, imax=None):
+    def saveJPG(self, band=97, wvln=None, imin=0, imax=None, fout=''):
         '''Save to JPG image file'''
         img  = self.getImg(band,wvln)
 
@@ -195,7 +195,7 @@ class VIMS:
 
         from PIL import Image
         icon = Image.fromarray( np.uint8(data) )
-        icon.save( 'img/%s.jpg' % self.imgID )
+        icon.save( fout+'%s.jpg' % self.imgID )
         return
 
 if __name__ == '__main__':
