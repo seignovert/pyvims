@@ -1,6 +1,6 @@
 PyVIMS
 =======
-Python package to manipulate the Cassini VIMS data
+Python package to manipulate the Cassini VIMS data.
 
 Dependencies:
 --------------
