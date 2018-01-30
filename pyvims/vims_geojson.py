@@ -4,7 +4,7 @@ import sys
 import numpy as np
 from geojson import Polygon, Feature
 
-from vims import VIMS
+from .vims import VIMS
 
 LON_WRAP = 90 # Longitude wrapping cutoff
 

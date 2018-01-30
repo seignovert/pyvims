@@ -2,15 +2,24 @@
 
 import sys, os
 import numpy as np
-import pvl
 from datetime import datetime as dt
+
+import pvl
 
 NaN = -99999.
 
 class VIMS:
     def __init__(self,imgID,root=''):
-        self.imgID = imgID
-        self.root  = root
+        self.imgID = imgID.lower()\
+                          .split(os.sep)[-1]\
+                          .replace('cm_','')\
+                          .replace('c','')\
+                          .replace('v','')\
+                          .replace('_ir','')\
+                          .replace('_vis','')\
+                          .replace('.cub','')\
+                          .replace('.qub','')
+        self.root = root
         self.load()
         return
 
@@ -21,11 +30,19 @@ class VIMS:
         return "VIMS cube: %s" % self
 
     @property
+    def qub(self):
+        '''Check if QUB file exists.'''
+        qub_file = self.root + 'v' + self.imgID + '.qub'
+        if not os.path.isfile(qub_file):
+            raise ValueError('The QUB file was not found')
+        return qub_file
+
+    @property
     def cub(self):
         '''Check if CUB file exists.'''
         cub_file = self.root + 'CM_' + self.imgID + '.cub'
         if not os.path.isfile(cub_file):
-            raise ValueError('The cube file was not found')
+            raise ValueError('The CUB file was not found')
         return cub_file
 
     @property
@@ -43,7 +60,14 @@ class VIMS:
         return
 
     def readLBL(self):
-        self.lbl = pvl.load(self.cub)
+        try:
+            self.lbl = pvl.load(self.cub)
+        except ValueError:
+            try:
+                self.lbl = pvl.load(self.qub)
+            except ValueError:
+                raise ValueError('Neither QUB nor CUB, files were found')
+
         for ii, axis in enumerate(self.lbl['QUBE']['AXIS_NAME']):
             if axis == 'SAMPLE':
                 self.NS = int(self.lbl['QUBE']['CORE_ITEMS'][ii])
@@ -208,6 +232,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         imgID = sys.argv[1]
 
-    vims = VIMS(imgID, root='data/')
-    # vims.geoJSON(save=True)
-    # vims.saveJPG(wvln=2.02, imin=0.025)
+    vims = VIMS(imgID, root='')
