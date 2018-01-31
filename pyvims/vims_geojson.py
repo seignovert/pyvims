@@ -4,13 +4,13 @@ import sys
 import numpy as np
 from geojson import Polygon, Feature
 
-from .vims import VIMS
+from .vims_nav import VIMS_NAV
 
 LON_WRAP = 90 # Longitude wrapping cutoff
 
-class VIMS_GEOJSON(VIMS):
+class VIMS_GEOJSON(VIMS_NAV):
     def __init__(self,imgID, root=''):
-        VIMS.__init__(self, imgID, root)
+        VIMS_NAV.__init__(self, imgID, root)
         return
 
     def getContour(self):
@@ -102,4 +102,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         imgID = sys.argv[1]
 
-    VIMS_GEOJSON(imgID, root='data/').get(save=True)
+    VIMS_GEOJSON(imgID, root='data/').get(fout='.')

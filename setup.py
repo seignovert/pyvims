@@ -20,6 +20,7 @@ setup(name='pyvims',
           'geojson',
       ],
       dependency_links=[
-          'https://github.com/seignovert/pvl/tarball/master#egg=package-1.0'
+          'https://github.com/seignovert/pvl/tarball/master#egg=package-1.0',
+          'https://github.com/seignovert/planetaryimage/tarball/master#egg=package-1.0',
       ],
       zip_safe=False)
