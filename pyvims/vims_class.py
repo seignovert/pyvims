@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import numpy as np
 
 from ._communs import getImgID
 from .vims_nav import VIMS_NAV
@@ -38,7 +39,7 @@ class VIMS_OBJ(object):
             self.lon = nav.lon
             self.lat = nav.lat
         except NameError:
-            print "WARNING: NAV file not found"            
+            print "WARNING: NAV file not found"
         return
 
     def getBand(self, band):
