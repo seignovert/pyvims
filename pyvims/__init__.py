@@ -9,3 +9,5 @@ from .vims_lbl     import VIMS_LBL
 
 from .vims_nav     import VIMS_NAV
 from .vims_geojson import VIMS_GEOJSON
+
+from .vims_quicklook import VIMS_QUICKLOOK
