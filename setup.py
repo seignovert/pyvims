@@ -18,6 +18,7 @@ setup(name='pyvims',
           'numpy',
           'datetime',
           'geojson',
+          'spiceypy',
       ],
       dependency_links=[
           'https://github.com/seignovert/pvl/tarball/master#egg=package-1.0',
