@@ -21,7 +21,7 @@ class VIMS_TEAM(VIMS_OBJ):
         '''Check if VIMS file exists.'''
         fname = self.root + 'CM_' + self.imgID + '.cub'
         if not os.path.isfile(fname):
-            raise NameError('TEAM CUB file was not found: %s')
+            raise NameError('TEAM CUB file was not found: %s' % fname)
         return fname
 
     def readLBL(self):

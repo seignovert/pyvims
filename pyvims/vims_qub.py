@@ -16,5 +16,5 @@ class VIMS_QUB(VIMS_TEAM):
         '''Check if VIMS file exists.'''
         fname = self.root + 'v' + self.imgID + '.qub'
         if not os.path.isfile(fname):
-            raise NameError('PDS QUB file was not found: %s')
+            raise NameError('PDS QUB file was not found: %s' % fname)
         return fname

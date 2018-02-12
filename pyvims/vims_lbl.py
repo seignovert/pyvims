@@ -20,7 +20,7 @@ class VIMS_LBL(VIMS_OBJ):
         '''Check if VIMS file exists.'''
         fname = self.root + 'v' + self.imgID + '.lbl'
         if not os.path.isfile(fname):
-            raise NameError('LBL file was not found: %s')
+            raise NameError('LBL file was not found: %s' % fname)
         return fname
 
     def readLBL(self):

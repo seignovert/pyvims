@@ -26,7 +26,7 @@ class VIMS_NAV(object):
         '''Check if VIMS file exists.'''
         fname = self.root + 'V' + self.imgID + '.nav'
         if not os.path.isfile(fname):
-            raise NameError('GeoCube file %s not found')
+            raise NameError('GeoCube file %s not found' % fname)
         return fname
 
     def readLBL(self):

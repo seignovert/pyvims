@@ -24,7 +24,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         ext = '_ir' if self.ir else '_vis'
         fname = self.root + 'C' + self.imgID + ext + '.cub'
         if not os.path.isfile(fname):
-            raise NameError('ISIS CUB file was not found: %s')
+            raise NameError('ISIS CUB file was not found: %s' % fname)
         return fname
 
     def readLBL(self):
