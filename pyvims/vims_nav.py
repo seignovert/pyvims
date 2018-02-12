@@ -35,7 +35,10 @@ class VIMS_NAV(object):
             lbl = {}; self.IDFoffset = 0
             for line in f.readlines():
                 self.IDFoffset += len(line)
-                if line == 'END\r\n' or line == 'FIN\r\n' or line == 'FIN\n':
+                if line == 'END\n' or line == 'FIN\n':
+                    break
+                elif line == 'END\r\n' or line == 'FIN\r\n':
+                    self.IDFoffset += 1
                     break
                 elif 'AXIS_NAME' in line:
                     axisName = line.rstrip('\r\n')\
