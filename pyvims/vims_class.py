@@ -4,6 +4,7 @@ import numpy as np
 
 from ._communs import getImgID
 from .vims_nav import VIMS_NAV
+from .spice_geojson import SPICE_GEOJSON
 
 class VIMS_OBJ(object):
     '''VIMS object abstract class'''
@@ -97,4 +98,9 @@ class VIMS_OBJ(object):
         from PIL import Image
         icon = Image.fromarray( np.uint8(data) )
         icon.save( fout+'%s.jpg' % self.imgID )
+        return
+
+    def saveGEOJSON(self):
+        '''Save field of view into a geojson file'''
+        SPICE_GEOJSON(self.target, self.time).save(fout=self.root+self.imgID)
         return
