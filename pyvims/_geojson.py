@@ -90,7 +90,7 @@ def Limb_POLYGON(lons, lats):
     return fillPOLYGON(lons, lats, 'Limb', 'Limb field of view', 'blue')
 
 
-def GEOJSON(features):
+def COLLECTION(features):
     '''GeoJson feature collection'''
     return geojson.FeatureCollection( features=features )
 

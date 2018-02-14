@@ -6,7 +6,6 @@ from ._geojson import fillPOLYGON
 
 from .vims_nav import VIMS_NAV
 
-LON_WRAP = 90 # Longitude wrapping cutoff
 
 class VIMS_NAV_GEOJSON(VIMS_NAV):
     def __init__(self,imgID, root=''):
