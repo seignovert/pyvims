@@ -27,10 +27,10 @@ class SPICE_GEOJSON(SPICE_MOON):
         self.geoSC = SC_PT(lon_SC, lat_SC)
 
         # Search projected circles on the moon
-        moon = BODY_SPHERE(moon_radius)
+        self.body = BODY_SPHERE(moon_radius)
 
-        lonS, latS = moon.sun(lon_SS, lat_SS)
-        self.lonL, self.latL = moon.limb(dist, lon_SC, lat_SC)
+        lonS, latS = self.body.sun(lon_SS, lat_SS)
+        self.lonL, self.latL = self.body.limb(dist, lon_SC, lat_SC)
 
         self.geoShadow = Shadow_POLYGON(lonS, latS)
         self.geoLimb = Limb_POLYGON(self.lonL, self.latL)

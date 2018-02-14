@@ -92,15 +92,15 @@ class BODY_SPHERE(object):
 
         return self.circle(Rc, Ra, lon=SC_lon, lat=SC_lat, npt=npt)
 
-    def ground(self, lonA, latA, lonB, latB, lonC, latC, npt=100):
-        '''Longitude and Latitude of ground circle through 3pts'''
-        a = self.xyz(lonA, latA)
-        b = self.xyz(lonB, latB)
-        c = self.xyz(lonC, latC)
+    def ground(self, pts, npt=75):
+        '''Longitude and Latitude of ground circle through 3 pts A/B/C'''
+        a = self.xyz(pts[0][0], pts[0][1])
+        b = self.xyz(pts[1][0], pts[1][1])
+        c = self.xyz(pts[2][0], pts[2][1])
         d, Ra = circle3pts(a, b, c)
 
         Rc = np.sqrt(np.sum(d**2, 0))
         lon, lat = self.lonlat(d)
 
         return self.circle(Rc, Ra, lon=lon, lat=lat, npt=npt)
-    
+
