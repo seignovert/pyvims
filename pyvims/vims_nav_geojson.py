@@ -2,7 +2,7 @@
 
 import sys
 import numpy as np
-from geojson import Polygon, Feature
+from ._geojson import fillPOLYGON
 
 from .vims_nav import VIMS_NAV
 
@@ -13,7 +13,8 @@ class VIMS_NAV_GEOJSON(VIMS_NAV):
         VIMS_NAV.__init__(self, imgID, root)
         return
 
-    def getContour(self):
+    @property
+    def contourSL(self):
         '''Extract surface contour'''
         cntr_S = [] ; cntr_L = []
         for s in range(self.NS):
@@ -46,55 +47,24 @@ class VIMS_NAV_GEOJSON(VIMS_NAV):
 
         return cntr_S, cntr_L
 
-    def getGeoContour(self):
-        '''Extract surface Longitude & Latitude'''
-        S,L = self.getContour()
-        lonlat = []
-        for ii in range(len(S)):
-
-            # Wrapping the poles
-            if ii > 1:
-                deltaLon = self.lon[L[ii],S[ii]] - self.lon[L[ii-1],S[ii-1]]
-                meanLat  = .5 * (self.lat[L[ii],S[ii]] + self.lat[L[ii-1],S[ii-1]])
-
-                # Wrap North Pole
-                if deltaLon > LON_WRAP:
-                    lonlat.append( (-180, meanLat) )
-                    lonlat.append( (-180, 90.) )
-                    lonlat.append( ( 180, 90.) )
-                    lonlat.append( ( 180, meanLat) )
-
-                # Wrap South Pole
-                elif deltaLon < -LON_WRAP:
-                    lonlat.append( ( 180, meanLat) )
-                    lonlat.append( ( 180, -90.) )
-                    lonlat.append( (-180, -90.) )
-                    lonlat.append( (-180, meanLat) )
-
-            lonlat.append( (float(self.lon[L[ii],S[ii]]), float(self.lat[L[ii],S[ii]])) )
-        return lonlat
-
-    def get(self, fout=False):
+    @property
+    def contour(self):
         '''Get contour geoJSON'''
-        lonlat = self.getGeoContour()
-        lonlat.append(lonlat[0]) # Last point need to be the same as initial point
-        contour = Polygon([lonlat])
-        geojson = Feature(geometry=contour, properties=self.properties)
-        if fout:
-            if fout == '.' or fout == './': fout = ''
-            with open(fout+self.imgID+'.geojson', 'w') as f:
-                f.write('%s' % geojson)
-        return geojson
+        S, L = self.contourSL
+        lons = []
+        lats = []
+        for ii in range(len(S)):
+            lons.append(self.lon[L[ii], S[ii]])
+            lats.append(self.lat[L[ii], S[ii]])
+
+        return fillPOLYGON(lons, lats, 'cntr_%s' % self.imgID,
+                           'Cube: %s -- NAV contours' % self.imgID,
+                           'red')
 
     @property
-    def properties(self):
-        '''GeoJSON properties'''
-        prop = {}
-        prop['imgID'] = self.imgID
-        prop['NS']    = self.NS
-        prop['NL']    = self.NL
-        prop['TIME']  = self.time
-        return prop
+    def save(self):
+        with open(self.root+self.imgID+'.geojson', 'w') as f:
+                f.write('%s' % self.contour)
 
 if __name__ == '__main__':
 
