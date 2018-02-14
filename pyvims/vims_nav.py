@@ -62,6 +62,21 @@ class VIMS_NAV(object):
                     self.coreItemType = line.rstrip('\r\n')\
                                    .split(' = ')[1]
 
+                elif 'INSTRUMENT_HOST_NAME' in line:
+                    self.obs = line.rstrip('\r\n')\
+                                   .split(' = ')[1]\
+                                   .replace('"', '')
+
+                elif 'INSTRUMENT_ID' in line:
+                    self.inst = line.rstrip('\r\n')\
+                                    .split(' = ')[1]\
+                                    .replace('"', '')
+
+                elif 'TARGET_NAME' in line:
+                    self.target = line.rstrip('\r\n')\
+                                      .split(' = ')[1]\
+                                      .replace('"','')
+
                 elif 'START_TIME' in line and (not 'NATIVE' in line) and (not 'EARTH_RECEIVED' in line):
                     self.start = dt.strptime(
                                     line.rstrip('\r\n')\
