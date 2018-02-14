@@ -1,7 +1,7 @@
 #!/bin/python
 
 from .spice_moon import SPICE_MOON
-from ._communs import BODY_SPHERE
+from ._geomerty import BODY_SPHERE
 
 from ._geojson import SS_PT, SC_PT, Shadow_POLYGON, Limb_POLYGON, GEOJSON
 
