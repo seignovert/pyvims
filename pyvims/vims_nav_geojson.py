@@ -13,11 +13,12 @@ def border(nan):
     right = None
     for i in range(len(nan)):
         if not nan[i]:
+            right = i
             if left is None:
                 left = i
-            else:
-                right = i
     middle = None if left is None else (left + right)/2
+    if middle == left or middle == right:
+        left, middle, right = (None, None, None)
     return left, middle, right
 
 def limbPts(lons, lats, A, B):
@@ -333,10 +334,12 @@ class VIMS_NAV_GEOJSON(VIMS_NAV, SPICE_GEOJSON):
         with open(fname, 'w') as f:
                 f.write(
                     '%s' % COLLECTION([
-                        self.geoShadow, self.geoLimb,
+                        self.geoShadow,
+                        self.geoLimb,
                         self.contour,
                         self.footprint,
-                        self.geoSS, self.geoSC
+                        self.geoSS,
+                        self.geoSC
                     ])
                 )
         if verbose:
