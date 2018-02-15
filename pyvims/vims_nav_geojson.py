@@ -327,9 +327,10 @@ class VIMS_NAV_GEOJSON(VIMS_NAV, SPICE_GEOJSON):
                            'Cube: %s -- NAV contours' % self.imgID,
                            'magenta', .1)
 
-    @property
-    def save(self):
-        with open(self.root+self.imgID+'.geojson', 'w') as f:
+    def save(self, verbose=True, fout=None):
+        root = self.root if fout is None else fout
+        fname = root + self.imgID + '.geojson'
+        with open(fname, 'w') as f:
                 f.write(
                     '%s' % COLLECTION([
                         self.geoShadow, self.geoLimb,
@@ -338,3 +339,5 @@ class VIMS_NAV_GEOJSON(VIMS_NAV, SPICE_GEOJSON):
                         self.geoSS, self.geoSC
                     ])
                 )
+        if verbose:
+            print "GeoJSON created: " + fname
