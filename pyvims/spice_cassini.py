@@ -38,9 +38,6 @@ class SPICE_CASSINI(object):
         self.loaded = False
         return
         
-    def __str__(self):
-        return 'test'
-
     def __repr__(self):
         return 'Cassini Spice Kernels tools'
 
