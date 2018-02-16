@@ -135,11 +135,24 @@ class VIMS_NAV(object):
             f.seek(self.IDFoffset+2, os.SEEK_SET) # Skip Ascii header
             self.lon = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) #% 360 # Pixel central longitude [East]
             self.lat = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Pixel central latitude [North]
+            self.inc = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Incidence angle [deg]
+            self.eme = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Emergence angle [deg]
+            self.phase = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Phase angle [deg]
+            f.read(nbytes*9) # Slip cornes lon/lat and altitude
+            self.res = np.frombuffer(f.read(nbytes),dtype=dtype).reshape(shape) # Phase angle [deg]
 
         self.lon.setflags(write=1)
         self.lat.setflags(write=1)
+        self.inc.setflags(write=1)
+        self.eme.setflags(write=1)
+        self.phase.setflags(write=1)
+        self.res.setflags(write=1)
 
         self.nan = (self.lon == NaN)
         self.lon[self.nan] = np.nan
         self.lat[self.nan] = np.nan
+        self.inc[self.nan] = np.nan
+        self.eme[self.nan] = np.nan
+        self.phase[self.nan] = np.nan
+        self.res[self.nan] = np.nan
         return
