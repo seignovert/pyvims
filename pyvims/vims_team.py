@@ -40,6 +40,7 @@ class VIMS_TEAM(VIMS_OBJ):
         self.inst   = self.lbl['QUBE']['INSTRUMENT_ID']
         self.target = self.lbl['QUBE']['TARGET_NAME']
         self.expo   = self.lbl['QUBE']['EXPOSURE_DURATION']
+        self.mode   = self.lbl['QUBE']['SAMPLING_MODE_ID']
         self.start  = self.lbl['QUBE']['START_TIME']
         self.stop   = self.lbl['QUBE']['STOP_TIME']
         self.dtime  = (self.stop - self.start)/2 + self.start

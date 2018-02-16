@@ -39,6 +39,7 @@ class VIMS_LBL(VIMS_OBJ):
         self.inst   = self.lbl['INSTRUMENT_ID']
         self.target = self.lbl['TARGET_NAME']
         self.expo   = self.lbl['EXPOSURE_DURATION']
+        self.mode   = self.lbl['SAMPLING_MODE_ID']
         self.start  = self.lbl['START_TIME']
         self.stop   = self.lbl['STOP_TIME']
         self.dtime  = (self.stop - self.start)/2 + self.start
