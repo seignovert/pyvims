@@ -43,6 +43,8 @@ class VIMS_OBJ(object):
             self.eme = nav.eme
             self.phase = nav.phase
             self.res = nav.res
+            self.limb = nav.nan
+            self.specular = nav.specular
         except NameError:
             print "WARNING: NAV file not found"
         return
