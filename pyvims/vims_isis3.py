@@ -42,6 +42,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         else:
             self.expo = self.lbl['Instrument']['ExposureDuration'][1][0]
         self.mode = self.lbl['Instrument']['sampling_mode_id']
+        self.obs_id = self.lbl['Instrument']['observation_id']
         self.start  = self.lbl['Instrument']['StartTime']
         self.stop   = self.lbl['Instrument']['StopTime']
         self.dtime  = (self.stop - self.start)/2 + self.start
