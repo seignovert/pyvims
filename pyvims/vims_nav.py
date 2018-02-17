@@ -7,6 +7,9 @@ from ._communs import getImgID
 
 NaN = -99999.
 
+# To remove NaN comparaison warnings
+np.warnings.filterwarnings('ignore')
+
 class VIMS_NAV(object):
     def __init__(self,imgID, root=''):
         self.imgID = getImgID(imgID)

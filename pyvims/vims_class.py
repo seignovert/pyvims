@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy as np
+import cv2
 
 from ._communs import getImgID
 from .vims_nav import VIMS_NAV
@@ -94,16 +95,38 @@ class VIMS_OBJ(object):
             raise ValueError('Line too large (< %i)' % self.NL )
         return self.cube[:,L-1,S-1]
 
-    def saveJPG(self, band=97, wvln=None, imin=0, imax=None, fout=''):
-        '''Save to JPG image file'''
-        img  = self.getImg(band,wvln)
+    def saveJPG(self, band=97, wvln=None, imin=0, imax=None, height=256,
+                quality=65, interp=cv2.INTER_LANCZOS4, equalizer=True):
+        '''
+        Save to JPG image file
+
+        Interpolation:
+        - INTER_NEAREST - a nearest-neighbor interpolation
+        - INTER_LINEAR - a bilinear interpolation (used by default)
+        - INTER_AREA - resampling using pixel area relation.
+        - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
+        - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
+        '''
+        img = self.getImg(band, wvln)
 
         if imax is None: imax = np.nanmax(img)
-        data = np.clip( 255.*(img-imin)/(imax-imin),0,255)
+        img = np.clip( 255.*(img-imin)/(imax-imin),0,255)
+        img = np.uint8(img)
 
-        from PIL import Image
-        icon = Image.fromarray( np.uint8(data) )
-        icon.save( fout+'%s.jpg' % self.imgID )
+        if not height is None:
+            hr = 2 if self.mode[0] == 'HI-RES' else 1
+            width = (height * self.NL) / self.NS / hr
+
+            img = cv2.resize(img, (width, height), interpolation=interp)
+        
+        if equalizer:
+            # Create a CLAHE object.
+            clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
+            img = clahe.apply(img)
+
+        cv2.imwrite(self.root+'%s.jpg' % self.imgID, img,
+                    [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+        cv2.destroyAllWindows()
         return
 
     def saveGEOJSON(self):
