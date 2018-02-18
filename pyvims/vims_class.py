@@ -96,14 +96,14 @@ class VIMS_OBJ(object):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
 
-    def saveJPG(self, img, info='', fout=None, quality=65):
+    def saveJPG(self, img, info='', fout=None, suffix='', quality=65):
         '''Save to JPG image file'''
         if img.dtype != 'uint8':
             img = clipIMG(img)
 
         if fout is None:
             fout = self.root
-        fname = os.path.join(fout, self.imgID + '.jpg')
+        fname = os.path.join(fout, self.imgID + suffix + '.jpg')
 
         cv2.imwrite(fname, img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
         cv2.destroyAllWindows()
@@ -136,10 +136,10 @@ class VIMS_OBJ(object):
 
     def saveQuicklook(self, name, img, desc):
         '''Save image quicklook'''
-        fout = os.path.join(self.root, 'quicklook_%s' % name)
+        fout = os.path.join(self.root, 'quicklooks')
         if not os.path.isdir(fout):
             os.mkdir(fout)
-        self.saveJPG( img, desc, fout)
+        self.saveJPG(img, desc, fout, suffix='-'+name)
 
     def getBands(self, bands):
         '''Get the mean image and wavlength for a list bands'''
@@ -175,10 +175,10 @@ class VIMS_OBJ(object):
         img_N, wvln_N = self.getBands(N)
         img_D, wvln_D = self.getBands(D)
 
-        desc = '@ %.2f / %.2f um [%i' % ( wvln_N, wvln_D, N[0])
+        desc = '@ %.2f/%.2f um [%i' % ( wvln_N, wvln_D, N[0])
         if len(N) > 1:
             desc += '-%i' % N[-1]
-        desc += ' / %i' % D[0]
+        desc += '/%i' % D[0]
         if len(D) > 1:
             desc += '-%i' % D[-1]
         desc += ']'
@@ -243,12 +243,36 @@ class VIMS_OBJ(object):
         self.quicklook_RGB(name, R, G, B, eq=False)
 
     @property
-    def quicklook_R_159_127(self):
-        '''Quicklook @ 1.59 / 1.27 um [165-169]'''
-        name = '159_127'
+    def quicklook_R_159_126(self):
+        '''Quicklook @ 1.59/1.26 um [165-169]'''
+        name = '159_126'
         N = [139]
         D = [120]
         self.quicklook_Ratio(name, N, D)
+
+    @property
+    def quicklook_G_212(self):
+        '''Quicklook @ 2.12 um [172]'''
+        name = '212'
+        bands = [172]
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_RGB_501_158_129(self):
+        '''Quicklook @ (5.01, 1.58, 1.29) um [339-351, 138-141, 121-122]'''
+        name = '501_158_129'
+        R = range(339, 351+1)
+        G = range(138, 141+1)
+        B = [121, 122]
+        self.quicklook_RGB(name, R, G, B, eq=False)
+
+    @property
+    def quicklooks(self):
+        self.quicklook_G_203
+        self.quicklook_RGB_203_158_279
+        self.quicklook_R_159_126
+        self.quicklook_G_212
+        self.quicklook_RGB_501_158_129
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
