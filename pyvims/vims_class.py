@@ -134,24 +134,34 @@ class VIMS_OBJ(object):
             }
         ), fname)
 
-    @property
-    def save_quicklook_0(self):
-        '''
-        Band: 172
-        Wavelength: 2.12 um
-        Info: Cloud on 2.03 um wing
-        '''
-        fout = os.path.join(self.root, 'quicklook_0')
-        band = 172
-        wvln = self.wvlns[self.getIndex(band)]
-        img = self.getImg(band)
+    def saveQuicklook(self, name, img, desc, hr='NORMAL'):
+        '''Save image quicklook'''
+        fout = os.path.join(self.root, 'quicklook_%s' % name)
         if not os.path.isdir(fout):
             os.mkdir(fout)
-        self.saveJPG(
-            imgInterp(img, hr=self.mode[0]),
-            '@ %.2f um [%i]' % (wvln, band),
-            fout
-        )
+        self.saveJPG( imgInterp(img, hr=hr), desc, fout)
+
+    def getBands(self, bands):
+        '''Get the mean image and wavlength for a list bands'''
+        if isinstance(bands, int):
+            bands = [bands]
+        img = []
+        wvln = []
+        for band in bands:
+            index = self.getBand(band)
+            img.append(self.cube[index, :, :])
+            wvln.append(self.wvlns[index])
+        return np.nanmean(img, axis=0), np.mean(wvln)
+
+    @property
+    def quicklook_203(self):
+        '''Quicklook @ 2.03 um [165-169]'''
+        name = '203'
+        bands = range(165, 169+1)
+        img, wvln = self.getBands(bands)
+        desc = '@ %.2f um [%i-%i]' % (wvln, bands[0], bands[-1])
+        hr = self.mode[0] # IR mode
+        self.saveQuicklook(name, img, desc, hr)
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
