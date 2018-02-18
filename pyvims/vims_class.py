@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import piexif
 
-from ._communs import getImgID, clipIMG
+from ._communs import getImgID, clipIMG, imgInterp
 from .vims_nav import VIMS_NAV
 from .spice_geojson import SPICE_GEOJSON
 
@@ -96,30 +96,6 @@ class VIMS_OBJ(object):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
 
-    def imgInterp(self, img, imin=0, imax=None, height=256,
-                  interp=cv2.INTER_LANCZOS4, equalizer=True):
-        '''
-        Interpolation:
-        - INTER_NEAREST - a nearest-neighbor interpolation
-        - INTER_LINEAR - a bilinear interpolation (used by default)
-        - INTER_AREA - resampling using pixel area relation.
-        - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
-        - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
-        '''
-        if img.dtype != 'uint8':
-            img = clipIMG(img, imin, imax)
-
-        if not height is None:
-            hr = 2 if self.mode[0] == 'HI-RES' else 1
-            width = (height * self.NL) / self.NS / hr
-            img = cv2.resize(img, (width, height), interpolation=interp)
-        
-        if equalizer:
-            # Create a CLAHE object.
-            clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
-            img = clahe.apply(img)
-        return img
-
     def saveJPG(self, img, info='', fout=None, quality=65):
         '''Save to JPG image file'''
         if img.dtype != 'uint8':
@@ -171,7 +147,11 @@ class VIMS_OBJ(object):
         img = self.getImg(band)
         if not os.path.isdir(fout):
             os.mkdir(fout)
-        self.saveJPG(self.imgInterp(img), '@ %.2f um [%i]' % (wvln, band), fout)
+        self.saveJPG(
+            imgInterp(img, hr=self.mode[0]),
+            '@ %.2f um [%i]' % (wvln, band),
+            fout
+        )
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
