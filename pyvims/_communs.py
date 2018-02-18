@@ -38,9 +38,6 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
     - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
     - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
     '''
-    if img.dtype != 'uint8':
-        img = clipIMG(img, imin, imax)
-
     if not height is None:
         hr = 1 if hr.upper() == 'NORMAL' else 2
         width = (height * img.shape[0]) / img.shape[1] / hr
@@ -50,6 +47,8 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
         # Create a CLAHE object.
         clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
         if len(img.shape) == 2: # GRAY
+            if img.dtype != 'uint8':
+                img = clipIMG(img, imin, imax)
             img = clahe.apply(img)
         elif len(img.shape) == 3:  # RGB [https://stackoverflow.com/a/47370615]
             lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
