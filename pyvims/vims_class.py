@@ -127,7 +127,7 @@ class VIMS_OBJ(object):
 
         if fout is None:
             fout = self.root
-        fname = fout + self.imgID + '.jpg'
+        fname = os.path.join(fout, self.imgID + '.jpg')
 
         cv2.imwrite(fname, img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
         cv2.destroyAllWindows()
@@ -142,7 +142,7 @@ class VIMS_OBJ(object):
                     piexif.ImageIFD.ImageNumber: int(self.imgID.split('_')[0]),
                     piexif.ImageIFD.ImageDescription: u'%s - %s %s' % (
                         self.imgID,
-                        self.target,
+                        self.target.title(),
                         desc
                     ),
                     piexif.ImageIFD.DateTime: self.dtime.strftime('%Y:%m:%d %H:%M:%S'),
@@ -157,6 +157,21 @@ class VIMS_OBJ(object):
                 'thumbnail': None
             }
         ), fname)
+
+    @property
+    def save_quicklook_0(self):
+        '''
+        Band: 172
+        Wavelength: 2.12 um
+        Info: Cloud on 2.03 um wing
+        '''
+        fout = os.path.join(self.root, 'quicklook_0')
+        band = 172
+        wvln = self.wvlns[self.getIndex(band)]
+        img = self.getImg(band)
+        if not os.path.isdir(fout):
+            os.mkdir(fout)
+        self.saveJPG(self.imgInterp(img), '@ %.2f um [%i]' % (wvln, band), fout)
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
