@@ -194,7 +194,7 @@ class VIMS_OBJ(object):
 
         self.saveQuicklook('R_'+name, img, desc)
 
-    def quicklook_RGB(self, name, R, G, B, eq=True):
+    def quicklook_RGB(self, name, R, G, B, eq=True, R_S=None, G_S=None, B_S=None):
         '''
         Quicklook - RGB
 
@@ -204,16 +204,30 @@ class VIMS_OBJ(object):
         img_G, wvln_G = self.getBands(G)
         img_B, wvln_B = self.getBands(B)
 
+        if R_S:
+            img_R_S, wvln_R_S = self.getBands(R_S)
+            img_R = img_R - .5 * img_R
+        if G_S:
+            img_G_S, wvln_G_S = self.getBands(G_S)
+            img_G = img_G - .5 * img_G
+        if B_S:
+            img_B_S, wvln_B_S = self.getBands(B_S)
+            img_B = img_B - .5 * img_B
+
         desc = '@ (%.2f, %.2f, %.2f) um [%i-%i, %i-%i, %i-%i]' % (
             wvln_R, wvln_G, wvln_B,
             R[0], R[-1], G[0], G[-1], B[0], B[-1]
         )
 
         if eq:
-            max_RGB = np.max([np.max(img_R), np.max(img_G), np.max(img_B)])
+            over_expo = (img_R < -1.e10) | (img_G < -1.e10) | (img_B < -1.e10)
+            max_RGB = np.nanmax([np.nanmax(img_R), np.nanmax(img_G), np.nanmax(img_B)])
             img_R = clipIMG(img_R, imin=0, imax=max_RGB)
             img_G = clipIMG(img_G, imin=0, imax=max_RGB)
             img_B = clipIMG(img_B, imin=0, imax=max_RGB)
+            img_R[over_expo] = 255
+            img_G[over_expo] = 255
+            img_B[over_expo] = 255
         else:
             img_R = clipIMG(img_R)
             img_G = clipIMG(img_G)
@@ -249,7 +263,6 @@ class VIMS_OBJ(object):
             G_N[0], G_N[-1], G_D[0], G_D[-1],
             B_N[0], B_N[-1], B_D[0], B_D[-1],
         )
-        print desc
 
         min_RGB_ND = np.min([
             np.min(R_N), np.min(R_D),
@@ -272,10 +285,14 @@ class VIMS_OBJ(object):
         img_B[img_B_D < 1.e-2] = np.nan
         
         if eq:
-            max_RGB = np.max([np.max(img_R), np.max(img_G), np.max(img_B)])
+            over_expo = (img_R < -1.e10) | (img_G < -1.e10) | (img_B < -1.e10)
+            max_RGB = np.nanmax([np.nanmax(img_R), np.nanmax(img_G), np.nanmax(img_B)])
             img_R = clipIMG(img_R, imin=0, imax=max_RGB)
             img_G = clipIMG(img_G, imin=0, imax=max_RGB)
             img_B = clipIMG(img_B, imin=0, imax=max_RGB)
+            img_R[over_expo] = 255
+            img_G[over_expo] = 255
+            img_B[over_expo] = 255
         else:
             img_R = clipIMG(img_R)
             img_G = clipIMG(img_G)
@@ -330,7 +347,7 @@ class VIMS_OBJ(object):
     def quicklook_RGBR_158_128_204_128_128_107(self):
         '''Quicklook @ (1.58/1.28, 2.04/1.28, 1.28/1.07) um
         [138-141/120-122, 166-169/120-122, 120-122/108-109]'''
-        name = 'RGBR_158_128_204_128_128_107'
+        name = '158_128_204_128_128_107'
         R_N = range(138, 141+1)
         R_D = range(120, 122+1)
         G_N = range(166, 169+1)
@@ -340,6 +357,78 @@ class VIMS_OBJ(object):
         self.quicklook_RGBR(name, R_N, R_D, G_N, G_D, B_N, B_D, eq=False)
 
     @property
+    def quicklook_RGB_501_275_203(self):
+        '''Quicklook @ (5.01, 2.75, 2.03) um [339-351, 207-213, 165-169]'''
+        name = '501_275_203'
+        R = range(339, 351+1)
+        G = range(207, 213+1)
+        B = range(165, 169+1)
+        self.quicklook_RGB(name, R, G, B, eq=False)
+
+    @property
+    def quicklook_RGB_231_269_195(self):
+        '''Quicklook @ (2.31, 2.69, 1.95) um [153-201, 158-230, 140-171]'''
+        name = '231_269_195'
+        R = [153, 154, 155, 156, 157, 177, 178, 179, 180, 181,
+             182, 183, 184, 185, 186, 187, 188, 189, 190, 191,
+             192, 193, 194, 195, 196, 197, 198, 199, 200, 201]
+        G = [158, 159, 163, 164, 173, 174, 204, 205, 211, 216, 217, 218,
+             219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230]
+        B = [140, 141, 165, 166, 167, 168, 169, 170, 171]
+        self.quicklook_RGB(name, R, G, B, eq=False)
+
+    @property
+    def quicklook_R_203_210(self):
+        '''Quicklook @ 2.03/2.10 um [167/171]'''
+        name = '203_210'
+        N = [167]
+        D = [171]
+        self.quicklook_Ratio(name, N, D)
+
+    @property
+    def quicklook_G_101(self):
+        '''Quicklook @ 1.01 um [104-105]'''
+        name = '101'
+        bands = range(104, 105+1)
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_RGB_277_327_332(self):
+        '''Quicklook @ (2.77, 3.27, 3.32) um [211-212, 241-242, 244-244]'''
+        name = '277_327_332'
+        R = range(211, 212+1)
+        G = range(241, 242+1)
+        B = [244]
+        B_S = [234, 235, 236, 255, 256, 257]
+        self.quicklook_RGB(name, R, G, B, eq=False, B_S=B_S)
+
+    @property
+    def quicklook_RGB_070_056_045(self):
+        '''Quicklook @ (0.70, 0.56, 0.45) um [47-51, 27-31, 12-16]'''
+        name = '070_056_045'
+        R = range(47, 51+1)
+        G = range(27, 31+1)
+        B = range(12, 16+1)
+        self.quicklook_RGB(name, R, G, B, eq=True)
+
+    @property
+    def quicklook_G_501(self):
+        '''Quicklook @ 5.01 um [339-351]'''
+        name = '501'
+        bands = range(339, 351+1)
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_RGB_417_332_322(self):
+        '''Quicklook @ (4.17, 3.32, 3.22) um [239-351, 243-245, 238-238]'''
+        name = '417_332_322'
+        R = range(239, 351+1)
+        G = range(243, 245+1)
+        G_S = [234, 235, 236, 255, 256, 257]
+        B = [238]
+        self.quicklook_RGB(name, R, G, B, eq=False, G_S=G_S)
+
+    @property
     def quicklooks(self):
         self.quicklook_G_203
         self.quicklook_RGB_203_158_279
@@ -347,6 +436,14 @@ class VIMS_OBJ(object):
         self.quicklook_G_212
         self.quicklook_RGB_501_158_129
         self.quicklook_RGBR_158_128_204_128_128_107
+        self.quicklook_RGB_501_275_203
+        self.quicklook_RGB_231_269_195
+        self.quicklook_R_203_210
+        self.quicklook_G_101
+        self.quicklook_RGB_277_327_332
+        self.quicklook_RGB_070_056_045
+        self.quicklook_G_501
+        self.quicklook_RGB_417_332_322
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
