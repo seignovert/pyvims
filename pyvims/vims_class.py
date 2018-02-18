@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import cv2
+import piexif
 
 from ._communs import getImgID
 from .vims_nav import VIMS_NAV
@@ -95,8 +96,9 @@ class VIMS_OBJ(object):
             raise ValueError('Line too large (< %i)' % self.NL )
         return self.cube[:,L-1,S-1]
 
-    def saveJPG(self, band=97, wvln=None, imin=0, imax=None, height=256,
-                quality=65, interp=cv2.INTER_LANCZOS4, equalizer=True):
+    def saveJPG(self, img, info='', imin=0, imax=None, height=256,
+                quality=65, interp=cv2.INTER_LANCZOS4, equalizer=True,
+                fout=None):
         '''
         Save to JPG image file
 
@@ -107,7 +109,6 @@ class VIMS_OBJ(object):
         - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
         - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
         '''
-        img = self.getImg(band, wvln)
 
         if imax is None: imax = np.nanmax(img)
         img = np.clip( 255.*(img-imin)/(imax-imin),0,255)
@@ -124,8 +125,36 @@ class VIMS_OBJ(object):
             clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
             img = clahe.apply(img)
 
-        cv2.imwrite(self.root+'%s.jpg' % self.imgID, img,
-                    [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+        if fout is None:
+            fout = self.root
+        fname = fout+'%s.jpg' % self.imgID
+
+        cv2.imwrite(fname, img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+
+        piexif.insert(
+            piexif.dump({
+                '0th': {
+                    piexif.ImageIFD.Make: u'Cassini Orbiter (NASA)',
+                    piexif.ImageIFD.Model: u'Visual and Infrared Mapping Spectrometer(VIMS)',
+                    piexif.ImageIFD.ImageNumber: int(self.imgID.split('_')[0]),
+                    piexif.ImageIFD.ImageDescription: u'%s - %s %s' % (
+                        self.imgID,
+                        self.target,
+                        null
+                    ),
+                    piexif.ImageIFD.DateTime: self.dtime.strftime('%Y:%m:%d %H:%M:%S'),
+                    piexif.ImageIFD.XResolution: (self.NS, 1),
+                    piexif.ImageIFD.YResolution: (self.NL, 1),
+                    piexif.ImageIFD.Copyright: u'NASA/Univ. Arizona/LPG Nantes',
+                },
+                '1st': {},
+                'Exif': {},
+                'GPS': {},
+                'Interop': {},
+                'thumbnail': None
+            }
+        ), fname)
+
         cv2.destroyAllWindows()
         return
 

@@ -17,6 +17,8 @@ setup(name='pyvims',
       install_requires=[
           'numpy',
           'datetime',
+          'cv2',
+          'piexif',
           'geojson',
           'spiceypy',
       ],
