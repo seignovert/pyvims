@@ -139,7 +139,10 @@ class VIMS_OBJ(object):
         fout = os.path.join(self.root, 'quicklooks')
         if not os.path.isdir(fout):
             os.mkdir(fout)
-        self.saveJPG(img, desc, fout, suffix='-'+name)
+        fout = os.path.join(fout, name)
+        if not os.path.isdir(fout):
+            os.mkdir(fout)
+        self.saveJPG(img, desc, fout)
 
     def getBands(self, bands):
         '''Get the mean image and wavlength for a list bands'''
