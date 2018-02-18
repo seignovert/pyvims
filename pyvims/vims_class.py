@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import piexif
 
-from ._communs import getImgID
+from ._communs import getImgID, clipIMG
 from .vims_nav import VIMS_NAV
 from .spice_geojson import SPICE_GEOJSON
 
@@ -73,10 +73,6 @@ class VIMS_OBJ(object):
             return self.getBand(band)
         return self.getWvln(wvln)
 
-    def getImg(self, band=97, wvln=None):
-        '''Get image at specific band or wavelength'''
-        return self.cube[self.getIndex(band,wvln),:,:]
-
     def getSpec(self, S=1, L=1):
         '''Get spectra at specific pixel location
         Note:
@@ -96,12 +92,13 @@ class VIMS_OBJ(object):
             raise ValueError('Line too large (< %i)' % self.NL )
         return self.cube[:,L-1,S-1]
 
-    def saveJPG(self, img, info='', imin=0, imax=None, height=256,
-                quality=65, interp=cv2.INTER_LANCZOS4, equalizer=True,
-                fout=None):
-        '''
-        Save to JPG image file
+    def getImg(self, band=97, wvln=None):
+        '''Get image at specific band or wavelength'''
+        return self.cube[self.getIndex(band, wvln), :, :]
 
+    def imgInterp(self, img, imin=0, imax=None, height=256,
+                  interp=cv2.INTER_LANCZOS4, equalizer=True):
+        '''
         Interpolation:
         - INTER_NEAREST - a nearest-neighbor interpolation
         - INTER_LINEAR - a bilinear interpolation (used by default)
@@ -109,28 +106,34 @@ class VIMS_OBJ(object):
         - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
         - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
         '''
-
-        if imax is None: imax = np.nanmax(img)
-        img = np.clip( 255.*(img-imin)/(imax-imin),0,255)
-        img = np.uint8(img)
+        if img.dtype != 'uint8':
+            img = clipIMG(img, imin, imax)
 
         if not height is None:
             hr = 2 if self.mode[0] == 'HI-RES' else 1
             width = (height * self.NL) / self.NS / hr
-
             img = cv2.resize(img, (width, height), interpolation=interp)
         
         if equalizer:
             # Create a CLAHE object.
             clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
             img = clahe.apply(img)
+        return img
+
+    def saveJPG(self, img, info='', fout=None, quality=65):
+        '''Save to JPG image file'''
+        if img.dtype != 'uint8':
+            img = clipIMG(img)
 
         if fout is None:
             fout = self.root
-        fname = fout+'%s.jpg' % self.imgID
+        fname = fout + self.imgID + '.jpg'
 
         cv2.imwrite(fname, img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+        cv2.destroyAllWindows()
+        self.saveExif(fname, info)
 
+    def saveExif(self, fname, desc=''):
         piexif.insert(
             piexif.dump({
                 '0th': {
@@ -140,7 +143,7 @@ class VIMS_OBJ(object):
                     piexif.ImageIFD.ImageDescription: u'%s - %s %s' % (
                         self.imgID,
                         self.target,
-                        null
+                        desc
                     ),
                     piexif.ImageIFD.DateTime: self.dtime.strftime('%Y:%m:%d %H:%M:%S'),
                     piexif.ImageIFD.XResolution: (self.NS, 1),
@@ -154,9 +157,6 @@ class VIMS_OBJ(object):
                 'thumbnail': None
             }
         ), fname)
-
-        cv2.destroyAllWindows()
-        return
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
