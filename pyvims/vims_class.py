@@ -226,6 +226,66 @@ class VIMS_OBJ(object):
 
         self.saveQuicklook('RGB_'+name, img, desc)
 
+    def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D, eq=True):
+        '''
+        Quicklook - RGB based on ratios
+
+        eq: Global RGB channels equalizer on I/F values before binning [0-255]
+        '''
+        img_R_N, wvln_R_N = self.getBands(R_N)
+        img_G_N, wvln_G_N = self.getBands(G_N)
+        img_B_N, wvln_B_N = self.getBands(B_N)
+        img_R_D, wvln_R_D = self.getBands(R_D)
+        img_G_D, wvln_G_D = self.getBands(G_D)
+        img_B_D, wvln_B_D = self.getBands(B_D)
+
+        desc = '@ (%.2f/%.2f, %.2f/%.2f, %.2f/%.2f) um ' % (
+            wvln_R_N, wvln_R_D,
+            wvln_G_N, wvln_G_D,
+            wvln_B_N, wvln_B_D
+        )
+        desc += '[%i-%i/%i-%i, %i-%i/%i-%i, %i-%i/%i-%i]' % (
+            R_N[0], R_N[-1], R_D[0], R_D[-1],
+            G_N[0], G_N[-1], G_D[0], G_D[-1],
+            B_N[0], B_N[-1], B_D[0], B_D[-1],
+        )
+        print desc
+
+        min_RGB_ND = np.min([
+            np.min(R_N), np.min(R_D),
+            np.min(G_N), np.min(G_D),
+            np.min(B_N), np.min(B_D),
+        ])
+        hr = self.HR(min_RGB_ND)
+        img_R_N = imgInterp(img_R_N, hr=hr, equalizer=False)
+        img_G_N = imgInterp(img_G_N, hr=hr, equalizer=False)
+        img_B_N = imgInterp(img_B_N, hr=hr, equalizer=False)
+        img_R_D = imgInterp(img_R_D, hr=hr, equalizer=False)
+        img_G_D = imgInterp(img_G_D, hr=hr, equalizer=False)
+        img_B_D = imgInterp(img_B_D, hr=hr, equalizer=False)
+
+        img_R = img_R_N / img_R_D
+        img_G = img_G_N / img_G_D
+        img_B = img_B_N / img_B_D
+        img_R[img_R_D < 1.e-2] = np.nan
+        img_G[img_G_D < 1.e-2] = np.nan
+        img_B[img_B_D < 1.e-2] = np.nan
+        
+        if eq:
+            max_RGB = np.max([np.max(img_R), np.max(img_G), np.max(img_B)])
+            img_R = clipIMG(img_R, imin=0, imax=max_RGB)
+            img_G = clipIMG(img_G, imin=0, imax=max_RGB)
+            img_B = clipIMG(img_B, imin=0, imax=max_RGB)
+        else:
+            img_R = clipIMG(img_R)
+            img_G = clipIMG(img_G)
+            img_B = clipIMG(img_B)
+
+        img = cv2.merge([img_B, img_G, img_R])  # BGR in cv2
+        img = imgInterp(img, hr=hr, height=None)
+
+        self.saveQuicklook('RGBR_'+name, img, desc)
+
     @property
     def quicklook_G_203(self):
         '''Quicklook @ 2.03 um [165-169]'''
@@ -263,8 +323,21 @@ class VIMS_OBJ(object):
         name = '501_158_129'
         R = range(339, 351+1)
         G = range(138, 141+1)
-        B = [121, 122]
+        B = range(121, 122+1)
         self.quicklook_RGB(name, R, G, B, eq=False)
+
+    @property
+    def quicklook_RGBR_158_128_204_128_128_107(self):
+        '''Quicklook @ (1.58/1.28, 2.04/1.28, 1.28/1.07) um
+        [138-141/120-122, 166-169/120-122, 120-122/108-109]'''
+        name = 'RGBR_158_128_204_128_128_107'
+        R_N = range(138, 141+1)
+        R_D = range(120, 122+1)
+        G_N = range(166, 169+1)
+        G_D = range(120, 122+1)
+        B_N = range(120, 122+1)
+        B_D = range(108, 109+1)
+        self.quicklook_RGBR(name, R_N, R_D, G_N, G_D, B_N, B_D, eq=False)
 
     @property
     def quicklooks(self):
@@ -273,6 +346,7 @@ class VIMS_OBJ(object):
         self.quicklook_R_159_126
         self.quicklook_G_212
         self.quicklook_RGB_501_158_129
+        self.quicklook_RGBR_158_128_204_128_128_107
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''
