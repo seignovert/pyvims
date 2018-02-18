@@ -153,15 +153,54 @@ class VIMS_OBJ(object):
             wvln.append(self.wvlns[index])
         return np.nanmean(img, axis=0), np.mean(wvln)
 
-    @property
-    def quicklook_203(self):
-        '''Quicklook @ 2.03 um [165-169]'''
-        name = '203'
-        bands = range(165, 169+1)
+    def quicklook_Gray(self, name, bands):
+        '''Quicklook - Gray image from bands'''
         img, wvln = self.getBands(bands)
         desc = '@ %.2f um [%i-%i]' % (wvln, bands[0], bands[-1])
-        hr = self.mode[0] # IR mode
-        self.saveQuicklook(name, img, desc, hr)
+        hr = self.mode[0] if np.min(bands) > 97 else self.mode[1] # IR|VIS mode
+        self.saveQuicklook('G_'+name, img, desc, hr)
+
+    def quicklook_RGB(self, name, R, G, B):
+        '''Quicklook - RGB'''
+        img_R, wvln_R = self.getBands(R)
+        img_G, wvln_G = self.getBands(G)
+        img_B, wvln_B = self.getBands(B)
+
+        max_R = np.max(img_R)
+        max_G = np.max(img_G)
+        max_B = np.max(img_B)
+        max_RGB = np.max([max_R, max_G, max_B])
+
+        img_R = clipIMG(img_R, imin=0, imax=max_RGB)
+        img_G = clipIMG(img_G, imin=0, imax=max_RGB)
+        img_B = clipIMG(img_B, imin=0, imax=max_RGB)
+
+        img = cv2.merge([img_B, img_G, img_R]) # BGR in cv2
+
+        desc = '@ (%.2f, %.2f, %.2f) um [%i-%i, %i-%i, %i-%i]' % (
+            wvln_R, wvln_G, wvln_B,
+            R[0], R[-1], G[0], G[-1], B[0], B[-1]
+            )
+
+        min_RGB = np.min([np.min(R), np.min(G), np.min(B)])
+        hr = self.mode[0] if min_RGB > 97 else self.mode[1] # IR|VIS mode
+        self.saveQuicklook('RGB_'+name, img, desc, hr)
+
+    @property
+    def quicklook_G_203(self):
+        '''Quicklook @ 2.03 um [165-169]'''
+        name = 'G_203'
+        bands = range(165, 169+1)
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_RGB_203_158_279(self):
+        '''Quicklook @ (2.03, 1.58, 2.79) um [165-169, 138-141, 212-213]'''
+        name = '203_158_279'
+        R = range(165, 169+1)
+        G = range(138, 141+1)
+        B = range(212, 213+1)
+        self.quicklook_RGB(name, R, G, B)
 
     def saveGEOJSON(self):
         '''Save field of view into a geojson file'''

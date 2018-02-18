@@ -49,5 +49,14 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
     if equalizer:
         # Create a CLAHE object.
         clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
-        img = clahe.apply(img)
+        if len(img.shape) == 2: # GRAY
+            img = clahe.apply(img)
+        elif len(img.shape) == 3:  # RGB [https://stackoverflow.com/a/47370615]
+            lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+            lab_planes = cv2.split(lab)
+            lab_planes[0] = clahe.apply(lab_planes[0])
+            lab = cv2.merge(lab_planes)
+            img = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+        else:
+            raise ValueError('Image shape must be 2 or 3')
     return img
