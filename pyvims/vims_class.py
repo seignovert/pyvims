@@ -158,7 +158,7 @@ class VIMS_OBJ(object):
 
     def HR(self, band):
         '''Extract acquisition mode'''
-        return self.mode[0] if band > 97 else self.mode[1]  # IR|VIS mode
+        return self.mode['IR'] if band > 97 else self.mode['VIS']  # IR|VIS mode
 
     def quicklook_Gray(self, name, bands):
         '''Quicklook - Gray image from bands'''
