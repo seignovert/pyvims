@@ -12,14 +12,14 @@ from .vims_lbl   import VIMS_LBL
 
 class VIMS(object):
     '''Polymorphic VIMS class based on input file'''
-    def __new__(cls, imgID, root='', ir=True):
+    def __new__(cls, imgID, root=''):
         try:
             inst = VIMS_TEAM.__new__(VIMS_TEAM)
             inst.__init__(imgID, root)
         except NameError:
             try:
                 inst = VIMS_ISIS3.__new__(VIMS_ISIS3)
-                inst.__init__(imgID, root, ir)
+                inst.__init__(imgID, root)
             except NameError:
                 try:
                     inst = VIMS_QUB.__new__(VIMS_QUB)
