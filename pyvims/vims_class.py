@@ -13,6 +13,8 @@ class VIMS_OBJ(object):
     def __init__(self,imgID, root=''):
         self.imgID = getImgID(imgID)
         self.root  = root
+        self.quicklooks_dir = os.path.join(self.root, 'quicklooks')
+        self.quicklooks_subdir = None
         return
 
     def __repr__(self):
@@ -96,6 +98,36 @@ class VIMS_OBJ(object):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
 
+    def getBands(self, bands):
+        '''Get the mean image and wavlength for a list bands'''
+        if isinstance(bands, int):
+            bands = [bands]
+        img = []
+        wvln = []
+        for band in bands:
+            index = self.getBand(band)
+            img.append(self.cube[index, :, :])
+            wvln.append(self.wvlns[index])
+        return np.nanmean(img, axis=0), np.mean(wvln)
+
+    def HR(self, band):
+        '''Extract acquisition mode'''
+        return self.mode['IR'] if band > 97 else self.mode['VIS']  # IR|VIS mode
+
+    def jpgQuicklook(self, name, img, desc):
+        '''Save image quicklook'''
+        fout = self.quicklooks_dir
+        if not os.path.isdir(fout):
+            os.mkdir(fout)
+        fout = os.path.join(fout, name)
+        if not os.path.isdir(fout):
+            os.mkdir(fout)
+        if self.quicklooks_subdir:
+            fout = os.path.join(fout, self.quicklooks_subdir)
+            if not os.path.isdir(fout):
+                os.mkdir(fout)
+        self.saveJPG(img, desc, fout)
+
     def saveJPG(self, img, info='', fout=None, suffix='', quality=65):
         '''Save to JPG image file'''
         if img.dtype != 'uint8':
@@ -107,9 +139,9 @@ class VIMS_OBJ(object):
 
         cv2.imwrite(fname, img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
         cv2.destroyAllWindows()
-        self.saveExif(fname, info)
+        self.jpgExif(fname, info)
 
-    def saveExif(self, fname, desc=''):
+    def jpgExif(self, fname, desc=''):
         piexif.insert(
             piexif.dump({
                 '0th': {
@@ -134,32 +166,6 @@ class VIMS_OBJ(object):
             }
         ), fname)
 
-    def saveQuicklook(self, name, img, desc):
-        '''Save image quicklook'''
-        fout = os.path.join(self.root, 'quicklooks')
-        if not os.path.isdir(fout):
-            os.mkdir(fout)
-        fout = os.path.join(fout, name)
-        if not os.path.isdir(fout):
-            os.mkdir(fout)
-        self.saveJPG(img, desc, fout)
-
-    def getBands(self, bands):
-        '''Get the mean image and wavlength for a list bands'''
-        if isinstance(bands, int):
-            bands = [bands]
-        img = []
-        wvln = []
-        for band in bands:
-            index = self.getBand(band)
-            img.append(self.cube[index, :, :])
-            wvln.append(self.wvlns[index])
-        return np.nanmean(img, axis=0), np.mean(wvln)
-
-    def HR(self, band):
-        '''Extract acquisition mode'''
-        return self.mode['IR'] if band > 97 else self.mode['VIS']  # IR|VIS mode
-
     def quicklook_Gray(self, name, bands):
         '''Quicklook - Gray image from bands'''
         img, wvln = self.getBands(bands)
@@ -171,7 +177,7 @@ class VIMS_OBJ(object):
 
         min_band = np.min(bands)
         img = imgInterp(img, hr=self.HR(min_band) )
-        self.saveQuicklook('G_'+name, img, desc)
+        self.jpgQuicklook('G_'+name, img, desc)
 
     def quicklook_Ratio(self, name, N, D):
         '''Quicklook - Gray ratio image from bands'''
@@ -195,7 +201,7 @@ class VIMS_OBJ(object):
         img[img_D < 1.e-2] = np.nan
         img = imgInterp(img, hr=hr, height=None)
 
-        self.saveQuicklook('R_'+name, img, desc)
+        self.jpgQuicklook('R_'+name, img, desc)
 
     def quicklook_RGB(self, name, R, G, B, eq=True, R_S=None, G_S=None, B_S=None):
         '''
@@ -241,7 +247,7 @@ class VIMS_OBJ(object):
         min_RGB = np.min([np.min(R), np.min(G), np.min(B)])
         img = imgInterp(img, hr=self.HR(min_RGB))
 
-        self.saveQuicklook('RGB_'+name, img, desc)
+        self.jpgQuicklook('RGB_'+name, img, desc)
 
     def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D, eq=True):
         '''
@@ -304,7 +310,7 @@ class VIMS_OBJ(object):
         img = cv2.merge([img_B, img_G, img_R])  # BGR in cv2
         img = imgInterp(img, hr=hr, height=None)
 
-        self.saveQuicklook('RGBR_'+name, img, desc)
+        self.jpgQuicklook('RGBR_'+name, img, desc)
 
     @property
     def quicklook_G_203(self):
@@ -431,8 +437,12 @@ class VIMS_OBJ(object):
         B = [238]
         self.quicklook_RGB(name, R, G, B, eq=False, G_S=G_S)
 
-    @property
-    def quicklooks(self):
+    def saveQuicklooks(self, dir_out=None, subdir=None):
+        if dir_out:
+            self.quicklooks_dir = dir_out
+        if subdir:
+            self.quicklooks_subdir = subdir
+
         self.quicklook_G_203
         self.quicklook_RGB_203_158_279
         self.quicklook_R_159_126
@@ -448,7 +458,9 @@ class VIMS_OBJ(object):
         self.quicklook_G_501
         self.quicklook_RGB_417_332_322
 
-    def saveGEOJSON(self):
+    def saveGEOJSON(self, fout=None):
         '''Save field of view into a geojson file'''
-        SPICE_GEOJSON(self.target, self.time).save(fout=self.root+self.imgID)
+        if not fout:
+            fout = self.root+self.imgID
+        SPICE_GEOJSON(self.target, self.time).save(fout=fout)
         return
