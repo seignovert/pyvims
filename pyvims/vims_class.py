@@ -434,10 +434,10 @@ class VIMS_OBJ(object):
         self.quicklook_Gray(name, bands)
 
     @property
-    def quicklook_RGB_417_332_322(self):
-        '''Quicklook @ (4.17, 3.32, 3.22) um [239-351, 243-245, 238-238]'''
-        name = '417_332_322'
-        R = range(239, 351+1)
+    def quicklook_RGB_501_332_322(self):
+        '''Quicklook @ (5.01, 3.32, 3.22) um [339-351, 243-245, 238-238]'''
+        name = '501_332_322'
+        R = range(339, 351+1)
         G = range(243, 245+1)
         G_S = [234, 235, 236, 255, 256, 257]
         B = [238]
@@ -462,7 +462,7 @@ class VIMS_OBJ(object):
         self.quicklook_RGB_277_327_332
         self.quicklook_RGB_070_056_045
         self.quicklook_G_501
-        self.quicklook_RGB_417_332_322
+        self.quicklook_RGB_501_332_322
 
     def saveGEOJSON(self, fout=None):
         '''Save field of view into a geojson file'''
