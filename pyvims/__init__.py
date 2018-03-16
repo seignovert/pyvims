@@ -8,6 +8,7 @@ from .vims_qub import VIMS_QUB
 from .vims_lbl import VIMS_LBL
 
 from .vims_nav import VIMS_NAV
+from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .vims_nav_geojson import VIMS_NAV_GEOJSON
 
 from .spice_cassini import SPICE_CASSINI

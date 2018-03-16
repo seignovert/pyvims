@@ -6,6 +6,7 @@ import piexif
 
 from ._communs import getImgID, clipIMG, imgInterp
 from .vims_nav import VIMS_NAV
+from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
 
 class VIMS_OBJ(object):
@@ -41,16 +42,21 @@ class VIMS_OBJ(object):
     def setNAV(self):
         try:
             nav = VIMS_NAV(self.imgID, self.root)
-            self.lon = nav.lon
-            self.lat = nav.lat
-            self.inc = nav.inc
-            self.eme = nav.eme
-            self.phase = nav.phase
-            self.res = nav.res
-            self.limb = nav.nan
-            self.specular = nav.specular
         except NameError:
-            print "WARNING: NAV file not found"
+            try:
+                nav = VIMS_NAV_ISIS3(self.imgID, self.root)
+            except NameError:
+                print "WARNING: NAV file not found"
+                return
+
+        self.lon = nav.lon
+        self.lat = nav.lat
+        self.inc = nav.inc
+        self.eme = nav.eme
+        self.phase = nav.phase
+        self.res = nav.res
+        self.limb = nav.nan
+        self.specular = nav.specular
         return
 
     def getBand(self, band):
