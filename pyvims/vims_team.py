@@ -42,7 +42,7 @@ class VIMS_TEAM(VIMS_OBJ):
         self.expo = {'IR': self.lbl['QUBE']['EXPOSURE_DURATION'][0], 'VIS': self.lbl['QUBE']['EXPOSURE_DURATION'][1]}
         self.mode = {'IR': self.lbl['QUBE']['SAMPLING_MODE_ID'][0], 'VIS': self.lbl['QUBE']['SAMPLING_MODE_ID'][1]}
         self.seq    = self.lbl['QUBE']['SEQUENCE_ID']
-        self.stitle = self.lbl['QUBE']['SEQUENCE_TITLE']
+        self.seq_title = self.lbl['QUBE']['SEQUENCE_TITLE']
         self.start  = self.lbl['QUBE']['START_TIME']
         self.stop   = self.lbl['QUBE']['STOP_TIME']
         self.dtime  = (self.stop - self.start)/2 + self.start

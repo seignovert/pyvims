@@ -40,7 +40,7 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
         self.inst = self.lbl['Instrument']['InstrumentId']
         self.target = self.lbl['Instrument']['TargetName']
         self.seq = self.lbl['Archive']['SequenceId']
-        self.seq_title = self.lbl['Archive']['SequenceId']
+        self.seq_title = self.lbl['Archive']['SequenceTitle']
         self.start = self.lbl['Instrument']['StartTime']
         self.stop = self.lbl['Instrument']['StopTime']
         self.dtime = (self.stop - self.start)/2 + self.start

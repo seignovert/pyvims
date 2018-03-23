@@ -52,7 +52,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.expo   = {key: val for val, key in self.lbl['Instrument']['ExposureDuration']}      
         self.mode   = {'IR': self.lbl['Instrument']['SamplingMode'], 'VIS': self.lbl_vis['Instrument']['SamplingMode']}
         self.seq    = self.lbl['Archive']['SequenceId']
-        self.seq_title = self.lbl['Archive']['SequenceId']
+        self.seq_title = self.lbl['Archive']['SequenceTitle']
         self.start  = self.lbl['Instrument']['StartTime']
         self.stop   = self.lbl['Instrument']['StopTime']
         self.dtime  = (self.stop - self.start)/2 + self.start
