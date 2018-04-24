@@ -46,7 +46,7 @@ class VIMS_OBJ(object):
             try:
                 nav = VIMS_NAV_ISIS3(self.imgID, self.root)
             except NameError:
-                print "WARNING: NAV file not found"
+                print("WARNING: NAV file not found")
                 return
 
         self.lon = nav.lon

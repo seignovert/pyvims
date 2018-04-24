@@ -343,4 +343,4 @@ class VIMS_NAV_GEOJSON(VIMS_NAV, SPICE_GEOJSON):
                     ])
                 )
         if verbose:
-            print "GeoJSON created: " + fname
+            print("GeoJSON created: %s" % fname)
