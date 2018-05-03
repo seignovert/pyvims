@@ -1,30 +1,31 @@
-.. image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
-    :alt: PyPI - Status
-.. image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
-    :alt: PyPI - Version
-.. image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
-    :alt: PyPI - Python Version
-.. image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
-    :alt: PyPI - License
-
+===============================
 PyVIMS
-======
+===============================
+|PyPI| |Status| |Version| |Python| |License|
+
+.. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg
+        :target: https://pypi.python.org/seignovert/pyvims
+.. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
+.. |Version| image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
+.. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
+.. |License| image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
+
 Python package to manipulate the Cassini VIMS data.
 
 Install
 -------
 With ``pip``:
 
-.. code-block:: console
+.. code:: bash
 
-    pip install pyvims
+    $ pip install pyvims
 
 With the ``source files``:
 
-.. code-block:: console
+.. code:: bash
 
-    git clone https://github.com/seignovert/pyvims.git
-    cd pyvims ; python setup.py install
+    $ git clone https://github.com/seignovert/pyvims.git
+    $ cd pyvims ; python setup.py install
 
 Testing
 -------
@@ -38,12 +39,12 @@ Examples
 --------
 Download test files (ISIS3 cubes of ``1487096932_1``):
 
-.. code-block:: console
+.. code:: bash
 
-    wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_vis.cub
-    wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_ir.cub
-    wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_vis.cub
-    wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_ir.cub
+    $ wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_vis.cub
+    $ wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_ir.cub
+    $ wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_vis.cub
+    $ wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_ir.cub
 
 To use, simply do:
 
