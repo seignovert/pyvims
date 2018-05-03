@@ -11,7 +11,7 @@ def readme():
         return f.read()
 
 setup(name='pyvims',
-      version='0.1.1',
+      version='0.1.2',
       description='Python package to manipulate the Cassini VIMS data.',
       long_description=readme(),
       classifiers=[

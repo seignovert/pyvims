@@ -55,12 +55,21 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
         '''Read VIMS geocube data'''
         cube = np.array(CubeFile.open(self.fname).data)
 
-        self.lat = cube[0]  # Pixel central latitude [North]
-        self.lon = cube[1]  # % 360 # Pixel central longitude [East]
-        self.res = cube[2]  # Phase angle [deg]
-        self.inc = cube[3]  # Incidence angle [deg]
-        self.eme = cube[4]  # Emission angle [deg]
-        self.phase = cube[5]  # Phase angle [deg]
+        for ii, frame in enumerate(self.lbl['BandBin']['Name']):
+            if frame == 'Latitude':
+                self.lat = cube[ii]  # Pixel central latitude [North]
+            elif frame == 'Longitude':
+                self.lon = cube[ii]  # % 360 # Pixel central longitude [East]
+            elif frame == 'Pixel Resolution':
+                self.res = cube[ii]*1.e-3  # Pixel resolution [km/pix]
+            elif frame == 'Incidence Angle':
+                self.inc = cube[ii]  # Incidence angle [deg]
+            elif frame == 'Emission Angle':
+                self.eme = cube[ii]  # Emission angle [deg]
+            elif frame == 'Phase Angle':
+                self.phase = cube[ii]  # Phase angle [deg]
+            else:
+                raise ValueError('ISIS NAV frame name (%s) is unknown' % frame)
 
         self.nan = (self.lon < NaN)
         self.lon[self.nan] = np.nan
