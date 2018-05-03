@@ -11,11 +11,10 @@ def readme():
         return f.read()
 
 setup(name='pyvims',
-      version='0.1.3',
       description='Python package to manipulate the Cassini VIMS data.',
       long_description=readme(),
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 3 - Alpha',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.6',
@@ -29,6 +28,8 @@ setup(name='pyvims',
       license='MIT',
       keywords='nasa cassini vims titan',
       packages=['pyvims'],
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
       install_requires=[
           'numpy',
           'datetime',

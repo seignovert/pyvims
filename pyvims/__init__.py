@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 '''Python package to manipulate the Cassini VIMS data.'''
 
+from ._info import __version__,__author__,__license__
+
 from .vims import VIMS
 from .vims_team import VIMS_TEAM
 from .vims_isis3 import VIMS_ISIS3
