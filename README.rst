@@ -1,8 +1,10 @@
 ===============================
 PyVIMS
 ===============================
-|PyPI| |Status| |Version| |Python| |License|
+|Build| |PyPI| |Status| |Version| |Python| |License|
 
+.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=master
+        :target: https://travis-ci.org/seignovert/pyvims
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg
         :target: https://pypi.python.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
