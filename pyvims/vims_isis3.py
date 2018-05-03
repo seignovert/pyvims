@@ -67,7 +67,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.wvlns_vis = np.array(self.lbl_vis['BandBin']['Center'])
         self.bands_vis = np.array(self.lbl_vis['BandBin']['OriginalBand'])
 
-        self.shift_ir = np.mean(cub.lbl['BandBin']['MissionAverage'] - self.wvln_ir)
+        self.shift_ir = np.mean(self.lbl['BandBin']['MissionAverage'] - self.wvlns_ir)
 
         self.wvlns = np.concatenate((self.wvlns_vis, self.wvlns_ir), axis=0)
         self.bands = np.concatenate((self.bands_vis, self.bands_ir), axis=0)
