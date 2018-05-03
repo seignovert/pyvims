@@ -11,7 +11,7 @@ def readme():
         return f.read()
 
 setup(name='pyvims',
-      version='0.1.2',
+      version='0.1.3',
       description='Python package to manipulate the Cassini VIMS data.',
       long_description=readme(),
       classifiers=[
@@ -19,9 +19,8 @@ setup(name='pyvims',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3.6',
-          'Topic:: Scientific/Engineering:: Planetary Sciences',
-          'Topic:: Scientific/Engineering:: Atmospheric Science',
-          'Topic:: Scientific/Engineering:: Astronomy',
+          'Topic :: Scientific/Engineering :: Atmospheric Science',
+          'Topic :: Scientific/Engineering :: Astronomy',
           'Intended Audience :: Science/Research',
       ],
       url='http://github.com/seignovert/pyvims',

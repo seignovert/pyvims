@@ -4,7 +4,7 @@ PyVIMS
 |PyPI| |Status| |Version| |Python| |License|
 
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg
-        :target: https://pypi.python.org/seignovert/pyvims
+        :target: https://pypi.python.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
 .. |Version| image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
 .. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
