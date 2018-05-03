@@ -1,52 +1,23 @@
 language: python
-sudo: false
-matrix:
-  include:
-  - os: linux
-    dist: trusty
-    python: 2.7
-  - os: linux
-    dist: trusty
-    python: 3.5
-  - os: linux
-    dist: trusty
-    python: 3.6
-  - os: osx
-    language: generic
-    env: PYVERSION='2.7.13'
-  - os: osx
-    language: generic
-    env: PYVERSION='3.5.4'
-  - os: osx
-    language: generic
-    env: PYVERSION='3.6.0'
-before_install:
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew outdated | grep -q pyenv && brew upgrade
-  pyenv || true; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then eval "$(pyenv init -)"; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then pyenv install $PYVERSION; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then pyenv global $PYVERSION; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then pyenv versions; fi
-- if [ "$TRAVIS_OS_NAME" == "osx" ]; then python --version; fi
-- pip install -U pip
-- pip install -U wheel
-- pip wheel numpy
-- pip install numpy
-- pip install twine
-- pip install -r requirements.txt
+python: '3.6'
+env:
+  matrix:
+  - TOXENV=py27
+  - TOXENV=py35
+  - TOXENV=py36
 install:
-- python setup.py install
+- pip install tox
 script:
-- py.test --cov-report html --cov=pyvims tests/
+- tox
+matrix:
+  fast_finish: true
 deploy:
   provider: pypi
   user: seignovert
+  distributions: sdist bdist_wheel
   password:
     secure: E3tHeRrWoAKcZwF3r96mXiJFmjtVikyX27hPPzWOyK4UYJVMWe6VuhdtYvAvx/QSHxgV6ep0+Co8G0D4MnF5q6B8o+/9OgUG2aCYzeA91NBWeiHwawsVyS2rXAzYlc/YaSuGsPPkHg/lxScF9SPEpuQUGJPwR3QIXsJW8GdA2SohYkK3SvMI6mecV1goyvmKLDgPUIAQBAa0gbmNOsvkUabz9U4K3Gr/zuFMIobdYCcsRccRJFdGhz4ymrbfDZZCAKEguHJ3qyZXFgxKs4deF9boSB5zwQLmbWBYqmHaMNoEkdH0XiVKbiGiuoB3kBcXP+YRKI5wVjynVydBw7keSdpLaFZVCmSTcPHxRgwkNoISx826/sARf2EFLYEBAN2imxcAml/cn30GGypEsSByJyPdvQYnFABUzkm77gx2NbTvp6OL+nDFn87b/528qNS5TKiDIVtZOz77MlhjhalEDzF8lq4bKf4TgTJlgfGji0513omaH2pi24jsF521L/JifcrpE18KmHr3EYgCN3qvl5xrp+ht8qO+ISi6Tn/kQjSm7ny+DGSsoYeEAxKSu/FqO+087nFVq5ylZ7waonzPGEH1gxOkNwTmGJgjCJJHbY6qT7YV9iXd9MeKwtwhY4bEE0tBaIzjDEwyV1VCsmADZBBCYVLY0M4MNJSCjgU/O44=
-  distributions: "sdist bdist_wheel"
   on:
     tags: true
-    branch: master
     repo: seignovert/pyvims
-    
+    condition: "$TOXENV = py36"

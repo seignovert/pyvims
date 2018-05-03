@@ -1,0 +1,6 @@
+coverage
+flake8
+mock
+pbr
+pytest
+pytest-cov
