@@ -1,9 +1,12 @@
+# Install pyvims itself
+-e .
+
 numpy
 datetime
 opencv-python
 piexif
 geojson
-spiceypy>=2.1.1
+spiceypy
 
 -e git+https://github.com/seignovert/pvl.git#egg=pvl
 -e git+https://github.com/seignovert/planetaryimage.git#egg=planetaryimage
