@@ -1,4 +1,7 @@
-:warning: This is an pre-alpha version
+.. image:: https://img.shields.io/pypi/status/pyvims.svg   :alt: PyPI - Status
+.. image:: https://img.shields.io/pypi/v/pyvims.svg   :alt: PyPI
+.. image:: https://img.shields.io/pypi/pyversions/pyvims.svg   :alt: PyPI - Python Version
+.. image:: https://img.shields.io/pypi/l/pyvims.svg   :alt: PyPI - License
 
 PyVIMS
 ======
