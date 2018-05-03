@@ -1,36 +1,46 @@
-.. warning:: This is an pre-alpha version
+:warning: This is an pre-alpha version
 
 PyVIMS
 ======
 Python package to manipulate the Cassini VIMS data.
 
-
 Install
 -------
-With ``pip``::
+With ``pip``:
+
+.. code:: bash
+
     pip install pyvims
 
-With the ``source files``::
+With the ``source files``:
+
+.. code:: bash
 
     git clone https://github.com/seignovert/pyvims.git
     cd pyvims ; python setup.py install
 
 Testing
 -------
-Check the install::
+Check the install:
+
+.. code:: python
 
     >>> from pyvims import VIMS
 
 Examples
------
-Download test files (ISIS3 cubes of ``1487096932_1``)::
+--------
+Download test files (ISIS3 cubes of ``1487096932_1``):
+
+.. code:: bash
 
     wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_vis.cub
     wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_ir.cub
     wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_vis.cub
     wget https://vims.univ-nantes.fr/data/isis/T3/N1487096932_1_ir.cub
 
-To use, simply do::
+To use, simply do:
+
+.. code:: python
 
     >>> from pyvims import VIMS
     >>> cub = VIMS('1487096932_1')
@@ -47,8 +57,8 @@ To use, simply do::
     >>> cub.NS, cub.NL
     (42, 42)
 
-Dependencies:
---------------
+Dependencies
+------------
 - Numpy
 - DateTime
 - CV2
