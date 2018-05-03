@@ -1,7 +1,11 @@
-.. image:: https://img.shields.io/pypi/status/pyvims.svg   :alt: PyPI - Status
-.. image:: https://img.shields.io/pypi/v/pyvims.svg   :alt: PyPI
-.. image:: https://img.shields.io/pypi/pyversions/pyvims.svg   :alt: PyPI - Python Version
-.. image:: https://img.shields.io/pypi/l/pyvims.svg   :alt: PyPI - License
+.. image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
+    :alt: PyPI - Status
+.. image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
+    :alt: PyPI - Version
+.. image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
+    :alt: PyPI - Python Version
+.. image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
+    :alt: PyPI - License
 
 PyVIMS
 ======
@@ -11,13 +15,13 @@ Install
 -------
 With ``pip``:
 
-.. code:: bash
+.. code-block:: console
 
     pip install pyvims
 
 With the ``source files``:
 
-.. code:: bash
+.. code-block:: console
 
     git clone https://github.com/seignovert/pyvims.git
     cd pyvims ; python setup.py install
@@ -34,7 +38,7 @@ Examples
 --------
 Download test files (ISIS3 cubes of ``1487096932_1``):
 
-.. code:: bash
+.. code-block:: console
 
     wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_vis.cub
     wget https://vims.univ-nantes.fr/data/isis/T3/C1487096932_1_ir.cub
