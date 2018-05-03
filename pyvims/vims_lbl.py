@@ -58,5 +58,3 @@ class VIMS_LBL(VIMS_OBJ):
     def readCUB(self):
         '''Read VIMS CUB data file - Empty'''
         raise NotImplementedError("LBL file does not contain data.")
-        self.cube = None
-        return
