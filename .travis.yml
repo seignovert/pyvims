@@ -12,7 +12,7 @@ jobs:
       if: tag IS present
       script: echo "Deploying to PyPI ..."
       python: 3.6
-      env: PBR_VERSION=$(git tag | tail -1 | sed -e 's/v//')
+      env: PBR_VERSION=$TRAVIS_TAG
       deploy:
         provider: pypi
         user: seignovert
