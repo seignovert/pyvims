@@ -1,7 +1,5 @@
 sudo: false
 language: python
-env:
-  - PBR_VERSION=$(git tag | tail -1 | sed -e 's/v//')
 python:
   - "2.7"
   - "3.6"
@@ -14,7 +12,7 @@ jobs:
       if: tag IS present
       script: echo "Deploying to PyPI ..."
       python: 3.6
-      env: 
+      env: PBR_VERSION=$(git tag | tail -1 | sed -e 's/v//')
       deploy:
         provider: pypi
         user: seignovert
