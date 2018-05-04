@@ -1,14 +1,11 @@
 sudo: false
 language: python
+env:
+  - PBR_VERSION=$(git tag | tail -1 | sed -e 's/v//')
 python:
   - "2.7"
   - "3.6"
-before_install:
-    - git tag
-    - git fetch --unshallow
-install:
-    - pip install tox-travis
-
+install: pip install tox-travis
 script: tox
 
 jobs:
