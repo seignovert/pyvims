@@ -9,6 +9,6 @@ except ImportError:
         "\nInstall ez_setup ([sudo] pip install ez_setup) and try again.")
 
 setup(
-    setup_requires=['pbr>=1.9', 'setuptools>=17.1'],
+    setup_requires=['pbr'],
     pbr=True,
 )
