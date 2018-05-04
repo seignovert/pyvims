@@ -1,6 +1,9 @@
 CHANGES
 =======
 
+* Fix Issue#1 to allow the loading ISIS3 VIS or IR cubes independantly
+* BugFix in image interpolation
+
 v0.2.3
 ------
 
