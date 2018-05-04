@@ -3,8 +3,10 @@ language: python
 python:
   - "2.7"
   - "3.6"
+before_install:
+    - git tag
+    - git fetch --unshallow
 install:
-    - pip install pbr
     - pip install tox-travis
 
 script: tox
@@ -15,6 +17,7 @@ jobs:
       if: tag IS present
       script: echo "Deploying to PyPI ..."
       python: 3.6
+      env: 
       deploy:
         provider: pypi
         user: seignovert
