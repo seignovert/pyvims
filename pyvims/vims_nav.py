@@ -11,9 +11,20 @@ NaN = -99999.
 np.warnings.filterwarnings('ignore')
 
 class VIMS_NAV(object):
-    def __init__(self,imgID, root=''):
+    def __init__(self, imgID, root='', ir=None):
+        '''
+        Note:
+        -----
+        By befault the navigation is calculated on the IR FOV.
+        In the cases where the acquisition VIS/IR mode are not the same,
+        the navigation will differ between the VIS and the IR FOVs.
+
+        In order to load the VIS FOV you only need to disable
+        the `ir` flag by setting it to `False`.
+        '''
         self.imgID = getImgID(imgID)
         self.root  = root
+        self.setFOV(imgID, ir)
         self.readLBL()
         self.readNAV()
         return
@@ -24,10 +35,27 @@ class VIMS_NAV(object):
     def __str__(self):
         return self.imgID
 
+    def setFOV(self, imgID, ir=None):
+        '''
+        Set the FOV flag (Default: IR=True).
+
+        Note: If the `ir` flag is unset but the `imgID` contains the
+        sub-string `vis`, then the `ir` is automatically disable.
+        '''
+        if ir is not None:
+            self.ir = ir
+        elif 'vis' in imgID:
+            self.ir = False
+        else:
+            self.ir = True
+
     @property
     def fname(self):
         '''Check if VIMS file exists.'''
-        fname = self.root + 'V' + self.imgID + '.nav'
+        if self.ir:
+            fname = self.root + 'V' + self.imgID + '.nav'
+        else:
+            raise NotImplementedError('This GeoCube is only available for the IR FOV')
         if not os.path.isfile(fname):
             raise NameError('GeoCube file %s not found' % fname)
         return fname

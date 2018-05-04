@@ -40,8 +40,31 @@ class VIMS_ISIS3(VIMS_OBJ):
 
     def readLBL(self):
         '''Read VIMS LBL header'''
-        self.lbl = pvl.load(self.fname_ir)['IsisCube']
-        self.lbl_vis = pvl.load(self.fname_vis)['IsisCube']
+        try:
+            self.lbl = pvl.load(self.fname_ir)['IsisCube']
+            sampling_IR = self.lbl['Instrument']['SamplingMode']
+            wvlns_IR = self.lbl['BandBin']['Center']
+            bands_IR = self.lbl['BandBin']['OriginalBand']
+            try:
+                lbl_vis = pvl.load(self.fname_vis)['IsisCube']
+                sampling_VIS = lbl_vis['Instrument']['SamplingMode']
+                wvlns_VIS = lbl_vis['BandBin']['Center']
+                bands_VIS = lbl_vis['BandBin']['OriginalBand']
+            except NameError:
+                sampling_VIS = None
+                wvlns_VIS = [None]*96
+                bands_VIS = [None]*96
+        except NameError:
+            sampling_IR = None
+            wvlns_IR = [None]*256
+            bands_IR = [None]*256
+            try:
+                self.lbl = pvl.load(self.fname_vis)['IsisCube']
+                sampling_VIS = self.lbl['Instrument']['SamplingMode']
+                wvlns_VIS = self.lbl['BandBin']['Center']
+                bands_VIS = self.lbl['BandBin']['OriginalBand']
+            except NameError:
+                raise NameError('Neither ISIS VIS nor IR CUB file was not found for %s' % self.imgID)
 
         self.NS     = int(self.lbl['Core']['Dimensions']['Samples'])
         self.NL     = int(self.lbl['Core']['Dimensions']['Lines'])
@@ -50,7 +73,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.inst   = self.lbl['Instrument']['InstrumentId']
         self.target = self.lbl['Instrument']['TargetName']
         self.expo   = {key: val for val, key in self.lbl['Instrument']['ExposureDuration']}      
-        self.mode   = {'IR': self.lbl['Instrument']['SamplingMode'], 'VIS': self.lbl_vis['Instrument']['SamplingMode']}
+        self.mode   = {'IR': sampling_IR, 'VIS': sampling_VIS}
         self.seq    = self.lbl['Archive']['SequenceId']
         self.seq_title = self.lbl['Archive']['SequenceTitle']
         self.start  = self.lbl['Instrument']['StartTime']
@@ -62,12 +85,13 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.year_d = self.year + (self.doy-1)/365. # Decimal year [ISSUE: doest not apply take into account bissextile years]
         self.date   = self.dtime.strftime('%Y/%m/%d')
 
-        self.wvlns_ir = np.array(self.lbl['BandBin']['Center'])
-        self.bands_ir = np.array(self.lbl['BandBin']['OriginalBand'])
-        self.wvlns_vis = np.array(self.lbl_vis['BandBin']['Center'])
-        self.bands_vis = np.array(self.lbl_vis['BandBin']['OriginalBand'])
+        self.wvlns_ir = np.array(wvlns_IR)
+        self.bands_ir = np.array(bands_VIS)
+        self.wvlns_vis = np.array(wvlns_VIS)
+        self.bands_vis = np.array(bands_VIS)
 
-        self.shift_ir = np.mean(self.lbl['BandBin']['MissionAverage'] - self.wvlns_ir)
+        if sampling_IR is not None:
+            self.shift_ir = np.mean(self.lbl['BandBin']['MissionAverage'] - self.wvlns_ir)
 
         self.wvlns = np.concatenate((self.wvlns_vis, self.wvlns_ir), axis=0)
         self.bands = np.concatenate((self.bands_vis, self.bands_ir), axis=0)
@@ -75,7 +99,15 @@ class VIMS_ISIS3(VIMS_OBJ):
 
     def readCUB(self):
         '''Read VIMS CUB data file'''
-        self.cube_vis = np.array(CubeFile.open(self.fname_vis).data)
-        self.cube_ir = np.array(CubeFile.open(self.fname_ir).data)
+        try:
+            self.cube_vis = np.array(CubeFile.open(self.fname_vis).data)
+        except NameError:
+            self.cube_vis = np.array([[[None]*self.NS]*self.NL]*96)
+
+        try:
+            self.cube_ir = np.array(CubeFile.open(self.fname_ir).data)
+        except NameError:
+            self.cube_ir = np.array([[[None]*self.NS]*self.NL]*256)
+
         self.cube = np.concatenate((self.cube_vis, self.cube_ir), axis=0)
         return

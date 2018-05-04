@@ -14,8 +14,18 @@ NaN = -99999.
 np.warnings.filterwarnings('ignore')
 
 class VIMS_NAV_ISIS3(VIMS_NAV):
-    def __init__(self,imgID, root=''):
-        VIMS_NAV.__init__(self, imgID, root=root)
+    def __init__(self,imgID, root='', ir=None):
+        '''
+        Note:
+        -----
+        By befault the navigation is calculated on the IR FOV.
+        In the cases where the acquisition VIS/IR mode are not the same,
+        the navigation will differ between the VIS and the IR FOVs.
+
+        In order to load the VIS FOV you only need to disable
+        the `ir` flag by setting it to `False`.
+        '''
+        VIMS_NAV.__init__(self, imgID, root=root, ir=ir)
         return
 
     def __repr__(self):
@@ -24,7 +34,10 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
     @property
     def fname(self):
         '''Check if VIMS file exists.'''
-        fname = self.root + 'N' + self.imgID + '_ir.cub'
+        if self.ir:
+            fname = self.root + 'N' + self.imgID + '_ir.cub'
+        else:
+            fname = self.root + 'N' + self.imgID + '_vis.cub'
         if not os.path.isfile(fname):
             raise NameError('ISIS3 GeoCube file %s not found' % fname)
         return fname
