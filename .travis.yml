@@ -11,6 +11,7 @@ jobs:
   include:
     - stage: deploy
       script: echo "Deploying to PyPI ..."
+      python: 3.6
       deploy:
         provider: pypi
         skip_cleanup: true
@@ -19,5 +20,5 @@ jobs:
             secure: E3tHeRrWoAKcZwF3r96mXiJFmjtVikyX27hPPzWOyK4UYJVMWe6VuhdtYvAvx/QSHxgV6ep0+Co8G0D4MnF5q6B8o+/9OgUG2aCYzeA91NBWeiHwawsVyS2rXAzYlc/YaSuGsPPkHg/lxScF9SPEpuQUGJPwR3QIXsJW8GdA2SohYkK3SvMI6mecV1goyvmKLDgPUIAQBAa0gbmNOsvkUabz9U4K3Gr/zuFMIobdYCcsRccRJFdGhz4ymrbfDZZCAKEguHJ3qyZXFgxKs4deF9boSB5zwQLmbWBYqmHaMNoEkdH0XiVKbiGiuoB3kBcXP+YRKI5wVjynVydBw7keSdpLaFZVCmSTcPHxRgwkNoISx826/sARf2EFLYEBAN2imxcAml/cn30GGypEsSByJyPdvQYnFABUzkm77gx2NbTvp6OL+nDFn87b/528qNS5TKiDIVtZOz77MlhjhalEDzF8lq4bKf4TgTJlgfGji0513omaH2pi24jsF521L/JifcrpE18KmHr3EYgCN3qvl5xrp+ht8qO+ISi6Tn/kQjSm7ny+DGSsoYeEAxKSu/FqO+087nFVq5ylZ7waonzPGEH1gxOkNwTmGJgjCJJHbY6qT7YV9iXd9MeKwtwhY4bEE0tBaIzjDEwyV1VCsmADZBBCYVLY0M4MNJSCjgU/O44=
         on:
             # tags: true
-            python: 3.6
+            all_branches: true
         distributions: sdist bdist_wheel
