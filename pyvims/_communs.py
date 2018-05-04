@@ -40,7 +40,7 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
     '''
     if not height is None:
         hr = 1 if hr.upper() == 'NORMAL' else 2
-        width = (height * img.shape[0]) / img.shape[1] / hr
+        width = (height * img.shape[1]) / img.shape[0] / hr
         img = cv2.resize(img, (width, height), interpolation=method)
 
     if equalizer:

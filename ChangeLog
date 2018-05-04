@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+v0.2.3
+------
+
+* Drop Tarvis support 3.5
+* Add tox setup
+
 v0.2.2
 ------
 
