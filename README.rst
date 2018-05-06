@@ -67,6 +67,10 @@ To use, simply do:
     >>> cub.NS, cub.NL
     (42, 42)
 
+For more details, take a look to the
+`Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/master/pyvims.ipynb>`_
+where more example of usage are provided.
+
 Dependencies
 ------------
 - Numpy
