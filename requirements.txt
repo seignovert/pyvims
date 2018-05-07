@@ -1,6 +1,6 @@
 numpy
 datetime
-opencv-python==3.2.0.6
+opencv-python>3.3
 piexif
 geojson
 spiceypy
