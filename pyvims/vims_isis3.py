@@ -91,7 +91,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.bands_vis = np.array(bands_VIS)
 
         if sampling_IR is not None:
-            self.shift_ir = np.mean(self.lbl['BandBin']['MissionAverage'] - self.wvlns_ir)
+            self.shift_ir = np.mean(np.subtract(self.lbl['BandBin']['MissionAverage'],self.wvlns_ir))
 
         self.wvlns = np.concatenate((self.wvlns_vis, self.wvlns_ir), axis=0)
         self.bands = np.concatenate((self.bands_vis, self.bands_ir), axis=0)
