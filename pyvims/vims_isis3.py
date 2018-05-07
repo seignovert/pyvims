@@ -52,12 +52,12 @@ class VIMS_ISIS3(VIMS_OBJ):
                 bands_VIS = lbl_vis['BandBin']['OriginalBand']
             except NameError:
                 sampling_VIS = None
-                wvlns_VIS = [None]*96
-                bands_VIS = [None]*96
+                wvlns_VIS = [np.inf]*96
+                bands_VIS = [np.inf]*96
         except NameError:
             sampling_IR = None
-            wvlns_IR = [None]*256
-            bands_IR = [None]*256
+            wvlns_IR = [np.inf]*256
+            bands_IR = [np.inf]*256
             try:
                 self.lbl = pvl.load(self.fname_vis)['IsisCube']
                 sampling_VIS = self.lbl['Instrument']['SamplingMode']
