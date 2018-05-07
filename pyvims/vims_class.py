@@ -221,13 +221,13 @@ class VIMS_OBJ(object):
 
         if R_S:
             img_R_S, wvln_R_S = self.getBands(R_S)
-            img_R = img_R - .5 * img_R
+            img_R = img_R - .5 * img_R_S
         if G_S:
             img_G_S, wvln_G_S = self.getBands(G_S)
-            img_G = img_G - .5 * img_G
+            img_G = img_G - .5 * img_G_S
         if B_S:
             img_B_S, wvln_B_S = self.getBands(B_S)
-            img_B = img_B - .5 * img_B
+            img_B = img_B - .5 * img_B_S
 
         desc = '@ (%.2f, %.2f, %.2f) um [%i-%i, %i-%i, %i-%i]' % (
             wvln_R, wvln_G, wvln_B,
