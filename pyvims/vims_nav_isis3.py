@@ -34,13 +34,39 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
     @property
     def fname(self):
         '''Check if VIMS file exists.'''
-        if self.ir:
-            fname = self.root + 'N' + self.imgID + '_ir.cub'
-        else:
-            fname = self.root + 'N' + self.imgID + '_vis.cub'
-        if not os.path.isfile(fname):
-            raise NameError('ISIS3 GeoCube file %s not found' % fname)
-        return fname
+        try:
+            if self.ir:
+                try:
+                    return self.fname_ir
+                except NameError as e:
+                    print('WARNING: {}'.format(e))
+                    self.ir = False
+                    return self.fname_vis
+            else:
+                try:
+                    return self.fname_vis
+                except NameError as e:
+                    print('WARNING: {}'.format(e))
+                    self.ir = True
+                    return self.fname_ir
+        except NameError:
+            raise NameError('Neither ISIS3 VIS nor IR {} NAV CUBs files were found %s'.format(self.imgID))
+
+    @property
+    def fname_vis(self):
+        '''Check if VIMS VIS NAV file exists.'''
+        fname_vis = self.root + 'N' + self.imgID + '_vis.cub'
+        if not os.path.isfile(fname_vis):
+            raise NameError('Missing {} VIS NAV CUB file'.format(self.imgID))
+        return fname_vis
+
+    @property
+    def fname_ir(self):
+        '''Check if VIMS VIS NAV file exists.'''
+        fname_ir = self.root + 'N' + self.imgID + '_ir.cub'
+        if not os.path.isfile(fname_ir):
+            raise NameError('Missing {} IR NAV CUB file'.format(self.imgID))
+        return fname_ir
 
     def readLBL(self):
         '''Read VIMS ISIS3 geocube LBL'''
