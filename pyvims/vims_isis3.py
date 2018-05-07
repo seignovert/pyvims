@@ -86,7 +86,7 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.date   = self.dtime.strftime('%Y/%m/%d')
 
         self.wvlns_ir = np.array(wvlns_IR)
-        self.bands_ir = np.array(bands_VIS)
+        self.bands_ir = np.array(bands_IR)
         self.wvlns_vis = np.array(wvlns_VIS)
         self.bands_vis = np.array(bands_VIS)
 
