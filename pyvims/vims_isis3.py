@@ -51,20 +51,22 @@ class VIMS_ISIS3(VIMS_OBJ):
                 wvlns_VIS = lbl_vis['BandBin']['Center']
                 bands_VIS = lbl_vis['BandBin']['OriginalBand']
             except NameError:
+                print('WARNING: Missing {} VIS CUB file'.format(self.imgID))
                 sampling_VIS = None
-                wvlns_VIS = [np.inf]*96
-                bands_VIS = [np.inf]*96
+                wvlns_VIS = [np.nan]*96
+                bands_VIS = [np.nan]*96
         except NameError:
+            print('WARNING: Missing {} IR CUB file'.format(self.imgID))
             sampling_IR = None
-            wvlns_IR = [np.inf]*256
-            bands_IR = [np.inf]*256
+            wvlns_IR = [np.nan]*256
+            bands_IR = [np.nan]*256
             try:
                 self.lbl = pvl.load(self.fname_vis)['IsisCube']
                 sampling_VIS = self.lbl['Instrument']['SamplingMode']
                 wvlns_VIS = self.lbl['BandBin']['Center']
                 bands_VIS = self.lbl['BandBin']['OriginalBand']
             except NameError:
-                raise NameError('Neither ISIS VIS nor IR CUB file was not found for %s' % self.imgID)
+                raise NameError('Neither ISIS3 VIS nor IR {} CUBs files were found %s'.format(self.imgID))
 
         self.NS     = int(self.lbl['Core']['Dimensions']['Samples'])
         self.NL     = int(self.lbl['Core']['Dimensions']['Lines'])
@@ -102,12 +104,12 @@ class VIMS_ISIS3(VIMS_OBJ):
         try:
             self.cube_vis = np.array(CubeFile.open(self.fname_vis).data)
         except NameError:
-            self.cube_vis = np.array([[[None]*self.NS]*self.NL]*96)
+            self.cube_vis = np.array([[[np.nan]*self.NS]*self.NL]*96)
 
         try:
             self.cube_ir = np.array(CubeFile.open(self.fname_ir).data)
         except NameError:
-            self.cube_ir = np.array([[[None]*self.NS]*self.NL]*256)
+            self.cube_ir = np.array([[[np.nan]*self.NS]*self.NL]*256)
 
         self.cube = np.concatenate((self.cube_vis, self.cube_ir), axis=0)
         return

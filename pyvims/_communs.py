@@ -38,6 +38,8 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
     - INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
     - INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
     '''
+    if hr is None:
+        return None
     if not height is None:
         hr = 1 if hr.upper() == 'NORMAL' else 2
         width = (height * img.shape[1]) / img.shape[0] / hr

@@ -65,7 +65,7 @@ class VIMS_OBJ(object):
             raise ValueError('Band too small (Min = %i)' % self.bands.min() )
         if band > self.bands.max():
             raise ValueError('Band too large (Max = %i)' % self.bands.max() )
-        return np.argmin(np.abs(self.bands-band))
+        return np.nanargmin(np.abs(self.bands-band))
 
     def getWvln(self, wvln):
         '''Get neareast wavelength index'''
@@ -73,7 +73,7 @@ class VIMS_OBJ(object):
             raise ValueError('Wavelength too small (Min = %.3f um)' % self.wvlns.min() )
         if wvln > self.wvlns.max():
             raise ValueError('Wavelength too large (Max = %.3f um)' % self.wvlns.max() )
-        return np.argmin(np.abs(self.wvlns-wvln))
+        return np.nanargmin(np.abs(self.wvlns-wvln))
 
     def getIndex(self, band=97, wvln=None):
         '''Get band or wavelength index'''
@@ -118,7 +118,7 @@ class VIMS_OBJ(object):
 
     def HR(self, band):
         '''Extract acquisition mode'''
-        return self.mode['IR'] if band > 97 else self.mode['VIS']  # IR|VIS mode
+        return self.mode['VIS'] if band < 97 else self.mode['IR']  # VIS|IR mode
 
     def jpgQuicklook(self, name, img, desc):
         '''Save image quicklook'''
@@ -136,6 +136,8 @@ class VIMS_OBJ(object):
 
     def saveJPG(self, img, info='', fout=None, suffix='', quality=65):
         '''Save to JPG image file'''
+        if img is None:
+            return
         if img.dtype != 'uint8':
             img = clipIMG(img)
 
@@ -174,7 +176,12 @@ class VIMS_OBJ(object):
 
     def quicklook_Gray(self, name, bands):
         '''Quicklook - Gray image from bands'''
-        img, wvln = self.getBands(bands)
+        try:
+            img, wvln = self.getBands(bands)
+        except ValueError:
+            pass
+            print('WARNING: Ratio loading failed for {} -> bands:{}'.format(self.imgID,bands))
+            return None
 
         desc = '@ %.2f um [%i' % ( wvln, bands[0])
         if len(bands) > 1:
@@ -187,8 +194,13 @@ class VIMS_OBJ(object):
 
     def quicklook_Ratio(self, name, N, D):
         '''Quicklook - Gray ratio image from bands'''
-        img_N, wvln_N = self.getBands(N)
-        img_D, wvln_D = self.getBands(D)
+        try:
+            img_N, wvln_N = self.getBands(N)
+            img_D, wvln_D = self.getBands(D)
+        except ValueError:
+            pass
+            print('WARNING: Ratio loading failed for {} -> N:{}, D:{}'.format(self.imgID,N,D))
+            return None
 
         desc = '@ %.2f/%.2f um [%i' % ( wvln_N, wvln_D, N[0])
         if len(N) > 1:
@@ -215,19 +227,29 @@ class VIMS_OBJ(object):
 
         eq: Global RGB channels equalizer on I/F values before binning [0-255]
         '''
-        img_R, wvln_R = self.getBands(R)
-        img_G, wvln_G = self.getBands(G)
-        img_B, wvln_B = self.getBands(B)
+        try:
+            img_R, wvln_R = self.getBands(R)
+            img_G, wvln_G = self.getBands(G)
+            img_B, wvln_B = self.getBands(B)
+        except ValueError:
+            pass
+            print('WARNING: RGB loading failed for {} -> R:{}, G:{}, B:{}'.format(self.imgID,R,G,B))
+            return None
 
-        if R_S:
-            img_R_S, wvln_R_S = self.getBands(R_S)
-            img_R = img_R - .5 * img_R_S
-        if G_S:
-            img_G_S, wvln_G_S = self.getBands(G_S)
-            img_G = img_G - .5 * img_G_S
-        if B_S:
-            img_B_S, wvln_B_S = self.getBands(B_S)
-            img_B = img_B - .5 * img_B_S
+        try:
+            if R_S:
+                img_R_S, wvln_R_S = self.getBands(R_S)
+                img_R = img_R - .5 * img_R_S
+            if G_S:
+                img_G_S, wvln_G_S = self.getBands(G_S)
+                img_G = img_G - .5 * img_G_S
+            if B_S:
+                img_B_S, wvln_B_S = self.getBands(B_S)
+                img_B = img_B - .5 * img_B_S
+        except ValueError:
+            pass
+            print('WARNING: RGB substract failed for {} -> R_S:{}, G_S:{}, B_S:{}'.format(self.imgID,R_S,G_S,B_S))
+            return None
 
         desc = '@ (%.2f, %.2f, %.2f) um [%i-%i, %i-%i, %i-%i]' % (
             wvln_R, wvln_G, wvln_B,
@@ -261,12 +283,19 @@ class VIMS_OBJ(object):
 
         eq: Global RGB channels equalizer on I/F values before binning [0-255]
         '''
-        img_R_N, wvln_R_N = self.getBands(R_N)
-        img_G_N, wvln_G_N = self.getBands(G_N)
-        img_B_N, wvln_B_N = self.getBands(B_N)
-        img_R_D, wvln_R_D = self.getBands(R_D)
-        img_G_D, wvln_G_D = self.getBands(G_D)
-        img_B_D, wvln_B_D = self.getBands(B_D)
+        try:
+            img_R_N, wvln_R_N = self.getBands(R_N)
+            img_G_N, wvln_G_N = self.getBands(G_N)
+            img_B_N, wvln_B_N = self.getBands(B_N)
+            img_R_D, wvln_R_D = self.getBands(R_D)
+            img_G_D, wvln_G_D = self.getBands(G_D)
+            img_B_D, wvln_B_D = self.getBands(B_D)
+        except ValueError:
+            pass
+            print('WARNING: RGB Ratio loading failed for {} -> R_N:{}, R_D:{}, G_N:{}, G_D:{}, B_N:{}, B_D:{}'.format(
+                self.imgID, R_N, R_D, G_N, G_D, B_N, B_D))
+            return None
+
 
         desc = '@ (%.2f/%.2f, %.2f/%.2f, %.2f/%.2f) um ' % (
             wvln_R_N, wvln_R_D,
@@ -449,20 +478,22 @@ class VIMS_OBJ(object):
         if subdir:
             self.quicklooks_subdir = subdir
 
-        self.quicklook_G_203
-        self.quicklook_RGB_203_158_279
-        self.quicklook_R_159_126
-        self.quicklook_G_212
-        self.quicklook_RGB_501_158_129
-        self.quicklook_RGBR_158_128_204_128_128_107
-        self.quicklook_RGB_501_275_203
-        self.quicklook_RGB_231_269_195
-        self.quicklook_R_203_210
-        self.quicklook_G_101
-        self.quicklook_RGB_277_327_332
-        self.quicklook_RGB_070_056_045
-        self.quicklook_G_501
-        self.quicklook_RGB_501_332_322
+        if self.mode['IR'] is not None:
+            self.quicklook_G_203
+            self.quicklook_RGB_203_158_279
+            self.quicklook_R_159_126
+            self.quicklook_G_212
+            self.quicklook_RGB_501_158_129
+            self.quicklook_RGBR_158_128_204_128_128_107
+            self.quicklook_RGB_501_275_203
+            self.quicklook_RGB_231_269_195
+            self.quicklook_R_203_210
+            self.quicklook_G_101
+            self.quicklook_RGB_277_327_332
+            self.quicklook_G_501
+            self.quicklook_RGB_501_332_322
+        if self.mode['VIS'] is not None:
+            self.quicklook_RGB_070_056_045
 
     def saveGEOJSON(self, fout=None):
         '''Save field of view into a geojson file'''
