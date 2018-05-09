@@ -388,6 +388,75 @@ class VIMS_OBJ(object):
         img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('BD_'+name, img, desc)
+
+    def quicklook_RBD(self, name, wvln_L_N, wvln_C_N, wvln_R_N,
+                                  wvln_L_D, wvln_C_D, wvln_R_D):
+        '''Quicklook - Ratio of band depth images'''
+        try:
+            L_N = self.bands[self.getIndex(wvln=wvln_L_N)]
+            C_N = self.bands[self.getIndex(wvln=wvln_C_N)]
+            R_N = self.bands[self.getIndex(wvln=wvln_R_N)]
+            img_L_N = self.getImg(wvln=wvln_L_N)
+            img_C_N = self.getImg(wvln=wvln_C_N)
+            img_R_N = self.getImg(wvln=wvln_R_N)
+        except ValueError:
+            pass
+            print(
+                'WARNING: Band depth loading failed for {} -> L_N:{}, C_N:{}, R_N:{}'.format(
+                    self.imgID, wvln_L_N, wvln_C_N, wvln_R_N))
+            return None
+        try:
+            L_D = self.bands[self.getIndex(wvln=wvln_L_D)]
+            C_D = self.bands[self.getIndex(wvln=wvln_C_D)]
+            R_D = self.bands[self.getIndex(wvln=wvln_R_D)]
+            img_L_D = self.getImg(wvln=wvln_L_D)
+            img_C_D = self.getImg(wvln=wvln_C_D)
+            img_R_D = self.getImg(wvln=wvln_R_D)
+        except ValueError:
+            pass
+            print(
+                'WARNING: Band depth loading failed for {} -> L_D:{}, C_D:{}, R_D:{}'.format(
+                    self.imgID, wvln_L_D, wvln_C_D, wvln_R_D))
+            return None
+
+        desc = 'RBD @ %.2f|%.2f|%.2f um / %.2f|%.2f|%.2f um [%i|%i|%i]/[%i|%i|%i]' % (
+            wvln_L_N, wvln_C_N, wvln_R_N, wvln_L_D, wvln_C_D, wvln_R_D, 
+            L_N, C_N, R_N, L_D, C_D, R_D)
+
+        hr = self.HR(np.min([L_N, C_N, R_N, L_D, C_D, R_D]))  # == `L` in theory
+
+        img_L_N = imgInterp(img_L_N, hr=hr, equalizer=False)
+        img_C_N = imgInterp(img_C_N, hr=hr, equalizer=False)
+        img_R_N = imgInterp(img_R_N, hr=hr, equalizer=False)
+        img_L_D = imgInterp(img_L_D, hr=hr, equalizer=False)
+        img_C_D = imgInterp(img_C_D, hr=hr, equalizer=False)
+        img_R_D = imgInterp(img_R_D, hr=hr, equalizer=False)
+
+        l_N = (wvln_R_N - wvln_C_N) / (wvln_R_N - wvln_L_N)
+        r_N = (wvln_C_N - wvln_L_N) / (wvln_R_N - wvln_L_N)
+        l_D = (wvln_R_D - wvln_C_D) / (wvln_R_D - wvln_L_D)
+        r_D = (wvln_C_D - wvln_L_D) / (wvln_R_D - wvln_L_D)
+
+        img_N = 1. - img_C_N / (l_N * img_L_N + r_N * img_R_N)
+        img_D = 1. - img_C_D / (l_D * img_L_D + r_D * img_R_D)
+
+        img_N[img_N < 0] = np.nan
+        img_N[img_L_N < 1.e-2] = np.nan
+        img_N[img_C_N < 1.e-2] = np.nan
+        img_N[img_R_N < 1.e-2] = np.nan
+        
+        img_D[img_D < 0] = np.nan
+        img_D[img_L_D < 1.e-2] = np.nan
+        img_D[img_C_D < 1.e-2] = np.nan
+        img_D[img_R_D < 1.e-2] = np.nan
+
+        img = img_N / img_D
+        img[img_D < 1.e-2] = np.nan
+
+        img = imgInterp(img, hr=hr, height=None)
+
+        self.jpgQuicklook('RBD_'+name, img, desc)
+
     @property
     def quicklook_G_203(self):
         '''Quicklook @ 2.03 um [165-169]'''
@@ -576,6 +645,19 @@ class VIMS_OBJ(object):
         C = 2.0178
         R = 2.2328
         self.quicklook_BD(name, L, C, R)
+
+    @property
+    def quicklook_RBD_150_202(self):
+        '''Quicklook @ 1.50 / 2.02 um'''
+        name = '150_202'
+        L_N = 1.377
+        C_N = 1.5079
+        R_N = 1.804
+        L_D = 1.804
+        C_D = 2.0178
+        R_D = 2.2328
+        self.quicklook_RBD(name, L_N, C_N, R_N, L_D, C_D, R_D)
+
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
         if dir_out:
