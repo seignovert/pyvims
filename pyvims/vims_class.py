@@ -494,6 +494,41 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('P_'+name, img, desc)
 
+    def quicklook_Slope(self, name, wvln_L, wvln_C, wvln_R, noise=1.e-2):
+        '''Quicklook - Slope variation (left/right)'''
+        try:
+            L = self.bands[self.getIndex(wvln=wvln_L)]
+            C = self.bands[self.getIndex(wvln=wvln_C)]
+            R = self.bands[self.getIndex(wvln=wvln_R)]
+            img_L = self.getImg(wvln=wvln_L)
+            img_C = self.getImg(wvln=wvln_C)
+            img_R = self.getImg(wvln=wvln_R)
+        except ValueError:
+            pass
+            print(
+                'WARNING: Slope loading failed for {} -> L:{}, C:{}, R:{}'.format(
+                    self.imgID, wvln_L, wvln_C, wvln_R))
+            return None
+
+        desc = 'Slope @ %.2f|%.2f|%.2f um [%i|%i|%i]' % (
+            wvln_L, wvln_C, wvln_R, L, C, R)
+
+        hr = self.HR(np.min([L, C, R]))  # == `L` in theory
+        img_L = imgInterp(img_L, hr=hr, equalizer=False)
+        img_C = imgInterp(img_C, hr=hr, equalizer=False)
+        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+
+        img = ((img_R + img_L) / (wvln_R - wvln_L)) / img_C
+
+        img[img < 0] = np.nan
+        img[img_L < noise] = np.nan
+        img[img_C < noise] = np.nan
+        img[img_R < noise] = np.nan
+
+        img = imgInterp(img, hr=hr, height=None)
+
+        self.jpgQuicklook('S_'+name, img, desc)
+
     def quicklook_Crystallinity(self, name, wvln_L, wvln_C, wvln_R, noise=1.e-2):
         '''Quicklook - Crystallinity ratio (center/left/right)'''
         try:
@@ -728,13 +763,13 @@ class VIMS_OBJ(object):
         self.quicklook_RBD(name, L_N, C_N, R_N, L_D, C_D, R_D)
 
     @property
-    def quicklook_P_260(self):
-        '''Quicklook peak @ 2.60 um'''
+    def quicklook_S_260(self):
+        '''Quicklook slope @ 2.60 um'''
         name = '260'
         L = 2.232
-        C = 2.581
-        R = 2.698  # WARNING: Extrapolation (Need to be checked...)
-        self.quicklook_Peak(name, L, C, R)
+        C = 2.232
+        R = 2.581
+        self.quicklook_Slope(name, L, C, R)
 
     @property
     def quicklook_P_360(self):
@@ -762,6 +797,15 @@ class VIMS_OBJ(object):
         C = 3.0969
         R = 3.1797
         self.quicklook_Crystallinity(name, L, C, R)
+
+    @property
+    def quicklook_S_360_500(self):
+        '''Quicklook slope @ 3.60-5.00 um'''
+        name = '360_500'
+        L = 3.596
+        C = 2.232
+        R = 5.005
+        self.quicklook_Slope(name, L, C, R, noise=2e-2)
 
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
