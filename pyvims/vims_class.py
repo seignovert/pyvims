@@ -352,6 +352,42 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('RGBR_'+name, img, desc)
 
+    def quicklook_BD(self, name, wvln_L, wvln_C, wvln_R):
+        '''Quicklook - Band depth image from bands (center/left/right)'''
+        try:
+            L = self.bands[self.getIndex(wvln=wvln_L)]
+            C = self.bands[self.getIndex(wvln=wvln_C)]
+            R = self.bands[self.getIndex(wvln=wvln_R)]
+            img_L = self.getImg(wvln=wvln_L)
+            img_C = self.getImg(wvln=wvln_C)
+            img_R = self.getImg(wvln=wvln_R)
+        except ValueError:
+            pass
+            print(
+                'WARNING: Band depth loading failed for {} -> L:{}, C:{}, R:{}'.format(
+                    self.imgID, wvln_L, wvln_C, wvln_R))
+            return None
+
+        desc = 'BD @ %.2f|%.2f|%.2f um [%i|%i|%i]' % (
+            wvln_L, wvln_C, wvln_R, L, C, R)
+
+        hr = self.HR(np.min([L, C, R]))  # == `L` in theory
+        img_L = imgInterp(img_L, hr=hr, equalizer=False)
+        img_C = imgInterp(img_C, hr=hr, equalizer=False)
+        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+
+        l = (wvln_R - wvln_C) / (wvln_R - wvln_L)
+        r = (wvln_C - wvln_L) / (wvln_R - wvln_L)
+        img = 1. - img_C / (l * img_L + r * img_R)
+
+        img[img < 0] = np.nan
+        img[img_L < 1.e-2] = np.nan
+        img[img_C < 1.e-2] = np.nan
+        img[img_R < 1.e-2] = np.nan
+
+        img = imgInterp(img, hr=hr, height=None)
+
+        self.jpgQuicklook('BD_'+name, img, desc)
     @property
     def quicklook_G_203(self):
         '''Quicklook @ 2.03 um [165-169]'''
@@ -505,6 +541,41 @@ class VIMS_OBJ(object):
         bands = [self.getIndex(wvln=3.0969)]
         self.quicklook_Gray(name, bands)
 
+    @property
+    def quicklook_BD_125(self):
+        '''Quicklook @ 1.25 um'''
+        name = '125'
+        L = 1.1637
+        C = 1.2449
+        R = 1.377
+        self.quicklook_BD(name, L, C, R)
+
+    @property
+    def quicklook_BD_150(self):
+        '''Quicklook @ 1.50 um'''
+        name = '150'
+        L = 1.377
+        C = 1.5079
+        R = 1.804
+        self.quicklook_BD(name, L, C, R)
+
+    @property
+    def quicklook_BD_165(self):
+        '''Quicklook @ 1.65 um'''
+        name = '165'
+        L = 1.6023
+        C = 1.6416
+        R = 1.804
+        self.quicklook_BD(name, L, C, R)
+
+    @property
+    def quicklook_BD_202(self):
+        '''Quicklook @ 2.02 um'''
+        name = '202'
+        L = 1.804
+        C = 2.0178
+        R = 2.2328
+        self.quicklook_BD(name, L, C, R)
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
         if dir_out:
