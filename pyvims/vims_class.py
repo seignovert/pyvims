@@ -423,7 +423,7 @@ class VIMS_OBJ(object):
             wvln_L_N, wvln_C_N, wvln_R_N, wvln_L_D, wvln_C_D, wvln_R_D, 
             L_N, C_N, R_N, L_D, C_D, R_D)
 
-        hr = self.HR(np.min([L_N, C_N, R_N, L_D, C_D, R_D]))  # == `L` in theory
+        hr = self.HR(np.min([L_N, C_N, R_N, L_D, C_D, R_D]))
 
         img_L_N = imgInterp(img_L_N, hr=hr, equalizer=False)
         img_C_N = imgInterp(img_C_N, hr=hr, equalizer=False)
@@ -456,6 +456,43 @@ class VIMS_OBJ(object):
         img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('RBD_'+name, img, desc)
+
+    def quicklook_Peak(self, name, wvln_L, wvln_C, wvln_R, noise=1.e-2):
+        '''Quicklook - Normalized peak intensity (center/left/right)'''
+        try:
+            L = self.bands[self.getIndex(wvln=wvln_L)]
+            C = self.bands[self.getIndex(wvln=wvln_C)]
+            R = self.bands[self.getIndex(wvln=wvln_R)]
+            img_L = self.getImg(wvln=wvln_L)
+            img_C = self.getImg(wvln=wvln_C)
+            img_R = self.getImg(wvln=wvln_R)
+        except ValueError:
+            pass
+            print(
+                'WARNING: Peak loading failed for {} -> L:{}, C:{}, R:{}'.format(
+                    self.imgID, wvln_L, wvln_C, wvln_R))
+            return None
+
+        desc = 'Peak @ %.2f|%.2f|%.2f um [%i|%i|%i]' % (
+            wvln_L, wvln_C, wvln_R, L, C, R)
+
+        hr = self.HR(np.min([L, C, R]))  # == `L` in theory
+        img_L = imgInterp(img_L, hr=hr, equalizer=False)
+        img_C = imgInterp(img_C, hr=hr, equalizer=False)
+        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+
+        l = (wvln_R - wvln_C) / (wvln_R - wvln_L)
+        r = (wvln_C - wvln_L) / (wvln_R - wvln_L)
+        img = 1. - (l * img_L + r * img_R) / img_C
+
+        img[img < 0] = np.nan
+        img[img_L < noise] = np.nan
+        img[img_C < noise] = np.nan
+        img[img_R < noise] = np.nan
+
+        img = imgInterp(img, hr=hr, height=None)
+
+        self.jpgQuicklook('P_'+name, img, desc)
 
     @property
     def quicklook_G_203(self):
@@ -612,7 +649,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_BD_125(self):
-        '''Quicklook @ 1.25 um'''
+        '''Quicklook band depth @ 1.25 um'''
         name = '125'
         L = 1.1637
         C = 1.2449
@@ -621,7 +658,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_BD_150(self):
-        '''Quicklook @ 1.50 um'''
+        '''Quicklook band depth @ 1.50 um'''
         name = '150'
         L = 1.377
         C = 1.5079
@@ -630,7 +667,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_BD_165(self):
-        '''Quicklook @ 1.65 um'''
+        '''Quicklook band depth @ 1.65 um'''
         name = '165'
         L = 1.6023
         C = 1.6416
@@ -639,7 +676,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_BD_202(self):
-        '''Quicklook @ 2.02 um'''
+        '''Quicklook band depth @ 2.02 um'''
         name = '202'
         L = 1.804
         C = 2.0178
@@ -648,7 +685,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_RBD_150_202(self):
-        '''Quicklook @ 1.50 / 2.02 um'''
+        '''Quicklook ratio band depth @ 1.50 / 2.02 um'''
         name = '150_202'
         L_N = 1.377
         C_N = 1.5079
@@ -657,6 +694,33 @@ class VIMS_OBJ(object):
         C_D = 2.0178
         R_D = 2.2328
         self.quicklook_RBD(name, L_N, C_N, R_N, L_D, C_D, R_D)
+
+    @property
+    def quicklook_P_260(self):
+        '''Quicklook peak @ 2.60 um'''
+        name = '260'
+        L = 2.232
+        C = 2.581
+        R = 2.698  # WARNING: Extrapolation (Need to be checked...)
+        self.quicklook_Peak(name, L, C, R)
+
+    @property
+    def quicklook_P_360(self):
+        '''Quicklook peak @ 3.60 um'''
+        name = '360'
+        L = 3.5128
+        C = 3.5961
+        R = 3.6828
+        self.quicklook_Peak(name, L, C, R)
+
+    @property
+    def quicklook_P_310(self):
+        '''Quicklook peak @ 3.10 um'''
+        name = '310'
+        L = 3.0297
+        C = 3.0969
+        R = 3.1797
+        self.quicklook_Peak(name, L, C, R, noise=1.e-3)
 
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
