@@ -477,6 +477,35 @@ class VIMS_OBJ(object):
         B = [238]
         self.quicklook_RGB(name, R, G, B, eq=False, G_S=G_S)
 
+    @property
+    def quicklook_G_178(self):
+        '''Quicklook @ 1.7877 ± 0.034 um'''
+        name = '178'
+        bands = self.getBands(1.7877, 0.034)
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_G_17877(self):
+        '''Quicklook @ 1.7877 um'''
+        name = '17877'
+        bands = [self.getIndex(wvln=1.7877)]
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_G_20017(self):
+        '''Quicklook @ 2.0017 um'''
+        name = '20017'
+        bands = [self.getIndex(wvln=2.0017)]
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_G_30969(self):
+        '''Quicklook @ 3.0969 um (pic de Fresnel)'''
+        name = '30969'
+        bands = [self.getIndex(wvln=3.0969)]
+        self.quicklook_Gray(name, bands)
+
+
     def saveQuicklooks(self, dir_out=None, subdir=None):
         if dir_out:
             self.quicklooks_dir = dir_out
@@ -484,19 +513,26 @@ class VIMS_OBJ(object):
             self.quicklooks_subdir = subdir
 
         if self.mode['IR'] is not None:
-            self.quicklook_G_203
-            self.quicklook_RGB_203_158_279
-            self.quicklook_R_159_126
-            self.quicklook_G_212
-            self.quicklook_RGB_501_158_129
-            self.quicklook_RGBR_158_128_204_128_128_107
-            self.quicklook_RGB_501_275_203
-            self.quicklook_RGB_231_269_195
-            self.quicklook_R_203_210
-            self.quicklook_G_101
-            self.quicklook_RGB_277_327_332
-            self.quicklook_G_501
-            self.quicklook_RGB_501_332_322
+            if self.target.upper() == 'TITAN':
+                self.quicklook_G_203
+                self.quicklook_RGB_203_158_279
+                self.quicklook_R_159_126
+                self.quicklook_G_212
+                self.quicklook_RGB_501_158_129
+                self.quicklook_RGBR_158_128_204_128_128_107
+                self.quicklook_RGB_501_275_203
+                self.quicklook_RGB_231_269_195
+                self.quicklook_R_203_210
+                self.quicklook_G_101
+                self.quicklook_RGB_277_327_332
+                self.quicklook_G_501
+                self.quicklook_RGB_501_332_322
+            else:
+                self.quicklook_G_178
+                self.quicklook_G_17877
+                self.quicklook_G_20017
+                self.quicklook_G_30969
+
         if self.mode['VIS'] is not None:
             self.quicklook_RGB_070_056_045
 
