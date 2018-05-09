@@ -104,7 +104,10 @@ class VIMS_OBJ(object):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
 
-    def getBands(self, bands):
+    def getBands(self, w, dw):
+        '''Get the list of bands arounf the wavelength (w ± dw)'''
+        with np.errstate(invalid='ignore'):
+            return self.bands[np.abs(self.wvlns-w) < dw]
 
     def getImgBands(self, bands):
         '''Get the mean image and wavlength for a list bands'''
