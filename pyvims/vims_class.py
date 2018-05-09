@@ -799,6 +799,13 @@ class VIMS_OBJ(object):
         self.quicklook_Crystallinity(name, L, C, R)
 
     @property
+    def quicklook_G_500(self):
+        '''Quicklook @ 5.0 ± 0.11 um'''
+        name = '500'
+        bands = self.getBands(5.0, 0.11)
+        self.quicklook_Gray(name, bands)
+
+    @property
     def quicklook_S_360_500(self):
         '''Quicklook slope @ 3.60-5.00 um'''
         name = '360_500'
@@ -806,6 +813,22 @@ class VIMS_OBJ(object):
         C = 2.232
         R = 5.005
         self.quicklook_Slope(name, L, C, R, noise=2e-2)
+
+    @property
+    def quicklook_G_34487(self):
+        '''Quicklook @ 3.4487 um'''
+        name = '34487'
+        bands = [self.getIndex(wvln=3.4487)]
+        self.quicklook_Gray(name, bands)
+
+    @property
+    def quicklook_BD_104(self):
+        '''Quicklook @ 1.04 um'''
+        name = '104'
+        L = 0.9823
+        C = 1.0475
+        R = 1.1637
+        self.quicklook_BD(name, L, C, R)
 
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
@@ -834,6 +857,19 @@ class VIMS_OBJ(object):
                 self.quicklook_G_17877
                 self.quicklook_G_20017
                 self.quicklook_G_30969
+                self.quicklook_BD_125
+                self.quicklook_BD_150
+                self.quicklook_BD_165
+                self.quicklook_BD_202
+                self.quicklook_RBD_150_202
+                self.quicklook_S_260
+                self.quicklook_P_360
+                self.quicklook_P_310
+                self.quicklook_C_310
+                self.quicklook_G_500
+                self.quicklook_S_360_500
+                self.quicklook_G_34487
+                self.quicklook_BD_104
 
         if self.mode['VIS'] is not None:
             self.quicklook_RGB_070_056_045
