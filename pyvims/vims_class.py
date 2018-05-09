@@ -61,18 +61,18 @@ class VIMS_OBJ(object):
 
     def getBand(self, band):
         '''Get band index'''
-        if band < self.bands.min():
-            raise ValueError('Band too small (Min = %i)' % self.bands.min() )
-        if band > self.bands.max():
-            raise ValueError('Band too large (Max = %i)' % self.bands.max() )
+        if band < np.nanmin(self.bands):
+            raise ValueError('Band too small (Min = %i)' % np.nanmin(self.bands) )
+        if band > np.nanmax(self.bands):
+            raise ValueError('Band too large (Max = %i)' % np.nanmax(self.bands) )
         return np.nanargmin(np.abs(self.bands-band))
 
     def getWvln(self, wvln):
         '''Get neareast wavelength index'''
-        if wvln < self.wvlns.min():
-            raise ValueError('Wavelength too small (Min = %.3f um)' % self.wvlns.min() )
-        if wvln > self.wvlns.max():
-            raise ValueError('Wavelength too large (Max = %.3f um)' % self.wvlns.max() )
+        if wvln < np.nanmin(self.wvlns):
+            raise ValueError('Wavelength too small (Min = %.3f um)' % np.nanmin(self.wvlns) )
+        if wvln > np.nanmax(self.wvlns):
+            raise ValueError('Wavelength too large (Max = %.3f um)' % np.nanmax(self.wvlns) )
         return np.nanargmin(np.abs(self.wvlns-wvln))
 
     def getIndex(self, band=97, wvln=None):
