@@ -105,6 +105,8 @@ class VIMS_OBJ(object):
         return self.cube[self.getIndex(band, wvln), :, :]
 
     def getBands(self, bands):
+
+    def getImgBands(self, bands):
         '''Get the mean image and wavlength for a list bands'''
         if isinstance(bands, int):
             bands = [bands]
@@ -177,7 +179,7 @@ class VIMS_OBJ(object):
     def quicklook_Gray(self, name, bands):
         '''Quicklook - Gray image from bands'''
         try:
-            img, wvln = self.getBands(bands)
+            img, wvln = self.getImgBands(bands)
         except ValueError:
             pass
             print('WARNING: Ratio loading failed for {} -> bands:{}'.format(self.imgID,bands))
@@ -195,8 +197,8 @@ class VIMS_OBJ(object):
     def quicklook_Ratio(self, name, N, D):
         '''Quicklook - Gray ratio image from bands'''
         try:
-            img_N, wvln_N = self.getBands(N)
-            img_D, wvln_D = self.getBands(D)
+            img_N, wvln_N = self.getImgBands(N)
+            img_D, wvln_D = self.getImgBands(D)
         except ValueError:
             pass
             print('WARNING: Ratio loading failed for {} -> N:{}, D:{}'.format(self.imgID,N,D))
@@ -228,9 +230,9 @@ class VIMS_OBJ(object):
         eq: Global RGB channels equalizer on I/F values before binning [0-255]
         '''
         try:
-            img_R, wvln_R = self.getBands(R)
-            img_G, wvln_G = self.getBands(G)
-            img_B, wvln_B = self.getBands(B)
+            img_R, wvln_R = self.getImgBands(R)
+            img_G, wvln_G = self.getImgBands(G)
+            img_B, wvln_B = self.getImgBands(B)
         except ValueError:
             pass
             print('WARNING: RGB loading failed for {} -> R:{}, G:{}, B:{}'.format(self.imgID,R,G,B))
@@ -238,13 +240,13 @@ class VIMS_OBJ(object):
 
         try:
             if R_S:
-                img_R_S, wvln_R_S = self.getBands(R_S)
+                img_R_S, wvln_R_S = self.getImgBands(R_S)
                 img_R = img_R - .5 * img_R_S
             if G_S:
-                img_G_S, wvln_G_S = self.getBands(G_S)
+                img_G_S, wvln_G_S = self.getImgBands(G_S)
                 img_G = img_G - .5 * img_G_S
             if B_S:
-                img_B_S, wvln_B_S = self.getBands(B_S)
+                img_B_S, wvln_B_S = self.getImgBands(B_S)
                 img_B = img_B - .5 * img_B_S
         except ValueError:
             pass
@@ -284,12 +286,12 @@ class VIMS_OBJ(object):
         eq: Global RGB channels equalizer on I/F values before binning [0-255]
         '''
         try:
-            img_R_N, wvln_R_N = self.getBands(R_N)
-            img_G_N, wvln_G_N = self.getBands(G_N)
-            img_B_N, wvln_B_N = self.getBands(B_N)
-            img_R_D, wvln_R_D = self.getBands(R_D)
-            img_G_D, wvln_G_D = self.getBands(G_D)
-            img_B_D, wvln_B_D = self.getBands(B_D)
+            img_R_N, wvln_R_N = self.getImgBands(R_N)
+            img_G_N, wvln_G_N = self.getImgBands(G_N)
+            img_B_N, wvln_B_N = self.getImgBands(B_N)
+            img_R_D, wvln_R_D = self.getImgBands(R_D)
+            img_G_D, wvln_G_D = self.getImgBands(G_D)
+            img_B_D, wvln_B_D = self.getImgBands(B_D)
         except ValueError:
             pass
             print('WARNING: RGB Ratio loading failed for {} -> R_N:{}, R_D:{}, G_N:{}, G_D:{}, B_N:{}, B_D:{}'.format(
