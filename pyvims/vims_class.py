@@ -529,7 +529,7 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('S_'+name, img, desc)
 
-    def quicklook_Crystallinity(self, name, wvln_L, wvln_C, wvln_R, noise=1.e-2):
+    def quicklook_Crystallinity(self, name, wvln_L, wvln_C, wvln_R):
         '''Quicklook - Crystallinity ratio (center/left/right)'''
         try:
             L = self.bands[self.getIndex(wvln=wvln_L)]
@@ -560,6 +560,44 @@ class VIMS_OBJ(object):
         img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('C_'+name, img, desc)
+
+    def quicklook_CB(self, name, wvln_L, wvln_R, noise=1.e-2):
+        '''Quicklook - Position of the center of the band'''
+        try:
+            iL = self.getIndex(wvln=wvln_L)
+            iR = self.getIndex(wvln=wvln_R)
+            L = self.bands[iL]
+            R = self.bands[iR]
+            img_L = self.getImg(wvln=wvln_L)
+            img_R = self.getImg(wvln=wvln_R)
+        except ValueError:
+            pass
+            print('WARNING: Center Band loading failed for {} -> L:{}, R:{}'.format(
+                    self.imgID, wvln_L, wvln_R))
+            return None
+
+        desc = 'CB @ %.2f|%.2f um [%i|%i]' % (wvln_L, wvln_R, L, R)
+
+        w = self.wvlns[iL:iR+1]
+        img = np.zeros((self.NL,self.NS))
+
+        for L in range(self.NL):
+            for S in range(self.NS):
+                res = np.polyfit(w, self.cube[iL:iR+1, L, S], 2)
+                img[L, S] = -.5 * res[1] / res[0]  # Min of the band
+
+        img = imgInterp(img, hr=self.HR(np.min([L, R])), equalizer=False)
+        img_L = imgInterp(img_L, hr=self.HR(np.min([L, R])), equalizer=False)
+        img_R = imgInterp(img_R, hr=self.HR(np.min([L, R])), equalizer=False)
+
+        img[ img < wvln_L ] = np.nan
+        img[ img > wvln_R ] = np.nan
+        img[ img_L < noise ] = np.nan
+        img[ img_R < noise ] = np.nan
+        
+        img = clipIMG(img, imin=np.nanmin(img)) # Set img between min/max
+
+        self.jpgQuicklook('CB_'+name, img, desc)
 
     @property
     def quicklook_G_203(self):
@@ -830,6 +868,30 @@ class VIMS_OBJ(object):
         R = 1.1637
         self.quicklook_BD(name, L, C, R)
 
+    @property
+    def quicklook_CB_202(self):
+        '''Quicklook Center band @ 2.02 um'''
+        name = '202'
+        L = 1.97
+        R = 2.07
+        self.quicklook_CB(name, L, R)
+
+    @property
+    def quicklook_CB_150(self):
+        '''Quicklook Center band @ 1.50 um'''
+        name = '150'
+        L = 1.45
+        R = 1.55
+        self.quicklook_CB(name, L, R)
+
+    @property
+    def quicklook_CB_310(self):
+        '''Quicklook Center band @ 3.1 um'''
+        name = '310'
+        L = 3.05
+        R = 3.15
+        self.quicklook_CB(name, L, R)
+
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
         if dir_out:
@@ -870,6 +932,9 @@ class VIMS_OBJ(object):
                 self.quicklook_S_360_500
                 self.quicklook_G_34487
                 self.quicklook_BD_104
+                self.quicklook_CB_202
+                self.quicklook_CB_150
+                self.quicklook_CB_310
 
         if self.mode['VIS'] is not None:
             self.quicklook_RGB_070_056_045
