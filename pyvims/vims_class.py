@@ -892,6 +892,15 @@ class VIMS_OBJ(object):
         R = 3.15
         self.quicklook_CB(name, L, R)
 
+    @property
+    def quicklook_RGB_310_200_178(self):
+        '''Quicklook @ (3.1, 2.0, 1.78) um'''
+        name = '310_200_178'
+        R = [self.getIndex(wvln=3.1)]
+        G = [self.getIndex(wvln=2.0)]
+        B = [self.getIndex(wvln=1.78)]
+        self.quicklook_RGB(name, R, G, B, eq=False)
+
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
         if dir_out:
@@ -935,6 +944,7 @@ class VIMS_OBJ(object):
                 self.quicklook_CB_202
                 self.quicklook_CB_150
                 self.quicklook_CB_310
+                self.quicklook_RGB_310_200_178
 
         if self.mode['VIS'] is not None:
             self.quicklook_RGB_070_056_045
