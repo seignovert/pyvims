@@ -119,7 +119,7 @@ class VIMS_OBJ(object):
             index = self.getBand(band)
             img.append(self.cube[index, :, :])
             wvln.append(self.wvlns[index])
-        return np.nanmean(img, axis=0), np.mean(wvln)
+        return np.nanmean(img, axis=0), np.nanmean(wvln)
 
     def HR(self, band):
         '''Extract acquisition mode'''
@@ -282,7 +282,7 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('RGB_'+name, img, desc)
 
-    def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D, eq=True):
+    def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D):
         '''
         Quicklook - RGB based on ratios
 
@@ -313,42 +313,33 @@ class VIMS_OBJ(object):
             B_N[0], B_N[-1], B_D[0], B_D[-1],
         )
 
+        img_R = img_R_N / img_R_D
+        img_G = img_G_N / img_G_D
+        img_B = img_B_N / img_B_D
+
+        cond = (img_R_N < 1.e-4) | (img_G_N < 1.e-4) | (img_B_N < 1.e-4) | \
+               (img_R_D < 1.e-4) | (img_G_D < 1.e-4) | (img_B_D < 1.e-4)
+
+        img_R[cond] = np.nan
+        img_G[cond] = np.nan
+        img_B[cond] = np.nan
+
+        img_R = clipIMG(img_R)
+        img_G = clipIMG(img_G)
+        img_B = clipIMG(img_B)
+
         min_RGB_ND = np.min([
             np.min(R_N), np.min(R_D),
             np.min(G_N), np.min(G_D),
             np.min(B_N), np.min(B_D),
         ])
         hr = self.HR(min_RGB_ND)
-        img_R_N = imgInterp(img_R_N, hr=hr, equalizer=False)
-        img_G_N = imgInterp(img_G_N, hr=hr, equalizer=False)
-        img_B_N = imgInterp(img_B_N, hr=hr, equalizer=False)
-        img_R_D = imgInterp(img_R_D, hr=hr, equalizer=False)
-        img_G_D = imgInterp(img_G_D, hr=hr, equalizer=False)
-        img_B_D = imgInterp(img_B_D, hr=hr, equalizer=False)
 
-        img_R = img_R_N / img_R_D
-        img_G = img_G_N / img_G_D
-        img_B = img_B_N / img_B_D
-        img_R[img_R_D < 1.e-2] = np.nan
-        img_G[img_G_D < 1.e-2] = np.nan
-        img_B[img_B_D < 1.e-2] = np.nan
-        
-        if eq:
-            over_expo = (img_R < -1.e10) | (img_G < -1.e10) | (img_B < -1.e10)
-            max_RGB = np.nanmax([np.nanmax(img_R), np.nanmax(img_G), np.nanmax(img_B)])
-            img_R = clipIMG(img_R, imin=0, imax=max_RGB)
-            img_G = clipIMG(img_G, imin=0, imax=max_RGB)
-            img_B = clipIMG(img_B, imin=0, imax=max_RGB)
-            img_R[over_expo] = 255
-            img_G[over_expo] = 255
-            img_B[over_expo] = 255
-        else:
-            img_R = clipIMG(img_R)
-            img_G = clipIMG(img_G)
-            img_B = clipIMG(img_B)
-
+        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+        img_G = imgInterp(img_G, hr=hr, equalizer=False)
+        img_B = imgInterp(img_B, hr=hr, equalizer=False)
+    
         img = cv2.merge([img_B, img_G, img_R])  # BGR in cv2
-        img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('RGBR_'+name, img, desc)
 
@@ -650,7 +641,7 @@ class VIMS_OBJ(object):
         G_D = range(120, 122+1)
         B_N = range(120, 122+1)
         B_D = range(108, 109+1)
-        self.quicklook_RGBR(name, R_N, R_D, G_N, G_D, B_N, B_D, eq=False)
+        self.quicklook_RGBR(name, R_N, R_D, G_N, G_D, B_N, B_D)
 
     @property
     def quicklook_RGB_501_275_203(self):
