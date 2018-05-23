@@ -227,7 +227,7 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('R_'+name, img, desc)
 
-    def quicklook_RGB(self, name, R, G, B, eq=True, R_S=None, G_S=None, B_S=None):
+    def quicklook_RGB(self, name, R, G, B, R_S=None, G_S=None, B_S=None, eq_channels=False):
         '''
         Quicklook - RGB
 
@@ -268,9 +268,10 @@ class VIMS_OBJ(object):
         img_G[cond] = np.nan
         img_B[cond] = np.nan
 
-        img_R = imgClip(img_R)
-        img_G = imgClip(img_G)
-        img_B = imgClip(img_B)
+        if not eq_channels:
+            img_R = imgClip(img_R)
+            img_G = imgClip(img_G)
+            img_B = imgClip(img_B)
 
         min_RGB = np.min([np.min(R), np.min(G), np.min(B)])
         hr = self.HR(min_RGB)
@@ -573,10 +574,10 @@ class VIMS_OBJ(object):
         w = self.wvlns[iL:iR+1]
         img = np.zeros((self.NL,self.NS))
 
-        for L in range(self.NL):
-            for S in range(self.NS):
-                res = np.polyfit(w, self.cube[iL:iR+1, L, S], 2)
-                img[L, S] = -.5 * res[1] / res[0]  # Min of the band
+        for l in range(self.NL):
+            for s in range(self.NS):
+                res = np.polyfit(w, self.cube[iL:iR+1, l, s], 2)
+                img[l, s] = -.5 * res[1] / res[0]  # Min of the band
 
         img = imgInterp(img, hr=self.HR(np.min([L, R])))
         img_L = imgInterp(img_L, hr=self.HR(np.min([L, R])))
@@ -605,7 +606,7 @@ class VIMS_OBJ(object):
         R = range(165, 169+1)
         G = range(138, 141+1)
         B = range(212, 213+1)
-        self.quicklook_RGB(name, R, G, B, eq=False)
+        self.quicklook_RGB(name, R, G, B)
 
     @property
     def quicklook_R_159_126(self):
@@ -629,7 +630,7 @@ class VIMS_OBJ(object):
         R = range(339, 351+1)
         G = range(138, 141+1)
         B = range(121, 122+1)
-        self.quicklook_RGB(name, R, G, B, eq=False)
+        self.quicklook_RGB(name, R, G, B)
 
     @property
     def quicklook_RGBR_158_128_204_128_128_107(self):
@@ -651,7 +652,7 @@ class VIMS_OBJ(object):
         R = range(339, 351+1)
         G = range(207, 213+1)
         B = range(165, 169+1)
-        self.quicklook_RGB(name, R, G, B, eq=False)
+        self.quicklook_RGB(name, R, G, B)
 
     @property
     def quicklook_RGB_231_269_195(self):
@@ -663,7 +664,7 @@ class VIMS_OBJ(object):
         G = [158, 159, 163, 164, 173, 174, 204, 205, 211, 216, 217, 218,
              219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230]
         B = [140, 141, 165, 166, 167, 168, 169, 170, 171]
-        self.quicklook_RGB(name, R, G, B, eq=False)
+        self.quicklook_RGB(name, R, G, B)
 
     @property
     def quicklook_R_203_210(self):
@@ -688,7 +689,7 @@ class VIMS_OBJ(object):
         G = range(241, 242+1)
         B = [244]
         B_S = [234, 235, 236, 255, 256, 257]
-        self.quicklook_RGB(name, R, G, B, eq=False, B_S=B_S)
+        self.quicklook_RGB(name, R, G, B, B_S=B_S)
 
     @property
     def quicklook_RGB_070_056_045(self):
@@ -697,7 +698,7 @@ class VIMS_OBJ(object):
         R = range(47, 51+1)
         G = range(27, 31+1)
         B = range(12, 16+1)
-        self.quicklook_RGB(name, R, G, B, eq=True)
+        self.quicklook_RGB(name, R, G, B, eq_channels=True)
 
     @property
     def quicklook_G_501(self):
@@ -714,7 +715,7 @@ class VIMS_OBJ(object):
         G = range(243, 245+1)
         G_S = [234, 235, 236, 255, 256, 257]
         B = [238]
-        self.quicklook_RGB(name, R, G, B, eq=False, G_S=G_S)
+        self.quicklook_RGB(name, R, G, B, G_S=G_S)
 
     @property
     def quicklook_G_178(self):
@@ -891,7 +892,7 @@ class VIMS_OBJ(object):
         R = [self.getIndex(wvln=3.1)]
         G = [self.getIndex(wvln=2.0)]
         B = [self.getIndex(wvln=1.78)]
-        self.quicklook_RGB(name, R, G, B, eq=False)
+        self.quicklook_RGB(name, R, G, B)
 
 
     def saveQuicklooks(self, dir_out=None, subdir=None):
