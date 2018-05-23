@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import piexif
 
-from ._communs import getImgID, clipIMG, imgInterp
+from ._communs import getImgID, imgClip, imgInterp
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
@@ -144,7 +144,7 @@ class VIMS_OBJ(object):
         if img is None:
             return
         if img.dtype != 'uint8':
-            img = clipIMG(img)
+            img = imgClip(img)
 
         if fout is None:
             fout = self.root
@@ -217,11 +217,12 @@ class VIMS_OBJ(object):
 
         min_ND = np.min([np.min(N), np.min(D)])
         hr = self.HR(min_ND)
-        img_N = imgInterp(img_N, hr=hr, equalizer=False)
-        img_D = imgInterp(img_D, hr=hr, equalizer=False)
+        img_N = imgInterp(img_N, hr=hr)
+        img_D = imgInterp(img_D, hr=hr)
 
         img = img_N / img_D
         img[img_D < 1.e-2] = np.nan
+        img = imgClip(img)
         img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('R_'+name, img, desc)
@@ -230,7 +231,7 @@ class VIMS_OBJ(object):
         '''
         Quicklook - RGB
 
-        eq: Global RGB channels equalizer on I/F values before binning [0-255]
+        Note: RGB channels stretch on I/F values [0-255]
         '''
         try:
             img_R, wvln_R = self.getImgBands(R)
@@ -261,24 +262,24 @@ class VIMS_OBJ(object):
             R[0], R[-1], G[0], G[-1], B[0], B[-1]
         )
 
-        if eq:
-            over_expo = (img_R < -1.e10) | (img_G < -1.e10) | (img_B < -1.e10)
-            max_RGB = np.nanmax([np.nanmax(img_R), np.nanmax(img_G), np.nanmax(img_B)])
-            img_R = clipIMG(img_R, imin=0, imax=max_RGB)
-            img_G = clipIMG(img_G, imin=0, imax=max_RGB)
-            img_B = clipIMG(img_B, imin=0, imax=max_RGB)
-            img_R[over_expo] = 255
-            img_G[over_expo] = 255
-            img_B[over_expo] = 255
-        else:
-            img_R = clipIMG(img_R)
-            img_G = clipIMG(img_G)
-            img_B = clipIMG(img_B)
+        cond = (img_R < 1.e-4) | (img_G < 1.e-4) | (img_B < 1.e-4)
 
-        img = cv2.merge([img_B, img_G, img_R]) # BGR in cv2
+        img_R[cond] = np.nan
+        img_G[cond] = np.nan
+        img_B[cond] = np.nan
+
+        img_R = imgClip(img_R)
+        img_G = imgClip(img_G)
+        img_B = imgClip(img_B)
 
         min_RGB = np.min([np.min(R), np.min(G), np.min(B)])
-        img = imgInterp(img, hr=self.HR(min_RGB))
+        hr = self.HR(min_RGB)
+
+        img_R = imgInterp(img_R, hr=hr)
+        img_G = imgInterp(img_G, hr=hr)
+        img_B = imgInterp(img_B, hr=hr)
+
+        img = cv2.merge([img_B, img_G, img_R]) # BGR in cv2
 
         self.jpgQuicklook('RGB_'+name, img, desc)
 
@@ -286,7 +287,7 @@ class VIMS_OBJ(object):
         '''
         Quicklook - RGB based on ratios
 
-        eq: Global RGB channels equalizer on I/F values before binning [0-255]
+        Note: RGB channels stretch on I/F values [0-255]
         '''
         try:
             img_R_N, wvln_R_N = self.getImgBands(R_N)
@@ -324,9 +325,9 @@ class VIMS_OBJ(object):
         img_G[cond] = np.nan
         img_B[cond] = np.nan
 
-        img_R = clipIMG(img_R)
-        img_G = clipIMG(img_G)
-        img_B = clipIMG(img_B)
+        img_R = imgClip(img_R)
+        img_G = imgClip(img_G)
+        img_B = imgClip(img_B)
 
         min_RGB_ND = np.min([
             np.min(R_N), np.min(R_D),
@@ -335,9 +336,9 @@ class VIMS_OBJ(object):
         ])
         hr = self.HR(min_RGB_ND)
 
-        img_R = imgInterp(img_R, hr=hr, equalizer=False)
-        img_G = imgInterp(img_G, hr=hr, equalizer=False)
-        img_B = imgInterp(img_B, hr=hr, equalizer=False)
+        img_R = imgInterp(img_R, hr=hr)
+        img_G = imgInterp(img_G, hr=hr)
+        img_B = imgInterp(img_B, hr=hr)
     
         img = cv2.merge([img_B, img_G, img_R])  # BGR in cv2
 
@@ -363,9 +364,9 @@ class VIMS_OBJ(object):
             wvln_L, wvln_C, wvln_R, L, C, R)
 
         hr = self.HR(np.min([L, C, R]))  # == `L` in theory
-        img_L = imgInterp(img_L, hr=hr, equalizer=False)
-        img_C = imgInterp(img_C, hr=hr, equalizer=False)
-        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+        img_L = imgInterp(img_L, hr=hr)
+        img_C = imgInterp(img_C, hr=hr)
+        img_R = imgInterp(img_R, hr=hr)
 
         l = (wvln_R - wvln_C) / (wvln_R - wvln_L)
         r = (wvln_C - wvln_L) / (wvln_R - wvln_L)
@@ -416,12 +417,12 @@ class VIMS_OBJ(object):
 
         hr = self.HR(np.min([L_N, C_N, R_N, L_D, C_D, R_D]))
 
-        img_L_N = imgInterp(img_L_N, hr=hr, equalizer=False)
-        img_C_N = imgInterp(img_C_N, hr=hr, equalizer=False)
-        img_R_N = imgInterp(img_R_N, hr=hr, equalizer=False)
-        img_L_D = imgInterp(img_L_D, hr=hr, equalizer=False)
-        img_C_D = imgInterp(img_C_D, hr=hr, equalizer=False)
-        img_R_D = imgInterp(img_R_D, hr=hr, equalizer=False)
+        img_L_N = imgInterp(img_L_N, hr=hr)
+        img_C_N = imgInterp(img_C_N, hr=hr)
+        img_R_N = imgInterp(img_R_N, hr=hr)
+        img_L_D = imgInterp(img_L_D, hr=hr)
+        img_C_D = imgInterp(img_C_D, hr=hr)
+        img_R_D = imgInterp(img_R_D, hr=hr)
 
         l_N = (wvln_R_N - wvln_C_N) / (wvln_R_N - wvln_L_N)
         r_N = (wvln_C_N - wvln_L_N) / (wvln_R_N - wvln_L_N)
@@ -468,9 +469,9 @@ class VIMS_OBJ(object):
             wvln_L, wvln_C, wvln_R, L, C, R)
 
         hr = self.HR(np.min([L, C, R]))  # == `L` in theory
-        img_L = imgInterp(img_L, hr=hr, equalizer=False)
-        img_C = imgInterp(img_C, hr=hr, equalizer=False)
-        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+        img_L = imgInterp(img_L, hr=hr)
+        img_C = imgInterp(img_C, hr=hr)
+        img_R = imgInterp(img_R, hr=hr)
 
         l = (wvln_R - wvln_C) / (wvln_R - wvln_L)
         r = (wvln_C - wvln_L) / (wvln_R - wvln_L)
@@ -505,9 +506,9 @@ class VIMS_OBJ(object):
             wvln_L, wvln_C, wvln_R, L, C, R)
 
         hr = self.HR(np.min([L, C, R]))  # == `L` in theory
-        img_L = imgInterp(img_L, hr=hr, equalizer=False)
-        img_C = imgInterp(img_C, hr=hr, equalizer=False)
-        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+        img_L = imgInterp(img_L, hr=hr)
+        img_C = imgInterp(img_C, hr=hr)
+        img_R = imgInterp(img_R, hr=hr)
 
         img = ((img_R + img_L) / (wvln_R - wvln_L)) / img_C
 
@@ -539,9 +540,9 @@ class VIMS_OBJ(object):
             wvln_L, wvln_C, wvln_R, L, C, R)
 
         hr = self.HR(np.min([L, C, R]))  # == `L` in theory
-        img_L = imgInterp(img_L, hr=hr, equalizer=False)
-        img_C = imgInterp(img_C, hr=hr, equalizer=False)
-        img_R = imgInterp(img_R, hr=hr, equalizer=False)
+        img_L = imgInterp(img_L, hr=hr)
+        img_C = imgInterp(img_C, hr=hr)
+        img_R = imgInterp(img_R, hr=hr)
 
         l = (wvln_R - wvln_C) / (wvln_R - wvln_L)
         r = (wvln_C - wvln_L) / (wvln_R - wvln_L)
@@ -577,16 +578,16 @@ class VIMS_OBJ(object):
                 res = np.polyfit(w, self.cube[iL:iR+1, L, S], 2)
                 img[L, S] = -.5 * res[1] / res[0]  # Min of the band
 
-        img = imgInterp(img, hr=self.HR(np.min([L, R])), equalizer=False)
-        img_L = imgInterp(img_L, hr=self.HR(np.min([L, R])), equalizer=False)
-        img_R = imgInterp(img_R, hr=self.HR(np.min([L, R])), equalizer=False)
+        img = imgInterp(img, hr=self.HR(np.min([L, R])))
+        img_L = imgInterp(img_L, hr=self.HR(np.min([L, R])))
+        img_R = imgInterp(img_R, hr=self.HR(np.min([L, R])))
 
         img[ img < wvln_L ] = np.nan
         img[ img > wvln_R ] = np.nan
         img[ img_L < noise ] = np.nan
         img[ img_R < noise ] = np.nan
         
-        img = clipIMG(img, imin=np.nanmin(img)) # Set img between min/max
+        img = imgClip(img, imin=np.nanmin(img)) # Set img between min/max
 
         self.jpgQuicklook('CB_'+name, img, desc)
 

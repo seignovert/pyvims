@@ -17,7 +17,7 @@ def getImgID(imgID):
                 .replace('c','')\
                 .replace('v','')
 
-def clipIMG(img, imin=None, imax=None):
+def imgClip(img, imin=None, imax=None):
     '''Clip image [0-255] between imin/imax'''
     if imin is None:
         imin = np.nanmin(img)
@@ -25,8 +25,7 @@ def clipIMG(img, imin=None, imax=None):
         imax = np.nanmax(img)
     return np.uint8(np.clip(255.*(img-imin)/(imax-imin), 0, 255))
 
-def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
-              method=cv2.INTER_LANCZOS4, equalizer=True):
+def imgInterp(img, height=256, hr='NORMAL', method=cv2.INTER_LANCZOS4):
     '''
     Interpolate image
 
@@ -46,20 +45,22 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
         hr = 1 if hr.upper() == 'NORMAL' else 2
         width = int((height * img.shape[1]) / img.shape[0] / hr)
         img = cv2.resize(img, (width, height), interpolation=method)
+    return img
 
-    if equalizer:
-        # Create a CLAHE object.
-        clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
-        if len(img.shape) == 2: # GRAY
-            if img.dtype != 'uint8':
-                img = clipIMG(img, imin, imax)
-            img = clahe.apply(img)
-        elif len(img.shape) == 3:  # RGB [https://stackoverflow.com/a/47370615]
-            lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-            lab_planes = cv2.split(lab)
-            lab_planes[0] = clahe.apply(lab_planes[0])
-            lab = cv2.merge(lab_planes)
-            img = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
-        else:
-            raise ValueError('Image shape must be 2 or 3')
+def imgEq(img, imin=None, imax=None):
+    '''Locally equalize image'''
+    # Create a CLAHE object.
+    clahe = cv2.createCLAHE(clipLimit=1, tileGridSize=(2, 2))
+    if len(img.shape) == 2: # GRAY
+        if img.dtype != 'uint8':
+            img = clipIMG(img, imin, imax)
+        img = clahe.apply(img)
+    elif len(img.shape) == 3:  # RGB [https://stackoverflow.com/a/47370615]
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        lab_planes = cv2.split(lab)
+        lab_planes[0] = clahe.apply(lab_planes[0])
+        lab = cv2.merge(lab_planes)
+        img = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)
+    else:
+        raise ValueError('Image shape must be 2 or 3')
     return img
