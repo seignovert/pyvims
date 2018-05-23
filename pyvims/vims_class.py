@@ -262,12 +262,6 @@ class VIMS_OBJ(object):
             R[0], R[-1], G[0], G[-1], B[0], B[-1]
         )
 
-        cond = (img_R < 1.e-4) | (img_G < 1.e-4) | (img_B < 1.e-4)
-
-        img_R[cond] = np.nan
-        img_G[cond] = np.nan
-        img_B[cond] = np.nan
-
         if not eq_channels:
             img_R = imgClip(img_R)
             img_G = imgClip(img_G)
@@ -284,7 +278,7 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('RGB_'+name, img, desc)
 
-    def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D):
+    def quicklook_RGBR(self, name, R_N, R_D, G_N, G_D, B_N, B_D, noise=1.e-4):
         '''
         Quicklook - RGB based on ratios
 
@@ -319,8 +313,7 @@ class VIMS_OBJ(object):
         img_G = img_G_N / img_G_D
         img_B = img_B_N / img_B_D
 
-        cond = (img_R_N < 1.e-4) | (img_G_N < 1.e-4) | (img_B_N < 1.e-4) | \
-               (img_R_D < 1.e-4) | (img_G_D < 1.e-4) | (img_B_D < 1.e-4)
+        cond = (img_R_D < noise) | (img_G_D < noise) | (img_B_D < noise)
 
         img_R[cond] = np.nan
         img_G[cond] = np.nan
@@ -345,7 +338,7 @@ class VIMS_OBJ(object):
 
         self.jpgQuicklook('RGBR_'+name, img, desc)
 
-    def quicklook_BD(self, name, wvln_L, wvln_C, wvln_R):
+    def quicklook_BD(self, name, wvln_L, wvln_C, wvln_R, noise=1.e-2):
         '''Quicklook - Band depth image from bands (center/left/right)'''
         try:
             L = self.bands[self.getIndex(wvln=wvln_L)]
@@ -374,16 +367,17 @@ class VIMS_OBJ(object):
         img = 1. - img_C / (l * img_L + r * img_R)
 
         img[img < 0] = np.nan
-        img[img_L < 1.e-2] = np.nan
-        img[img_C < 1.e-2] = np.nan
-        img[img_R < 1.e-2] = np.nan
+        img[img_L < noise] = np.nan
+        img[img_C < noise] = np.nan
+        img[img_R < noise] = np.nan
 
         img = imgInterp(img, hr=hr, height=None)
 
         self.jpgQuicklook('BD_'+name, img, desc)
 
     def quicklook_RBD(self, name, wvln_L_N, wvln_C_N, wvln_R_N,
-                                  wvln_L_D, wvln_C_D, wvln_R_D):
+                                  wvln_L_D, wvln_C_D, wvln_R_D,
+                                  noise=1.e-2):
         '''Quicklook - Ratio of band depth images'''
         try:
             L_N = self.bands[self.getIndex(wvln=wvln_L_N)]
@@ -434,17 +428,17 @@ class VIMS_OBJ(object):
         img_D = 1. - img_C_D / (l_D * img_L_D + r_D * img_R_D)
 
         img_N[img_N < 0] = np.nan
-        img_N[img_L_N < 1.e-2] = np.nan
-        img_N[img_C_N < 1.e-2] = np.nan
-        img_N[img_R_N < 1.e-2] = np.nan
+        img_N[img_L_N < noise] = np.nan
+        img_N[img_C_N < noise] = np.nan
+        img_N[img_R_N < noise] = np.nan
         
         img_D[img_D < 0] = np.nan
-        img_D[img_L_D < 1.e-2] = np.nan
-        img_D[img_C_D < 1.e-2] = np.nan
-        img_D[img_R_D < 1.e-2] = np.nan
+        img_D[img_L_D < noise] = np.nan
+        img_D[img_C_D < noise] = np.nan
+        img_D[img_R_D < noise] = np.nan
 
         img = img_N / img_D
-        img[img_D < 1.e-2] = np.nan
+        img[img_D < noise] = np.nan
 
         img = imgInterp(img, hr=hr, height=None)
 
