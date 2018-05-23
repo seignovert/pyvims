@@ -17,8 +17,10 @@ def getImgID(imgID):
                 .replace('c','')\
                 .replace('v','')
 
-def clipIMG(img, imin=0, imax=None):
+def clipIMG(img, imin=None, imax=None):
     '''Clip image [0-255] between imin/imax'''
+    if imin is None:
+        imin = np.nanmin(img)
     if imax is None:
         imax = np.nanmax(img)
     return np.uint8(np.clip(255.*(img-imin)/(imax-imin), 0, 255))
@@ -42,7 +44,7 @@ def imgInterp(img, imin=0, imax=None, height=256, hr='NORMAL',
         return None
     if not height is None:
         hr = 1 if hr.upper() == 'NORMAL' else 2
-        width = (height * img.shape[1]) / img.shape[0] / hr
+        width = int((height * img.shape[1]) / img.shape[0] / hr)
         img = cv2.resize(img, (width, height), interpolation=method)
 
     if equalizer:
