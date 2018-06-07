@@ -245,13 +245,16 @@ class VIMS_OBJ(object):
         try:
             if R_S:
                 img_R_S, wvln_R_S = self.getImgBands(R_S)
-                img_R = img_R - .5 * img_R_S
+                img_R = img_R - img_R_S
+                img_R[img_R < 0] = 0
             if G_S:
                 img_G_S, wvln_G_S = self.getImgBands(G_S)
-                img_G = img_G - .5 * img_G_S
+                img_G = img_G - img_G_S
+                img_G[img_G < 0] = 0
             if B_S:
                 img_B_S, wvln_B_S = self.getImgBands(B_S)
-                img_B = img_B - .5 * img_B_S
+                img_B = img_B - img_B_S
+                img_B[img_B < 0] = 0
         except ValueError:
             pass
             print('WARNING: RGB substract failed for {} -> R_S:{}, G_S:{}, B_S:{}'.format(self.imgID,R_S,G_S,B_S))
