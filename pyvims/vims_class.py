@@ -269,6 +269,8 @@ class VIMS_OBJ(object):
             img_R = imgClip(img_R)
             img_G = imgClip(img_G)
             img_B = imgClip(img_B)
+        else:
+            img_B /= .65 # VIMS Visible Blue Channel correction (based on Enceladus albedo)
 
         min_RGB = np.min([np.min(R), np.min(G), np.min(B)])
         hr = self.HR(min_RGB)
@@ -692,9 +694,9 @@ class VIMS_OBJ(object):
     def quicklook_RGB_070_056_045(self):
         '''Quicklook @ (0.70, 0.56, 0.45) um [47-51, 27-31, 12-16]'''
         name = '070_056_045'
-        R = range(47, 51+1)
-        G = range(27, 31+1)
-        B = range(12, 16+1)
+        R = self.getBands(0.650, 0.025) # ISS NAC (RED|CL2)
+        G = self.getBands(0.568, 0.025) # ISS NAC (CL1|GRN)
+        B = self.getBands(0.450, 0.025) # ISS NAC (BL1|CL2)
         self.quicklook_RGB(name, R, G, B, eq_channels=True)
 
     @property
