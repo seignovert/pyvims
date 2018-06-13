@@ -609,7 +609,7 @@ class VIMS_OBJ(object):
 
     @property
     def quicklook_R_159_126(self):
-        '''Quicklook @ 1.59/1.26 um [165-169]'''
+        '''Quicklook @ 1.59/1.26 um [139-120]'''
         name = '159_126'
         N = [139]
         D = [120]
