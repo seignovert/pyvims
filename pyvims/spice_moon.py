@@ -37,6 +37,21 @@ class SPICE_MOON(SPICE_CASSINI):
         pos, _ = spice.spkpos(self.targ, et, self.ref, abcorr, self.obs)
         return lonlat( pos )[0]
 
+    @property
+    def body_code(self):
+        '''Spice body code'''
+        return spice.bods2c(self.targ)
+
+    @property
+    def radii(self):
+        '''Moon (a, b, c) radii'''
+        return spice.bodvar(self.body_code, "RADII", 3)
+
+    @property
+    def radius(self):
+        '''Moon mean radius [m] (geometric mean)'''
+        return np.cbrt(np.prod(self.radii))
+
     def SC(self, utc, method='INTERCEPT/ELLIPSOID', abcorr='CN+S'):
         '''Sub-spacecraft point'''
         et = spice.str2et(utc)
