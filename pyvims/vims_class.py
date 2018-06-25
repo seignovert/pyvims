@@ -81,8 +81,8 @@ class VIMS_OBJ(object):
             return self.getBand(band)
         return self.getWvln(wvln)
 
-    def getSpec(self, S=1, L=1):
-        '''Get spectra at specific pixel location
+    def checkBoundary(self, S, L):
+        '''Pixel location boundaries
         Note:
         -----
             Top-left     pixel = ( 1, 1)
@@ -93,12 +93,58 @@ class VIMS_OBJ(object):
         if S < 0:
             raise ValueError('Sample too small (> 0)')
         elif S >= self.NS:
-            raise ValueError('Sample too large (< %i)' % self.NS )
+            raise ValueError('Sample too large (< %i)' % self.NS)
         elif L < 0:
             raise ValueError('Line too small (> 0)')
         elif L >= self.NL:
-            raise ValueError('Line too large (< %i)' % self.NL )
-        return self.cube[:,L-1,S-1]
+            raise ValueError('Line too large (< %i)' % self.NL)
+        return True
+
+    def getSpec(self, S=1, L=1):
+        '''Get spectra at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.cube[:,L-1,S-1]
+
+    def getLon(self, S=1, L=1):
+        '''Get longitude at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.lon[L-1, S-1]
+
+    def getLat(self, S=1, L=1):
+        '''Get latitude at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.lat[L-1, S-1]
+
+    def getInc(self, S=1, L=1):
+        '''Get incidence at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.inc[L-1, S-1]
+
+    def getEme(self, S=1, L=1):
+        '''Get emergence at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.eme[L-1, S-1]
+
+    def getPhase(self, S=1, L=1):
+        '''Get phase at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.phase[L-1, S-1]
+
+    def getRes(self, S=1, L=1):
+        '''Get resolution at specific pixel location'''
+        if self.checkBoundary(S, L):
+            return self.res[L-1, S-1]
+
+    def isLimb(self, S=1, L=1):
+        '''Check if the pixel is at the limb'''
+        if self.checkBoundary(S, L):
+            return self.limb[L-1, S-1]
+
+    def isSpecular(self, S=1, L=1):
+        '''Check if the pixel has a specular geometry'''
+        if self.checkBoundary(S, L):
+            return self.specular[L-1, S-1]
+
 
     def getImg(self, band=97, wvln=None):
         '''Get image at specific band or wavelength'''
