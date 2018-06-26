@@ -2,6 +2,7 @@
 '''Python package to manipulate the Cassini VIMS data.'''
 
 from .vims import VIMS
+from .vims_geotiff import VIMS_GEOTIFF
 from .vims_team import VIMS_TEAM
 from .vims_isis3 import VIMS_ISIS3
 from .vims_qub import VIMS_QUB
