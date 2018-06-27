@@ -3,11 +3,17 @@ import os
 import numpy as np
 import cv2
 import piexif
+import pvl
+import scipy.interpolate
 
 from ._communs import getImgID, imgClip, imgInterp
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
+from .spice_moon import SPICE_MOON
+from .geotiff import GeoTiff
+from .geotiff.ortho import grid as ortho_grid
+from .geotiff.ortho import srs as ortho_srs
 
 class VIMS_OBJ(object):
     '''VIMS object abstract class'''
@@ -170,6 +176,51 @@ class VIMS_OBJ(object):
     def HR(self, band):
         '''Extract acquisition mode'''
         return self.mode['VIS'] if band < 97 else self.mode['IR']  # VIS|IR mode
+
+
+    def createGeoTiff(self):
+        '''Create GeoTiff from Image infos'''
+
+        metadata = {
+            'TIFFTAG_SOFTWARE': 'PyVIMS/GDAL',
+            'TIFFTAG_ARTIST': 'Cassini-VIMS Data Portal (LPG/Univ-Nantes)',
+            'TIFFTAG_DOCUMENTNAME': self.imgID,
+            'TIFFTAG_DATETIME': str(self.dtime),
+            'TIFFTAG_IMAGEDESCRIPTION': 'Calibrated orthographic reprojected Cassini-VIMS cube',
+            'TIFFTAG_COPYRIGHT': 'NASA/Caltech-JPL/University of Arizona/LPG Nantes',
+            'GTIFF_DIM_EXTRA': '{wvln}',
+            'wvln#standard_name': 'Wavelength',
+            'wvln#long_name': 'Central Wavelength',
+            'wvln#units': 'um',
+            'ISIS_CUBE_HEADER': pvl.dumps(self.lbl),
+            'VIMS_SAMPLING_VIS_IR': self.mode['VIS'] + ',' + self.mode['IR'],
+        }
+
+        moon = SPICE_MOON(self.target)
+        R = moon.radius
+        _, SC_lon, SC_lat = moon.SC(self.time)
+
+        srs = ortho_srs(SC_lat, SC_lon, R, self.target)
+
+        lon = self.lon[~self.limb]
+        lat = self.lat[~self.limb]
+        npt = max([self.NS, self.NL])
+
+        x, y, X, Y, geotransform = ortho_grid(lat, lon, SC_lat, SC_lon, R, npt)
+
+        bands = np.nan * np.empty(self.cube.shape)
+        metadataBands = []
+        for i in range(352):
+            img = self.cube[i,:,:][~self.limb]
+            interp = scipy.interpolate.griddata((x, y), img, (X, Y), method='cubic')
+            interp[np.isnan(interp)] = -1
+            bands[0, :, :] = interp
+
+            metadataBands.append({'GTIFF_DIM_wvln': round(self.wvlns[i], 3)})
+
+        geotiff = GeoTiff(os.path.join(self.root, self.imgID), read=False)
+        geotiff.create(npt, npt, 352, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1)
+
 
     def jpgQuicklook(self, name, img, desc):
         '''Save image quicklook'''

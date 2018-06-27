@@ -4,11 +4,12 @@ import numpy as np
 from osgeo import gdal, gdalconst
 
 class GeoTiff(object):
-    def __init__(self, fname):
+    def __init__(self, fname, read=True):
         self.name = fname.replace('.tiff','').replace('.tif','')
         self.fname = self.name + '.tif'
-        if self.isFile:
-            self.read()
+        if read:
+            if self.isFile:
+                self.read()
 
     def __str__(self):
         return self.fname
@@ -52,6 +53,23 @@ class GeoTiff(object):
         data[data == band.GetNoDataValue()] = np.nan
         return data
 
-    def bandMetadata(self, i):
+    def metadataBand(self, i):
         '''Get band `i` metadata'''
         return self.ds.GetRasterBand(i).GetMetadata()
+
+    def create(self, nx, ny, nb, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1):
+        '''Create GeoTiff file'''
+        ds = gdal.GetDriverByName('GTiff').Create(self.fname, nx, ny, nb, gdal.GDT_Float32, ['COMPRESS=LZW'])
+        ds.SetGeoTransform(geotransform)
+        ds.SetMetadata(metadata)
+        ds.SetProjection(srs.ExportToWkt())
+
+        for B in np.arange(nb):
+            band = ds.GetRasterBand(int(B+1))
+            band.WriteArray(bands[B])
+            band.SetNoDataValue(noDataValue)
+            for key, value in metadataBands[B].items():
+                band.SetMetadataItem(key, str(value))
+
+        ds.FlushCache()
+        del ds

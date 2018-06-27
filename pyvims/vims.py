@@ -35,5 +35,4 @@ class VIMS(object):
                             inst.__init__(imgID, root)
                         except NameError:
                             raise NameError('GeoTiff/CUB/QUB/LBL: %s not found' % imgID )
-        inst.setNAV()
         return inst

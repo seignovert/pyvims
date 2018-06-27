@@ -11,6 +11,7 @@ class VIMS_TEAM(VIMS_OBJ):
         VIMS_OBJ.__init__(self, imgID, root)
         self.readLBL()
         self.readCUB()
+        self.setNAV()
         return
 
     def __repr__(self):
