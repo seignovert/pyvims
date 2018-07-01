@@ -11,7 +11,7 @@ from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
 from .spice_moon import SPICE_MOON
-from .geotiff import GeoTiff
+from .geotiff import GeoTiff, ENVI
 from .geotiff.ortho import grid as ortho_grid
 from .geotiff.ortho import srs as ortho_srs
 
@@ -220,6 +220,15 @@ class VIMS_OBJ(object):
 
         geotiff = GeoTiff(os.path.join(self.root, self.imgID), read=False)
         geotiff.create(npt, npt, 352, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1)
+
+    def createENVIhdr(self):
+        '''Create ENVI header'''
+        envi = ENVI(self.NS, self.NL, self.NB,
+                    desc='ENVI File, Created [{}]'.format(self.dtime),
+                    wvlns=self.wvlns)
+
+        with open(os.path.join(self.root, self.imgID + '.hdr'), 'w') as f:
+            f.write(envi.dump())
 
 
     def jpgQuicklook(self, name, img, desc):
