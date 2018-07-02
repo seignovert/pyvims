@@ -71,7 +71,6 @@ class VIMS_ISIS3(VIMS_OBJ):
 
         self.NS     = int(self.lbl['Core']['Dimensions']['Samples'])
         self.NL     = int(self.lbl['Core']['Dimensions']['Lines'])
-        self.NB     = int(self.lbl['Core']['Dimensions']['Bands'])
         self.obs    = self.lbl['Instrument']['SpacecraftName']
         self.inst   = self.lbl['Instrument']['InstrumentId']
         self.target = self.lbl['Instrument']['TargetName']
@@ -98,6 +97,7 @@ class VIMS_ISIS3(VIMS_OBJ):
 
         self.wvlns = np.concatenate((self.wvlns_vis, self.wvlns_ir), axis=0)
         self.bands = np.concatenate((self.bands_vis, self.bands_ir), axis=0)
+        self.NB = len(self.bands)
         return
 
     def readCUB(self):

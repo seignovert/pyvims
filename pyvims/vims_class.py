@@ -151,7 +151,6 @@ class VIMS_OBJ(object):
         if self.checkBoundary(S, L):
             return self.specular[L-1, S-1]
 
-
     def getImg(self, band=97, wvln=None):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
@@ -210,16 +209,16 @@ class VIMS_OBJ(object):
 
         bands = np.nan * np.empty(self.cube.shape)
         metadataBands = []
-        for i in range(352):
-            img = self.cube[i,:,:][~self.limb]
+        for i in range(self.NB):
+            img = self.cube[i, :, :][~self.limb]
             interp = scipy.interpolate.griddata((x, y), img, (X, Y), method='cubic')
             interp[np.isnan(interp)] = -1
-            bands[0, :, :] = interp
+            bands[i, :, :] = interp
 
             metadataBands.append({'GTIFF_DIM_wvln': round(self.wvlns[i], 3)})
 
         geotiff = GeoTiff(os.path.join(self.root, self.imgID), read=False)
-        geotiff.create(npt, npt, 352, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1)
+        geotiff.create(npt, npt, self.NB, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1)
 
     def createENVIhdr(self):
         '''Create ENVI header'''
