@@ -215,7 +215,7 @@ class VIMS_OBJ(object):
             interp[np.isnan(interp)] = noDataValue
             bands[i, :, :] = interp
 
-            metadataBands.append({'GTIFF_DIM_wvln': round(self.wvlns[i], 3)})
+            metadataBands.append({'GTIFF_DIM_wvln': self.wvlns[i]})
 
         geotiff = GeoTiff(os.path.join(self.root, self.imgID), read=False)
         geotiff.create(npt, npt, self.NB, geotransform, metadata,
@@ -224,9 +224,9 @@ class VIMS_OBJ(object):
     def createENVIhdr(self):
         '''Create ENVI header'''
         envi = ENVI(self.NS, self.NL, self.NB,
-                    offset=self.header_offset,
-                    desc='ENVI File, Created [{}]'.format(self.dtime),
-                    file_type=self.envi_type,
+                    offset=0,
+                    desc='GeoTiff File: {} [{}]'.format(self.imgID, self.dtime),
+                    file_type='TIFF',
                     wvlns=self.wvlns)
 
         with open(os.path.join(self.root, self.imgID + '.hdr'), 'w') as f:

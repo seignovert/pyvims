@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 
 class ENVI(object):
     def __init__(self, NS, NL, NB, offset=0,
@@ -6,7 +7,9 @@ class ENVI(object):
                  file_type='ENVI Standard',
                  data_type=4,
                  byte_order=0,
-                 wvlns=[], units='Micrometers'):
+                 wvlns=[],
+                 units='Micrometers',
+                 nbyline=8):
         self.desc = desc
         self.samples = int(NS)
         self.lines = int(NL)
@@ -16,8 +19,8 @@ class ENVI(object):
         self.data_type = data_type
         self.byte_order = byte_order
         self.wvlns = wvlns
-        self.wvlns_str = [str(w) for w in wvlns]
         self.wvln_units = units.title()
+        self.n = nbyline
 
     @property
     def units(self):
@@ -29,11 +32,13 @@ class ENVI(object):
 
     @property
     def bandNames(self):
-        prec = 2
-        return [
-            'Band {} ({} {})'.format(int(i+1), round(self.wvlns[i], prec), self.units)
-            for i in range(self.bands)
-        ]
+        bands = [ 'Band {}'.format(int(i+1)) for i in range(self.bands) ]
+        return [', '.join(bands[i:i+self.n]) for i in np.arange(0, len(bands), self.n)]
+
+    @property
+    def wvlnNames(self):
+        wvlns = [ str(w) for w in self.wvlns ]
+        return [', '.join(wvlns[i:i+self.n]) for i in np.arange(0, len(wvlns), self.n)]
 
     def dump(self):
         out = ['ENVI']
@@ -47,5 +52,5 @@ class ENVI(object):
         out.append('byte order = {}'.format(self.byte_order))
         out.append('wavelength units = {}'.format(self.wvln_units))
         out.append('band names = {{\n\t{}}}'.format(',\n\t'.join(self.bandNames)))
-        out.append('wavelength = {{\n\t{}}}'.format(',\n\t'.join(self.wvlns_str)))
+        out.append('wavelength = {{\n\t{}}}'.format(',\n\t'.join(self.wvlnNames)))
         return '\n'.join(out)
