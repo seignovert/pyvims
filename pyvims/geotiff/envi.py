@@ -6,7 +6,7 @@ class ENVI(object):
                  file_type='ENVI Standard',
                  data_type=4,
                  byte_order=0,
-                 wvlns=[], units='microns'):
+                 wvlns=[], units='Micrometers'):
         self.desc = desc
         self.samples = int(NS)
         self.lines = int(NL)
@@ -15,12 +15,13 @@ class ENVI(object):
         self.file_type = file_type
         self.data_type = data_type
         self.byte_order = byte_order
-        self.wvlns = [str(w) for w in wvlns]
-        self.wvln_units = units.lower()
+        self.wvlns = wvlns
+        self.wvlns_str = [str(w) for w in wvlns]
+        self.wvln_units = units.title()
 
     @property
     def units(self):
-        if self.wvln_units == 'microns':
+        if self.wvln_units == 'Micrometers':
             return 'um'
         else:
             raise NotImplementedError('Unit {} is not implemented yet'.format(
@@ -28,8 +29,9 @@ class ENVI(object):
 
     @property
     def bandNames(self):
+        prec = 2
         return [
-            'Band {} ({} {})'.format(int(i+1), self.wvlns[i], self.units)
+            'Band {} ({} {})'.format(int(i+1), round(self.wvlns[i], prec), self.units)
             for i in range(self.bands)
         ]
 
@@ -45,5 +47,5 @@ class ENVI(object):
         out.append('byte order = {}'.format(self.byte_order))
         out.append('wavelength units = {}'.format(self.wvln_units))
         out.append('band names = {{\n\t{}}}'.format(',\n\t'.join(self.bandNames)))
-        out.append('wavelength = {{\n\t{}}}'.format(',\n\t'.join(self.wvlns)))
+        out.append('wavelength = {{\n\t{}}}'.format(',\n\t'.join(self.wvlns_str)))
         return '\n'.join(out)
