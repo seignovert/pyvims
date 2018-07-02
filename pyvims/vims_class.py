@@ -11,7 +11,7 @@ from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
 from .spice_moon import SPICE_MOON
-from .geotiff import GeoTiff, ENVI
+from .geotiff import GeoTiff, ENVI, ArcMap
 from .geotiff.ortho import grid as ortho_grid
 from .geotiff.ortho import srs as ortho_srs
 
@@ -232,6 +232,12 @@ class VIMS_OBJ(object):
         with open(os.path.join(self.root, self.imgID + '.hdr'), 'w') as f:
             f.write(envi.dump())
 
+    def createArcMapAux(self):
+        '''Create ArcMap .aux.xml file'''
+        arcmap = ArcMap(self.wvlns)
+
+        with open(os.path.join(self.root, self.imgID + '.tif.aux.xml'), 'wb') as f:
+            f.write(arcmap.dump())
 
     def jpgQuicklook(self, name, img, desc):
         '''Save image quicklook'''
