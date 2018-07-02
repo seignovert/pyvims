@@ -224,7 +224,9 @@ class VIMS_OBJ(object):
     def createENVIhdr(self):
         '''Create ENVI header'''
         envi = ENVI(self.NS, self.NL, self.NB,
+                    offset=self.header_offset,
                     desc='ENVI File, Created [{}]'.format(self.dtime),
+                    file_type=self.envi_type,
                     wvlns=self.wvlns)
 
         with open(os.path.join(self.root, self.imgID + '.hdr'), 'w') as f:

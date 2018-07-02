@@ -56,6 +56,9 @@ class VIMS_GEOTIFF(VIMS_OBJ):
         for i in range(self.NB):
             self.bands[i] = i+1
             self.wvlns[i] = float(self.geotiff.metadataBand(i+1)['GTIFF_DIM_wvln'])
+
+        self.envi_type = 'TIFF'
+        self.header_offset = 0
         return
 
     def readCUB(self):

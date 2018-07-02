@@ -98,6 +98,9 @@ class VIMS_ISIS3(VIMS_OBJ):
         self.wvlns = np.concatenate((self.wvlns_vis, self.wvlns_ir), axis=0)
         self.bands = np.concatenate((self.bands_vis, self.bands_ir), axis=0)
         self.NB = len(self.bands)
+        
+        self.envi_type = 'ENVI Standard'
+        self.header_offset = int(self.lbl['Core']['StartByte'])
         return
 
     def readCUB(self):
