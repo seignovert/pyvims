@@ -177,7 +177,7 @@ class VIMS_OBJ(object):
         return self.mode['VIS'] if band < 97 else self.mode['IR']  # VIS|IR mode
 
 
-    def createGeoTiff(self):
+    def createGeoTiff(self, noDataValue=-1):
         '''Create GeoTiff from Image infos'''
 
         metadata = {
@@ -212,13 +212,14 @@ class VIMS_OBJ(object):
         for i in range(self.NB):
             img = self.cube[i, :, :][~self.limb]
             interp = scipy.interpolate.griddata((x, y), img, (X, Y), method='cubic')
-            interp[np.isnan(interp)] = -1
+            interp[np.isnan(interp)] = noDataValue
             bands[i, :, :] = interp
 
             metadataBands.append({'GTIFF_DIM_wvln': round(self.wvlns[i], 3)})
 
         geotiff = GeoTiff(os.path.join(self.root, self.imgID), read=False)
-        geotiff.create(npt, npt, self.NB, geotransform, metadata, srs, bands, metadataBands, noDataValue=-1)
+        geotiff.create(npt, npt, self.NB, geotransform, metadata,
+                       srs, bands, metadataBands, noDataValue=noDataValue)
 
     def createENVIhdr(self):
         '''Create ENVI header'''
