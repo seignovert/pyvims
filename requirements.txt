@@ -1,4 +1,5 @@
 numpy
+scipy
 datetime
 opencv-python>3.3
 piexif
