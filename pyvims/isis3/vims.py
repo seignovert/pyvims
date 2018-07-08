@@ -265,3 +265,19 @@ def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
             print("STDERR: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
             raise VIMSError(e.returncode, 'lowpass ({})' % channel, vims.id)
+
+
+def callibrate(imgID, qub=QUB, cub=CUB,
+               cal=CAL, nav=NAV,
+               dns=DNS, cln=CLN,
+               verbose=VERBOSE)
+    '''Full VIMS calibration and denoise'''
+    vims = ISIS3_VIMS(imgID, qub=QUB, cub=CUB,
+                      cal=CAL, nav=NAV,
+                      dns=DNS, cln=CLN,
+                      verbose=VERBOSE)
+    vims2isis(vims)
+    vimscal(vims)
+    phocube(vims)
+    noisefilter(vims)
+    lowpass(vims)
