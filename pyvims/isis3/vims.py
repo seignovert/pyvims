@@ -18,9 +18,9 @@ CLN = 'CLN' if 'VIMS_CLN' not in os.environ else os.environ['VIMS_CLN']
 def isVIS(channel):
     '''Check if VIMS channel is VIS (visible) or IR (infra-red)'''
     ch = channel.upper()
-    if ch == 'IR':
+    if ch == 'VIS':
         return True
-    elif ch == 'VIS':
+    elif ch == 'IR':
         return False
     else:
         raise KeyError('Unknown VIMS channel [VIS|IR]: {}'.format(channel))
