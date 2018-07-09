@@ -23,7 +23,7 @@ def isVIS(channel):
     elif ch == 'VIS':
         return False
     else:
-        raise KeyError('Unknown VIMS channel [VIS|IR]: {}' % channel)
+        raise KeyError('Unknown VIMS channel [VIS|IR]: {}'.format(channel))
 
 class VIMSError(ISISError):
     def __init__(self, returncode, cmd, vims):
@@ -166,7 +166,7 @@ def vimscal_ch(vims, channel='IR', cal=CAL, verbose=VERBOSE):
             print("STDOUT: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
-            raise VIMSError(e.returncode, 'vimscal ({})' % channel, vims.id)
+            raise VIMSError(e.returncode, 'vimscal ({})'.format(channel), vims.id)
 
 
 def phocube(vims, nav=CAL, verbose=VERBOSE):
@@ -198,7 +198,7 @@ def phocube_ch(vims, channel='IR', nav=CAL, verbose=VERBOSE):
             print("STDOUT: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
-            raise VIMSError(e.returncode, 'phocube ({})' % channel, vims.id)
+            raise VIMSError(e.returncode, 'phocube ({})'.format(channel), vims.id)
 
 
 def noisefilter(vims, dns=DNS, verbose=VERBOSE):
@@ -223,14 +223,14 @@ def noisefilter_ch(vims, channel='IR', dns=DNS, verbose=VERBOSE):
         ])
 
         if verbose:
-            print('-> DNS {} ({}) created' % (vims.id, channel))
+            print('-> DNS {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
         if verbose:
             print("STDOUT: noisefilter ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: noisefilter ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
-            raise VIMSError(e.returncode, 'noisefilter ({})' % channel, vims.id)
+            raise VIMSError(e.returncode, 'noisefilter ({})'.format(channel), vims.id)
 
 
 def lowpass(vims, cln=CLN, verbose=VERBOSE):
@@ -257,14 +257,14 @@ def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
         ])
 
         if verbose:
-            print('-> CLN {} ({}) created' % (vims.id, channel))
+            print('-> CLN {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
         if verbose:
             print("STDOUT: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
-            raise VIMSError(e.returncode, 'lowpass ({})' % channel, vims.id)
+            raise VIMSError(e.returncode, 'lowpass ({})'.format(channel), vims.id)
 
 
 def calibrate(imgID, qub=QUB, cub=CUB,
