@@ -207,7 +207,7 @@ class VIMS_OBJ(object):
 
         x, y, X, Y, geotransform = ortho_grid(lat, lon, SC_lat, SC_lon, R, npt)
 
-        bands = np.nan * np.empty(self.cube.shape)
+        bands = np.nan * np.empty((self.NB, npt, npt))
         metadataBands = []
         for i in range(self.NB):
             img = self.cube[i, :, :][~self.limb]
