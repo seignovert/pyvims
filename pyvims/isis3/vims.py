@@ -97,7 +97,7 @@ class ISIS3_VIMS(object):
 # ISIS functions
 def vims2isis(vims, cub=CUB, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, cub=cub)
+        vims = ISIS3_VIMS(vims, cub=cub, verbose=verbose)
     try:
         call([
             'vims2isis',
@@ -106,11 +106,11 @@ def vims2isis(vims, cub=CUB, verbose=VERBOSE):
             'vis={}'.format(vims.vis)
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> VIS/IR CUB {} created'.format(vims.id))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: vims2isis - {}\n{}".format(vims.id, e.stdout))
             print("STDERR: vims2isis - {}\n{}".format(vims.id, e.stderr))
         else:
@@ -124,18 +124,18 @@ def spiceinit(vims, cub=CUB, verbose=VERBOSE):
 
 def spiceinit_ch(vims, channel='IR', cub=CUB, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, cub=cub)
+        vims = ISIS3_VIMS(vims, cub=cub, verbose=verbose)
     try:
         call([
             'spiceinit',
             'from={}'.format(vims.vis if isVIS(channel) else vims.ir),
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> CUB {} ({}) spice init succeded'.format(vims.id, channel))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: spiceinit ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: spiceinit ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
@@ -149,7 +149,7 @@ def vimscal(vims, cal=CAL, verbose=VERBOSE):
 
 def vimscal_ch(vims, channel='IR', cal=CAL, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, cal=cal)
+        vims = ISIS3_VIMS(vims, cal=cal, verbose=verbose)
     try:
         call([
             'vimscal',
@@ -158,11 +158,11 @@ def vimscal_ch(vims, channel='IR', cal=CAL, verbose=VERBOSE):
             'units=IOF',
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> CAL {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
@@ -176,7 +176,7 @@ def phocube(vims, nav=CAL, verbose=VERBOSE):
 
 def phocube_ch(vims, channel='IR', nav=CAL, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, nav=nav)
+        vims = ISIS3_VIMS(vims, nav=nav, verbose=verbose)
     try:
         call([
             'phocube',
@@ -190,11 +190,11 @@ def phocube_ch(vims, channel='IR', nav=CAL, verbose=VERBOSE):
             'phase=true',
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> NAV {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: vimscal ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
@@ -208,7 +208,7 @@ def noisefilter(vims, dns=DNS, verbose=VERBOSE):
 
 def noisefilter_ch(vims, channel='IR', dns=DNS, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, dns=dns)
+        vims = ISIS3_VIMS(vims, dns=dns, verbose=verbose)
     try:
         call([
             'noisefilter',
@@ -222,11 +222,11 @@ def noisefilter_ch(vims, channel='IR', dns=DNS, verbose=VERBOSE):
             'lines=5',
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> DNS {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: noisefilter ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: noisefilter ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
@@ -240,7 +240,7 @@ def lowpass(vims, cln=CLN, verbose=VERBOSE):
 
 def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
-        vims = ISIS3_VIMS(vims, cln=cln)
+        vims = ISIS3_VIMS(vims, cln=cln, verbose=verbose)
     try:
         call([
             'lowpass',
@@ -256,11 +256,11 @@ def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
             'replacement=center',
         ])
 
-        if verbose:
+        if vims.verbose:
             print('-> CLN {} ({}) created'.format(vims.id, channel))
 
     except ProcessError as e:
-        if verbose:
+        if vims.verbose:
             print("STDOUT: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stdout))
             print("STDERR: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
