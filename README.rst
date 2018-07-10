@@ -22,6 +22,7 @@ You need to install it first before installing ``pyvims``.
 With ``conda``:
 
 .. code:: bash
+
     $ conda install -c conda-forge gdal
 
 Or directly on Ubuntu:
