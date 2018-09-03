@@ -1030,26 +1030,26 @@ class VIMS_OBJ(object):
                 self.quicklook_G_501
                 self.quicklook_RGB_501_332_322
             else:
-                self.quicklook_G_178
+                # self.quicklook_G_178
                 self.quicklook_G_17877
                 self.quicklook_G_20017
                 self.quicklook_G_30969
-                self.quicklook_BD_125
-                self.quicklook_BD_150
-                self.quicklook_BD_165
-                self.quicklook_BD_202
-                self.quicklook_RBD_150_202
-                self.quicklook_S_260
-                self.quicklook_P_360
-                self.quicklook_P_310
-                self.quicklook_C_310
+                # self.quicklook_BD_125
+                # self.quicklook_BD_150
+                # self.quicklook_BD_165
+                # self.quicklook_BD_202
+                # self.quicklook_RBD_150_202
+                # self.quicklook_S_260
+                # self.quicklook_P_360
+                # self.quicklook_P_310
+                # self.quicklook_C_310
                 self.quicklook_G_500
-                self.quicklook_S_360_500
+                # self.quicklook_S_360_500
                 self.quicklook_G_34487
-                self.quicklook_BD_104
-                self.quicklook_CB_202
-                self.quicklook_CB_150
-                self.quicklook_CB_310
+                # self.quicklook_BD_104
+                # self.quicklook_CB_202
+                # self.quicklook_CB_150
+                # self.quicklook_CB_310
                 self.quicklook_RGB_310_200_178
 
         if self.mode['VIS'] is not None:
