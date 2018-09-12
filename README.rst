@@ -1,16 +1,20 @@
-===============================
 PyVIMS
 ===============================
+
 |Build| |PyPI| |Status| |Version| |Python| |License|
 
 .. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=master
         :target: https://travis-ci.org/seignovert/pyvims
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg
-        :target: https://pypi.python.org/project/pyvims
+        :target: https://pypi.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
+        :target: https://pypi.org/project/pyvims
 .. |Version| image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
+        :target: https://pypi.org/project/pyvims
 .. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
+        :target: https://pypi.org/project/pyvims
 .. |License| image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
+        :target: https://pypi.org/project/pyvims
 
 Python package to manipulate the Cassini VIMS data.
 
