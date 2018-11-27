@@ -27,6 +27,7 @@ With ``conda``:
 
 .. code:: bash
 
+    $ conda config --add channels conda-forge
     $ conda install -c conda-forge gdal
 
 Or directly on Ubuntu:
