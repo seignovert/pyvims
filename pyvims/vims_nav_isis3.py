@@ -118,9 +118,3 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
         self.phase[self.nan] = np.nan
         self.res[self.nan] = np.nan
         return
-
-    @property
-    def specular(self):
-        return (np.abs(self.inc - self.eme) < 1) & \
-            (np.abs(self.phase-(self.inc+self.eme)) < 1) & \
-            (self.inc < 92)

@@ -62,7 +62,6 @@ class VIMS_OBJ(object):
         self.phase = nav.phase
         self.res = nav.res
         self.limb = nav.nan
-        self.specular = nav.specular
         return
 
     def getBand(self, band):
@@ -145,11 +144,6 @@ class VIMS_OBJ(object):
         '''Check if the pixel is at the limb'''
         if self.checkBoundary(S, L):
             return self.limb[L-1, S-1]
-
-    def isSpecular(self, S=1, L=1):
-        '''Check if the pixel has a specular geometry'''
-        if self.checkBoundary(S, L):
-            return self.specular[L-1, S-1]
 
     def getImg(self, band=97, wvln=None):
         '''Get image at specific band or wavelength'''
@@ -452,7 +446,7 @@ class VIMS_OBJ(object):
         img_R = imgInterp(img_R, hr=hr)
         img_G = imgInterp(img_G, hr=hr)
         img_B = imgInterp(img_B, hr=hr)
-    
+
         img = cv2.merge([img_B, img_G, img_R])  # BGR in cv2
 
         self.jpgQuicklook('RGBR_'+name, img, desc)
@@ -526,7 +520,7 @@ class VIMS_OBJ(object):
             return None
 
         desc = 'RBD @ %.2f|%.2f|%.2f um / %.2f|%.2f|%.2f um [%i|%i|%i]/[%i|%i|%i]' % (
-            wvln_L_N, wvln_C_N, wvln_R_N, wvln_L_D, wvln_C_D, wvln_R_D, 
+            wvln_L_N, wvln_C_N, wvln_R_N, wvln_L_D, wvln_C_D, wvln_R_D,
             L_N, C_N, R_N, L_D, C_D, R_D)
 
         hr = self.HR(np.min([L_N, C_N, R_N, L_D, C_D, R_D]))
@@ -550,7 +544,7 @@ class VIMS_OBJ(object):
         img_N[img_L_N < noise] = np.nan
         img_N[img_C_N < noise] = np.nan
         img_N[img_R_N < noise] = np.nan
-        
+
         img_D[img_D < 0] = np.nan
         img_D[img_L_D < noise] = np.nan
         img_D[img_C_D < noise] = np.nan
@@ -700,7 +694,7 @@ class VIMS_OBJ(object):
         img[ img > wvln_R ] = np.nan
         img[ img_L < noise ] = np.nan
         img[ img_R < noise ] = np.nan
-        
+
         img = imgClip(img, imin=np.nanmin(img)) # Set img between min/max
 
         self.jpgQuicklook('CB_'+name, img, desc)
