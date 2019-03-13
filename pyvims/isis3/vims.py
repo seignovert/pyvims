@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from shutil import copyfile
 
 from .._communs import getImgID
 
@@ -200,7 +201,6 @@ def phocube_ch(vims, channel='IR', nav=CAL, verbose=VERBOSE):
         else:
             raise VIMSError(e.returncode, 'phocube ({})'.format(channel), vims.id)
 
-
 def noisefilter(vims, dns=DNS, verbose=VERBOSE):
     noisefilter_ch(vims, 'VIS', dns=dns, verbose=verbose)
     noisefilter_ch(vims, 'IR', dns=dns, verbose=verbose)
@@ -209,6 +209,16 @@ def noisefilter(vims, dns=DNS, verbose=VERBOSE):
 def noisefilter_ch(vims, channel='IR', dns=DNS, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
         vims = ISIS3_VIMS(vims, dns=dns, verbose=verbose)
+
+    if isVIS(channel):
+        if _min_dim(vims.cal_vis) <= 5:
+            copyfile(vims.cal_vis, vims.dns_vis)
+            return
+    else:
+        if _min_dim(vims.cal_ir) <= 5:
+            copyfile(vims.cal_ir, vims.dns_ir)
+            return
+
     try:
         call([
             'noisefilter',
@@ -241,6 +251,16 @@ def lowpass(vims, cln=CLN, verbose=VERBOSE):
 def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
     if not isinstance(vims, ISIS3_VIMS):
         vims = ISIS3_VIMS(vims, cln=cln, verbose=verbose)
+
+    if isVIS(channel):
+        if _min_dim(vims.dns_vis) <= 3:
+            copyfile(vims.dns_vis, vims.cln_vis)
+            return
+    else:
+        if _min_dim(vims.dns_ir) <= 3:
+            copyfile(vims.dns_ir, vims.cln_ir)
+            return
+
     try:
         call([
             'lowpass',
@@ -265,6 +285,39 @@ def lowpass_ch(vims, channel='IR', cln=CLN, verbose=VERBOSE):
             print("STDERR: lowpass ({}) - {}\n{}".format(channel, vims.id, e.stderr))
         else:
             raise VIMSError(e.returncode, 'lowpass ({})'.format(channel), vims.id)
+
+
+def getkey(fname, verbose=VERBOSE, **kwargs):
+    '''ISIS3 getkey function.
+
+    Docs: https://isis.astrogeology.usgs.gov/Application/presentation/Tabbed/getkey/getkey.html
+    '''
+    cmd = [
+        'getkey',
+        'from={}'.format(fname),
+    ]
+    cmd += ['{}={}'.format(key, value) for key, value in kwargs.items()]
+    try:
+        return call(cmd)
+
+    except ProcessError as e:
+        if verbose:
+            print("STDOUT: getkey - {}\n{}".format(fname, e.stdout))
+            print("STDERR: getkey - {}\n{}".format(fname, e.stderr))
+        else:
+            raise VIMSError(e.returncode, cmd, '')
+
+def _samples(fname, verbose=VERBOSE):
+    '''Extract samples cube dimension.'''
+    return int(getkey(fname, verbose, objname='Core', grpname='Dimensions', keyword='Samples'))
+
+def _lines(fname, verbose=VERBOSE):
+    '''Extract lines cube dimension.'''
+    return int(getkey(fname, verbose, objname='Core', grpname='Dimensions', keyword='Lines'))
+
+def _min_dim(fname, verbose=VERBOSE):
+    '''Extract mimimum spatial cube dimension.'''
+    return min([_samples(fname, verbose), _lines(fname, verbose)])
 
 
 def calibrate(imgID, qub=QUB, cub=CUB,

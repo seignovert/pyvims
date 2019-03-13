@@ -58,3 +58,4 @@ def call(cmd):
     retcode = process.poll()
     if retcode:
         raise ProcessError(retcode, cmd, stdout=output, stderr=err)
+    return output.strip()
