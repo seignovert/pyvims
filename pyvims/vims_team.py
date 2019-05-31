@@ -44,13 +44,13 @@ class VIMS_TEAM(VIMS_OBJ):
         self.mode = {'IR': self.lbl['QUBE']['SAMPLING_MODE_ID'][0], 'VIS': self.lbl['QUBE']['SAMPLING_MODE_ID'][1]}
         self.seq    = self.lbl['QUBE']['SEQUENCE_ID']
         self.seq_title = self.lbl['QUBE']['SEQUENCE_TITLE']
-        self.start  = self.lbl['QUBE']['START_TIME']
-        self.stop   = self.lbl['QUBE']['STOP_TIME']
+        self.start  = dt.strptime(self.lbl['QUBE']['START_TIME'][:-1], '%Y-%jT%H:%M:%S.%f')
+        self.stop   = dt.strptime(self.lbl['QUBE']['STOP_TIME'][:-1], '%Y-%jT%H:%M:%S.%f')
         self.dtime  = (self.stop - self.start)/2 + self.start
         self.time   = self.dtime.strftime('%Y-%m-%dT%H:%M:%S.%f')
         self.year   = self.dtime.year
         self.doy    = int(self.dtime.strftime('%j'))
-        self.year_d = self.year + (self.doy-1)/365. # Decimal year [ISSUE: doest not apply take into account bissextile years]
+        self.year_d = self.year + (self.doy-1)/365. # Decimal year [ISSUE: does not apply take into account bissextile years]
         self.date   = self.dtime.strftime('%Y/%m/%d')
 
         self.wvlns = np.array(self.lbl['QUBE']['BAND_BIN']['BAND_BIN_CENTER'])
