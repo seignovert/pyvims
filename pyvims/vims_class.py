@@ -170,9 +170,23 @@ class VIMS_OBJ(object):
         '''Extract acquisition mode'''
         return self.mode['VIS'] if band < 97 else self.mode['IR']  # VIS|IR mode
 
+    def createGeoTiff(self, noDataValue=-1, lon_0=None, lat_0=None, interp='cubic', npt=None):
+        '''Create GeoTiff from Image infos
 
-    def createGeoTiff(self, noDataValue=-1):
-        '''Create GeoTiff from Image infos'''
+        Parameters
+        ----------
+        noDataValue: int, optional
+            Default value when no data is available.
+        lon_0: float, optional
+            Orthographic central longitude. Default to sub-spacecraft longitude.
+        lat_0: float, optional
+            Orthographic central latitude. Default to sub-spacecraft latitude.
+        interp: str, optional
+            Interpolation method (see ``scipy.interpolate.griddata`` methods).
+        npt: int, optional
+            Number of pixels in the projected cube.
+
+        '''
 
         metadata = {
             'TIFFTAG_SOFTWARE': 'PyVIMS/GDAL',
@@ -193,19 +207,26 @@ class VIMS_OBJ(object):
         R = moon.radius
         _, SC_lon, SC_lat = moon.SC(self.time)
 
-        srs = ortho_srs(SC_lat, SC_lon, R, self.target)
+        if lon_0 is None:
+            lon_0 = SC_lon
+        if lat_0 is None:
+            lat_0 = S_lat
+
+        srs = ortho_srs(lat_0, lon_0, R, self.target)
 
         lon = self.lon[~self.limb]
         lat = self.lat[~self.limb]
-        npt = max([self.NS, self.NL])
 
-        x, y, X, Y, geotransform = ortho_grid(lat, lon, SC_lat, SC_lon, R, npt)
+        if npt is None:
+            npt = max([self.NS, self.NL])
+
+        x, y, X, Y, geotransform = ortho_grid(lat, lon, lat_0, lon_0, R, npt)
 
         bands = np.nan * np.empty((self.NB, npt, npt))
         metadataBands = []
         for i in range(self.NB):
             img = self.cube[i, :, :][~self.limb]
-            interp = scipy.interpolate.griddata((x, y), img, (X, Y), method='cubic')
+            interp = scipy.interpolate.griddata((x, y), img, (X, Y), method=interp)
             interp[np.isnan(interp)] = noDataValue
             bands[i, :, :] = interp
 
