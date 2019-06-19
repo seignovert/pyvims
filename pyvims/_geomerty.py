@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 def circle3pts(a, b, c):
-    '''[3D circle through 3 points a/b/c](https: // math.stackexchange.com/a/2009402)'''
+    '''[3D circle through 3 points a/b/c](https://math.stackexchange.com/a/2009402)'''
     ax, ay, az = a
     bx, by, bz = b
     cx, cy, cz = c
@@ -103,4 +103,3 @@ class BODY_SPHERE(object):
         lon, lat = self.lonlat(d)
 
         return self.circle(Rc, Ra, lon=lon, lat=lat, npt=npt)
-

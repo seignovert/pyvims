@@ -15,6 +15,7 @@ from .geotiff import GeoTiff, ENVI, ArcMap
 from .geotiff.ortho import grid as ortho_grid
 from .geotiff.ortho import srs as ortho_srs
 
+
 class VIMS_OBJ(object):
     '''VIMS object abstract class'''
     def __init__(self,imgID, root=''):
@@ -108,7 +109,7 @@ class VIMS_OBJ(object):
     def getSpec(self, S=1, L=1):
         '''Get spectra at specific pixel location'''
         if self.checkBoundary(S, L):
-            return self.cube[:,L-1,S-1]
+            return self.cube[:, L-1, S-1]
 
     def getLon(self, S=1, L=1):
         '''Get longitude at specific pixel location'''
@@ -169,6 +170,21 @@ class VIMS_OBJ(object):
     def HR(self, band):
         '''Extract acquisition mode'''
         return self.mode['VIS'] if band < 97 else self.mode['IR']  # VIS|IR mode
+
+    @property
+    def extent(self):
+        """Cube extent."""
+        return [.5, self.NS + .5, self.NL + .5, .5]
+
+    @property
+    def sticks(self):
+        """Sample ticks."""
+        return [1, self.NS // 4, self.NS // 2, self.NS // 4 + self.NS // 2, self.NS]
+
+    @property
+    def lticks(self):
+        """Line ticks."""
+        return [1, self.NL // 4, self.NL // 2, self.NL // 4 + self.NL // 2, self.NL]
 
     def createGeoTiff(self, noDataValue=-1, lon_0=None, lat_0=None, interp='cubic', npt=None):
         '''Create GeoTiff from Image infos
