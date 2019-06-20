@@ -7,6 +7,8 @@ geojson
 spiceypy
 GDAL
 lxml
+matplotlib
+shapely
 
 -e git+https://github.com/seignovert/pvl.git#egg=pvl
 -e git+https://github.com/seignovert/planetaryimage.git#egg=planetaryimage
