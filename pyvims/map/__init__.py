@@ -1,10 +1,10 @@
 """PyVIMS map module."""
 
 from .footprint import footprint, great_circle
-from .plot import plot_cube
+from .plot import map_cube
 
 __all__ = [
     footprint,
     great_circle,
-    plot_cube,
+    map_cube,
 ]

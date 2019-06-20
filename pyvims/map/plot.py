@@ -37,16 +37,16 @@ def triangles_in_coutour(pts, contour):
     return tr
 
 
-def plot_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
-              show_cube=True, show_footprint=False, show_pts=True, show_gc=True,
-              show_labels=True, bg='Titan_VIMS_ISS', wvln=2.03, fig=None, debug=False):
-    """Plot projected cube.
+def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
+             show_cube=True, show_footprint=False, show_pts=True, show_gc=True,
+             show_labels=True, bg='Titan_VIMS_ISS', wvln=2.03, fig=None, debug=False):
+    """Plot projected cube on a map.
 
     Parameters
     ----------
     cube: pyvims.VIMS
         Cube to project.
-    proj: str, optional
+    projection: str, optional
         Projection name. Case sensitive. Avalaible:
             - ``lonlat``: Latitude/Longitude cylindical projection.
             - ``mollweide``: Mollweide projection.
@@ -83,6 +83,11 @@ def plot_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
     ------
     ValueError
         If the project name is unknown.
+
+    Return
+    ------
+    mpl_toolkits.basemap.Basemap
+        Matplotlib basemap object.
 
     """
 

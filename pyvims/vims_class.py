@@ -7,7 +7,8 @@ import pvl
 import scipy.interpolate
 
 from ._communs import getImgID, imgClip, imgInterp
-from .map import plot_cube
+from .plot import img_cube as plot_img_cube
+from .map import map_cube as plot_map_cube
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
@@ -66,27 +67,27 @@ class VIMS_OBJ(object):
         self.limb = nav.nan
         return
 
-    def getBand(self, band):
+    def getBandIndex(self, band):
         '''Get band index'''
         if band < np.nanmin(self.bands):
-            raise ValueError('Band too small (Min = %i)' % np.nanmin(self.bands) )
+            raise ValueError('Band too small (Min = %i)' % np.nanmin(self.bands))
         if band > np.nanmax(self.bands):
-            raise ValueError('Band too large (Max = %i)' % np.nanmax(self.bands) )
+            raise ValueError('Band too large (Max = %i)' % np.nanmax(self.bands))
         return np.nanargmin(np.abs(self.bands-band))
 
-    def getWvln(self, wvln):
+    def getWvlnIndex(self, wvln):
         '''Get neareast wavelength index'''
         if wvln < np.nanmin(self.wvlns):
-            raise ValueError('Wavelength too small (Min = %.3f um)' % np.nanmin(self.wvlns) )
+            raise ValueError('Wavelength too small (Min = %.3f um)' % np.nanmin(self.wvlns))
         if wvln > np.nanmax(self.wvlns):
-            raise ValueError('Wavelength too large (Max = %.3f um)' % np.nanmax(self.wvlns) )
+            raise ValueError('Wavelength too large (Max = %.3f um)' % np.nanmax(self.wvlns))
         return np.nanargmin(np.abs(self.wvlns-wvln))
 
-    def getIndex(self, band=97, wvln=None):
+    def getIndex(self, band=167, wvln=None):
         '''Get band or wavelength index'''
         if wvln is None:
-            return self.getBand(band)
-        return self.getWvln(wvln)
+            return self.getBandIndex(band)
+        return self.getWvlnIndex(wvln)
 
     def checkBoundary(self, S, L):
         '''Pixel location boundaries
@@ -147,9 +148,17 @@ class VIMS_OBJ(object):
         if self.checkBoundary(S, L):
             return self.limb[L-1, S-1]
 
-    def getImg(self, band=97, wvln=None):
+    def getImg(self, band=167, wvln=None):
         '''Get image at specific band or wavelength'''
         return self.cube[self.getIndex(band, wvln), :, :]
+
+    def getBand(self, band=167, wvln=None):
+        '''Get band value.'''
+        return self.bands[self.getIndex(band, wvln)]
+
+    def getWvln(self, band=167, wvln=None):
+        '''Get wavelength value (µm).'''
+        return self.wvlns[self.getIndex(band, wvln)]
 
     def getBands(self, w, dw):
         '''Get the list of bands arounf the wavelength (w ± dw)'''
@@ -163,7 +172,7 @@ class VIMS_OBJ(object):
         img = []
         wvln = []
         for band in bands:
-            index = self.getBand(band)
+            index = self.getBandIndex(band)
             img.append(self.cube[index, :, :])
             wvln.append(self.wvlns[index])
         return np.nanmean(img, axis=0), np.nanmean(wvln)
@@ -177,15 +186,32 @@ class VIMS_OBJ(object):
         """Cube extent."""
         return [.5, self.NS + .5, self.NL + .5, .5]
 
+    @staticmethod
+    def _ticks(n):
+        """Ticks labels between 1 and `n` pixels.
+
+        Parameters
+        ----------
+        n: int
+            Total number of pixels.
+
+        Return
+        ------
+        list
+            List of ticks.
+
+        """
+        return [1, n // 4, n // 2, n // 4 + n // 2, n]
+
     @property
     def sticks(self):
         """Sample ticks."""
-        return [1, self.NS // 4, self.NS // 2, self.NS // 4 + self.NS // 2, self.NS]
+        return self._ticks(self.NS)
 
     @property
     def lticks(self):
         """Line ticks."""
-        return [1, self.NL // 4, self.NL // 2, self.NL // 4 + self.NL // 2, self.NL]
+        return self._ticks(self.NL)
 
     def createGeoTiff(self, noDataValue=-1, lon_0=None, lat_0=None, interp='cubic', npt=None):
         '''Create GeoTiff from Image infos
@@ -340,7 +366,7 @@ class VIMS_OBJ(object):
         desc += ']'
 
         min_band = np.min(bands)
-        img = imgInterp(img, hr=self.HR(min_band) )
+        img = imgInterp(img, hr=self.HR(min_band))
         self.jpgQuicklook('G_'+name, img, desc)
 
     def quicklook_Ratio(self, name, N, D):
@@ -1094,12 +1120,57 @@ class VIMS_OBJ(object):
         SPICE_GEOJSON(self.target, self.time).save(fout=fout)
         return
 
-    def plot_map(self, projection='lonlat', **kwargs):
+    def plot_band(self, band=167, **kwargs):
         """Plot cube with different projections.
+
+        Parameters
+        ----------
+        projection: str, optional
+            Projection name. Case sensitive. Avalaible:
+                - ``lonlat``: Latitude/Longitude cylindical projection.
+                - ``mollweide``: Mollweide projection.
+                - ``polar``: Polar projection (North if ``SC lat > 0``, South otherwise).
+                - ``ortho``: Cassini fov projection (centered on
+                            SC lon/lat if ``lon_0``/``lat_0`` are not provided).
 
         See Also
         --------
-        :py:func:`pyvims.map.plot_cube`
+        :py:func:`pyvims.plot.wvln`
 
         """
-        return plot_cube(self, projection=projection, **kwargs)
+        return plot_img_cube(self, band=band, **kwargs)
+
+    def plot_wvln(self, wvln=2.03, **kwargs):
+        """Plot cube with different projections.
+
+        Parameters
+        ----------
+        projection: str, optional
+            Projection name. Case sensitive. Avalaible:
+                - ``lonlat``: Latitude/Longitude cylindical projection.
+                - ``mollweide``: Mollweide projection.
+                - ``polar``: Polar projection (North if ``SC lat > 0``, South otherwise).
+                - ``ortho``: Cassini fov projection (centered on
+                            SC lon/lat if ``lon_0``/``lat_0`` are not provided).
+
+        See Also
+        --------
+        :py:func:`pyvims.plot.img_cube`
+
+        """
+        return plot_img_cube(self, wvln=wvln, **kwargs)
+
+    def plot_map(self, projection='lonlat', **kwargs):
+        """Plot cube with different projections.
+
+        Parameters
+        ----------
+        wvln: float, optional
+            Wavelength to plot (in µm).
+
+        See Also
+        --------
+        :py:func:`pyvims.map.plot.map_cube`
+
+        """
+        return plot_map_cube(self, projection=projection, **kwargs)
