@@ -7,6 +7,7 @@ import pvl
 import scipy.interpolate
 
 from ._communs import getImgID, imgClip, imgInterp
+from .map import plot_cube
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
@@ -1092,3 +1093,13 @@ class VIMS_OBJ(object):
             fout = self.root+self.imgID
         SPICE_GEOJSON(self.target, self.time).save(fout=fout)
         return
+
+    def plot_map(self, projection='lonlat', **kwargs):
+        """Plot cube with different projections.
+
+        See Also
+        --------
+        :py:func:`pyvims.map.plot_cube`
+
+        """
+        return plot_cube(self, projection=projection, **kwargs)
