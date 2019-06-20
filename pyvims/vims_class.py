@@ -8,6 +8,7 @@ import scipy.interpolate
 
 from ._communs import getImgID, imgClip, imgInterp
 from .plot import img_cube as plot_img_cube
+from .plot import spectrum_cube as plot_spectrum_cube
 from .map import map_cube as plot_map_cube
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
@@ -109,7 +110,7 @@ class VIMS_OBJ(object):
         return True
 
     def getSpec(self, S=1, L=1):
-        '''Get spectra at specific pixel location'''
+        '''Get spectrum at specific pixel location'''
         if self.checkBoundary(S, L):
             return self.cube[:, L-1, S-1]
 
@@ -1125,17 +1126,12 @@ class VIMS_OBJ(object):
 
         Parameters
         ----------
-        projection: str, optional
-            Projection name. Case sensitive. Avalaible:
-                - ``lonlat``: Latitude/Longitude cylindical projection.
-                - ``mollweide``: Mollweide projection.
-                - ``polar``: Polar projection (North if ``SC lat > 0``, South otherwise).
-                - ``ortho``: Cassini fov projection (centered on
-                            SC lon/lat if ``lon_0``/``lat_0`` are not provided).
+        band: int, optional
+            VIMS band to plot.
 
         See Also
         --------
-        :py:func:`pyvims.plot.wvln`
+        :py:func:`pyvims.plot.img_cube`
 
         """
         return plot_img_cube(self, band=band, **kwargs)
@@ -1145,13 +1141,8 @@ class VIMS_OBJ(object):
 
         Parameters
         ----------
-        projection: str, optional
-            Projection name. Case sensitive. Avalaible:
-                - ``lonlat``: Latitude/Longitude cylindical projection.
-                - ``mollweide``: Mollweide projection.
-                - ``polar``: Polar projection (North if ``SC lat > 0``, South otherwise).
-                - ``ortho``: Cassini fov projection (centered on
-                            SC lon/lat if ``lon_0``/``lat_0`` are not provided).
+        wvln: float, optional
+            Wavelength to plot (µm).
 
         See Also
         --------
@@ -1160,13 +1151,35 @@ class VIMS_OBJ(object):
         """
         return plot_img_cube(self, wvln=wvln, **kwargs)
 
+    def plot_spectrum(self, S=1, L=1, **kwargs):
+        """Plot pixel .
+
+        Parameters
+        ----------
+        S: integer, optional
+            Pixel sample value.
+        L: integer, optional
+            Pixel line value.
+
+        See Also
+        --------
+        :py:func:`pyvims.plot.spectrum_cube`
+
+        """
+        return plot_spectrum_cube(self, S=S, L=L, **kwargs)
+
     def plot_map(self, projection='lonlat', **kwargs):
         """Plot cube with different projections.
 
         Parameters
         ----------
-        wvln: float, optional
-            Wavelength to plot (in µm).
+        projection: str, optional
+            Projection name. Case sensitive. Avalaible:
+                - ``lonlat``: Latitude/Longitude cylindical projection.
+                - ``mollweide``: Mollweide projection.
+                - ``polar``: Polar projection (North if ``SC lat > 0``, South otherwise).
+                - ``ortho``: Cassini fov projection (centered on
+                            SC lon/lat if ``lon_0``/``lat_0`` are not provided).
 
         See Also
         --------
