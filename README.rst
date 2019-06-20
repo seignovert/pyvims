@@ -33,7 +33,7 @@ With ``conda``:
 Or directly on Ubuntu:
 
 .. code:: bash
-    
+
     $ apt-get install libgdal-dev
 
 For other operating system, please refer to OSGeo_ page.
@@ -69,10 +69,10 @@ Download test files (ISIS3 cubes of ``1487096932_1``):
 
 .. code:: bash
 
-    $ wget https://vims.univ-nantes.fr/data/isis/003TI/C1487096932_1_vis.cub
-    $ wget https://vims.univ-nantes.fr/data/isis/003TI/C1487096932_1_ir.cub
-    $ wget https://vims.univ-nantes.fr/data/isis/003TI/N1487096932_1_vis.cub
-    $ wget https://vims.univ-nantes.fr/data/isis/003TI/N1487096932_1_ir.cub
+    $ wget -O C1487096932_1_vis.cub https://vims.univ-nantes.fr/vis/cal/1487096932_1
+    $ wget -O C1487096932_1_ir.cub https://vims.univ-nantes.fr/ir/cal/1487096932_1
+    $ wget -O N1487096932_1_vis.cub https://vims.univ-nantes.fr/vis/nav/1487096932_1
+    $ wget -O N1487096932_1_ir.cub https://vims.univ-nantes.fr/ir/nav/1487096932_1
 
 To use, simply do:
 
