@@ -12,3 +12,4 @@ shapely
 
 -e git+https://github.com/seignovert/pvl.git#egg=pvl
 -e git+https://github.com/seignovert/planetaryimage.git#egg=planetaryimage
+-e git+https://github.com/matplotlib/basemap.git
