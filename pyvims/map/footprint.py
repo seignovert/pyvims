@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Map footprint module."""
 
 import numpy as np

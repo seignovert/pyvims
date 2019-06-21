@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """PyVIMS map module."""
 
 from .footprint import footprint, great_circle

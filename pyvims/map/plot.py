@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Map plot module."""
 
 import os
@@ -127,7 +128,7 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
         m = Basemap(projection='ortho', lat_0=lat_0, lon_0=lon_0)
 
     else:
-        raise ValueError(f'Projection {projection} unknown.')
+        raise ValueError('Projection `%s` unknown.' % projection)
 
     if bg is not None:
         if bg.upper() == 'TITAN_VIMS_ISS':

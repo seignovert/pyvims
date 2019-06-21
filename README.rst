@@ -18,27 +18,19 @@ PyVIMS
 
 Python package to manipulate the Cassini VIMS data.
 
-Prerequisites
---------------
-This module use ``GDAL`` library to create and load ``GeoTIFF`` files.
-You need to install it first before installing ``pyvims``.
+Pre-requisites
+---------------
+This module use ``GDAL`` and ``Basemap`` libraries to create
+and load ``GeoTIFF`` files. You need to install it first
+before installing ``pyvims``.
 
 With ``conda``:
 
 .. code:: bash
 
     $ conda config --add channels conda-forge
-    $ conda install -c conda-forge gdal
+    $ conda install -c conda-forge gdal basemap
 
-Or directly on Ubuntu:
-
-.. code:: bash
-
-    $ apt-get install libgdal-dev
-
-For other operating system, please refer to OSGeo_ page.
-
-.. _OSGeo: https://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries
 
 Install
 -------

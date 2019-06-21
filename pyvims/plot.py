@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """PyVIMS Plot module."""
 
 import numpy as np
