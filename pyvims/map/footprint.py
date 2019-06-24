@@ -59,10 +59,8 @@ def great_circle(lon, lat, npt=361):
     M = np.array([np.cos(theta), np.sin(theta), 0 * theta])
     x, y, z = np.dot(R(lon, lat), M)
 
-    lonlat = np.transpose([np.degrees(np.arctan2(y, x)),
+    return np.array([np.degrees(np.arctan2(y, x)),
                            np.degrees(np.arcsin(z))])
-
-    return lonlat[lonlat[:, 0].argsort()].T
 
 
 def pt_circle(pt0, pt1):

@@ -38,6 +38,157 @@ def triangles_in_coutour(pts, contour):
     return tr
 
 
+def contour_lonlat(lon, lat, hemi, diff_lon=270, dlon=15, dlat=5):
+    """Edit contour for `lonlat` projection.
+
+    Parameters
+    ----------
+    lon: [float]
+        Contour longitudes (degE).
+    lat: [float]
+        Contour latitudes (degN).
+    hemi: int
+        Pole to contour ( ``>0 = North``, ``<0 = South``).
+    diff_lon: float, optional
+        Longitude wrapping thresold.
+    dlon: float, optional
+        Longitude overlap.
+    dlat: float, optional
+        Latitude overlap.
+
+    Return
+    ------
+    [float], [float]
+        Longitude and latitude with pole contour is necessary.
+
+    """
+    # Check if 180º meridan is crossed
+    if np.max(lon) - np.min(lon) < diff_lon:
+        return lon, lat
+
+    lon_p, lat_p = lon[-1], lat[-1]
+    _lon, _lat = np.array([]), np.array([])
+
+    for lon_c, lat_c in zip(lon, lat):
+
+        if np.abs(lon_c - lon_p) > diff_lon:
+            # North or South pole crossed.
+            _lon_p = lon_p + np.sign(lon_p) * dlon
+            _lon_c = lon_c + np.sign(lon_c) * dlon
+            _lat_n = hemi * (90 + dlat)
+
+            _lon = np.hstack([_lon, [_lon_p, _lon_p, _lon_c, _lon_c]])
+            _lat = np.hstack([_lat, [lat_p, _lat_n, _lat_n, lat_c]])
+
+        _lon = np.append(_lon, lon_c)
+        _lat = np.append(_lat, lat_c)
+        lon_p, lat_p = lon_c, lat_c
+
+    return _lon, _lat
+
+
+def contour_mollweide(lon, lat, hemi, diff_lon=270):
+    """Edit contour for `mollweide` projection.
+
+    Parameters
+    ----------
+    lon: [float]
+        Contour longitudes (degE).
+    lat: [float]
+        Contour latitudes (degN).
+    hemi: int
+        Pole to contour ( ``>0 = North``, ``<0 = South``).
+    diff_lon: float, optional
+        Longitude wrapping thresold.
+
+    Return
+    ------
+    [float], [float]
+        Longitude and latitude with pole contour is necessary.
+
+    """
+    # Check if 180º meridan is crossed
+    if np.max(lon) - np.min(lon) < diff_lon:
+        return lon, lat
+
+    lon_p, lat_p = lon[-1], lat[-1]
+    _lon, _lat = np.array([]), np.array([])
+
+    for lon_c, lat_c in zip(lon, lat):
+
+        if np.abs(lon_c - lon_p) > diff_lon:
+            # North or South pole crossed.
+            _lat_p = np.arange(lat_p, hemi * 91, hemi * 1)
+            _lat_c = np.arange(lat_c, hemi * 91, hemi * 1)[::-1]
+
+            _lat_p[np.abs(_lat_p) > 90] = hemi * 90
+            _lat_c[np.abs(_lat_c) > 90] = hemi * 90
+
+            _lon_p = np.sign(lon_p) * 179 + 0 * _lat_p
+            _lon_c = np.sign(lon_c) * 179 + 0 * _lat_c
+
+            _lon = np.hstack([_lon, _lon_p, _lon_c])
+            _lat = np.hstack([_lat, _lat_p, _lat_c])
+
+        _lon = np.append(_lon, lon_c)
+        _lat = np.append(_lat, lat_c)
+        lon_p, lat_p = lon_c, lat_c
+
+    return _lon, _lat
+
+
+def duplicate_lonlat(lon, lat, im, hemi, f_lon, f_lat, dlon=15):
+    """Duplicate data on the sides.
+
+    Parameters
+    ----------
+    lon: float
+        Contour longitude (degE).
+    lat: float
+        Contour latitude (degN).
+    im: float
+        Cube image values.
+    hemi: int
+        Pole to contour ( ``>0 = North``, ``<0 = South``).
+    f_lon: [float]
+        Footprint longitude contour (degE).
+    f_lat: [float]
+        Footprint latitude contour (degN).
+    diff_lon: float, optional
+        Longitude wrapping thresold.
+
+    Return
+    ------
+    [float], [float], [float]
+        Edited longitude latitude and image value.
+
+    """
+    limb = np.isnan(lon)
+    lon, lat, im = lon[~limb], lat[~limb], im[~limb]
+
+    right_side = lon > (180 - dlon)
+    left_side = lon < (-180 + dlon)
+
+    lon = np.hstack([lon, lon[right_side] - 360,  lon[left_side] + 360])
+    lat = np.hstack([lat, lat[right_side], lat[left_side]])
+    im = np.hstack([im, im[right_side], im[left_side]])
+
+    pole = Point([0, hemi * 90])
+    contour = Polygon(np.transpose([f_lon, f_lat]))
+
+    # Add polar pixels
+    if pole.within(contour):
+        pole_lon = np.arange(np.min(lon), np.max(lon), dlon)
+        pole_lat = hemi * 91 + 0 * pole_lon
+        pole_im = im[np.argmax(hemi * lat)] + 0 * pole_lon
+
+        lon = np.append(lon, pole_lon)
+        lat = np.append(lat, pole_lat)
+        im = np.append(im, pole_im)
+
+    return lon, lat, im
+
+
 def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
              show_cube=True, show_footprint=False, show_pts=True, show_gc=True,
              show_labels=True, bg='Titan_VIMS_ISS', wvln=2.03, fig=None, debug=False):
@@ -147,73 +298,12 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
 
     f_lon, f_lat = footprint(lon, lat, SC_lon, SC_lat)
 
-    if projection in ['lonlat', 'mollweide']:
-        dlon, dlat = 15, 5  # Longitude/latitude overlap
-        diff_lon = 270
+    if projection == 'lonlat':
+        f_lon, f_lat = contour_lonlat(f_lon, f_lat, hemi)
+        lon, lat, im = duplicate_lonlat(lon, lat, im, hemi, f_lon, f_lat, dlon=15)
 
-        # Check if 180º meridan is crossed
-        if np.max(f_lon) - np.min(f_lon) > diff_lon:
-
-            lon_p, lat_p = f_lon[-1], f_lat[-1]
-            _lon, _lat = np.array([]), np.array([])
-
-            for lon_c, lat_c in zip(f_lon, f_lat):
-
-                if np.abs(lon_c - lon_p) > diff_lon:
-                    # North or South pole crossed.
-
-                    if projection == 'lonlat':
-                        _lon_p = lon_p + np.sign(lon_p) * dlon
-                        _lon_c = lon_c + np.sign(lon_c) * dlon
-                        _lat_n = hemi * (90 + dlat)
-
-                        _lon = np.hstack([_lon, [_lon_p, _lon_p, _lon_c, _lon_c]])
-                        _lat = np.hstack([_lat, [lat_p, _lat_n, _lat_n, lat_c]])
-
-                    elif projection == 'mollweide':
-                        _lat_p = np.arange(lat_p, hemi * 91, hemi * 1)
-                        _lat_c = np.arange(lat_c, hemi * 91, hemi * 1)[::-1]
-
-                        _lat_p[np.abs(_lat_p) > 90] = hemi * 90
-                        _lat_c[np.abs(_lat_c) > 90] = hemi * 90
-
-                        _lon_p = np.sign(lon_p) * 179 + 0 * _lat_p
-                        _lon_c = np.sign(lon_c) * 179 + 0 * _lat_c
-
-                        _lon = np.hstack([_lon, _lon_p, _lon_c])
-                        _lat = np.hstack([_lat, _lat_p, _lat_c])
-
-                _lon = np.append(_lon, lon_c)
-                _lat = np.append(_lat, lat_c)
-                lon_p, lat_p = lon_c, lat_c
-
-            # Replace old by new contour
-            f_lon, f_lat = _lon, _lat
-
-            # Duplicate data on the sides
-            if projection == 'lonlat':
-                limb = np.isnan(lon)
-                lon, lat, im = lon[~limb], lat[~limb], im[~limb]
-
-                right_side = lon > (180 - dlon)
-                left_side = lon < (-180 + dlon)
-
-                lon = np.hstack([lon, lon[right_side] - 360,  lon[left_side] + 360])
-                lat = np.hstack([lat, lat[right_side], lat[left_side]])
-                im = np.hstack([im, im[right_side], im[left_side]])
-
-                pole = Point([0, hemi * 90])
-                contour = Polygon(np.transpose([f_lon, f_lat]))
-
-                # Add polar pixels
-                if pole.within(contour):
-                    pole_lon = np.arange(np.min(lon), np.max(lon), dlon)
-                    pole_lat = hemi * 91 + 0 * pole_lon
-                    pole_im = im[np.argmax(hemi * lat)] + 0 * pole_lon
-
-                    lon = np.append(lon, pole_lon)
-                    lat = np.append(lat, pole_lat)
-                    im = np.append(im, pole_im)
+    if projection == 'mollweide':
+        f_lon, f_lat = contour_mollweide(f_lon, f_lat, hemi)
 
     contour = m(f_lon, f_lat)
 
@@ -242,12 +332,23 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
         plt.plot(*contour, 'w-')
 
     if show_gc:
-        SC_gc = np.array(m(*great_circle(SC_lon, SC_lat)))
-        SS_gc = np.array(m(*great_circle(SS_lon, SS_lat)))
+        SC_gc = great_circle(SC_lon, SC_lat)
+        SS_gc = great_circle(SS_lon, SS_lat)
 
-        # Discard ortho projected pts at 1e30
-        SC_gc[SC_gc > 1e29] = np.nan
-        SS_gc[SS_gc > 1e29] = np.nan
+        if projection == 'lonlat':
+            SC_gc = contour_lonlat(*SC_gc, np.sign(SC_lat))
+            SS_gc = contour_lonlat(*SS_gc, np.sign(SS_lat))
+
+        elif projection == 'mollweide':
+            SC_gc = contour_mollweide(*SC_gc, np.sign(SC_lat))
+            SS_gc = contour_mollweide(*SS_gc, np.sign(SS_lat))
+
+        SC_gc = np.array(m(*SC_gc))
+        SS_gc = np.array(m(*SS_gc))
+
+        if projection == 'ortho':
+            SC_gc[SC_gc > 1e29] = np.nan
+            SS_gc[SS_gc > 1e29] = np.nan
 
         plt.plot(*SC_gc, 'b-')
         plt.plot(*SS_gc, '-', color='gold')
@@ -281,11 +382,11 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
     # Map labels
     mlabels, plabels = [0, 0, 0, 0], [0, 0, 0, 0]
 
-    if show_labels:
+    if show_labels and not limit:
         if projection == 'lonlat':
             mlabels, plabels = [0, 0, 0, 1], [1, 0, 0, 0]
         elif projection == 'mollweide':
-            plabels = [1, 0, 0, 0]
+            plabels = [1, 1, 0, 0]
         elif projection == 'polar':
             mlabels = [1, 1, 1, 1]
 
