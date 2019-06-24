@@ -4,7 +4,7 @@ import os
 import spiceypy as spice
 
 # Kernels root directory
-DIR_KERNELS = 'kernels/'
+DIR_KERNELS = 'kernels/' if 'CASSINI_KERNELS' not in os.environ else os.environ['CASSINI_KERNELS']
 
 # Leapsecond [generic_kernels/lsk/naif0012.tls]
 LSK = 'naif0012.tls'
@@ -37,7 +37,7 @@ class SPICE_CASSINI(object):
 
         self.loaded = False
         return
-        
+
     def __repr__(self):
         return 'Cassini Spice Kernels tools'
 
@@ -117,7 +117,7 @@ class SPICE_CASSINI(object):
         self.loaded = False
 
     def reload(self):
-        '''Reload kernels'''        
+        '''Reload kernels'''
         self.clear()
         self.load()
         self.loaded = True
