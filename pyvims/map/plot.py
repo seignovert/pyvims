@@ -247,6 +247,8 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
     moon = SPICE_MOON(cube.target)
     _, SC_lon, SC_lat = moon.SC(cube.time)
     _, SS_lon, SS_lat = moon.SS(cube.time)
+    # FOV apparent radius
+    ra = np.sqrt(1 - (moon.radius / moon.dist(cube.time))**2)
 
     hemi = int(np.sign(SC_lat))
 
@@ -296,7 +298,7 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
     lon = (cube.lon + 180) % 360 - 180
     lat = cube.lat
 
-    f_lon, f_lat = footprint(lon, lat, SC_lon, SC_lat)
+    f_lon, f_lat = footprint(lon, lat, SC_lon, SC_lat, ra=ra)
 
     if projection == 'lonlat':
         f_lon, f_lat = contour_lonlat(f_lon, f_lat, hemi)
@@ -332,7 +334,7 @@ def map_cube(cube, projection='lonlat', limit=False, lon_0=None, lat_0=None,
         plt.plot(*contour, 'w-')
 
     if show_gc:
-        SC_gc = great_circle(SC_lon, SC_lat)
+        SC_gc = great_circle(SC_lon, SC_lat, ra=ra)
         SS_gc = great_circle(SS_lon, SS_lat)
 
         if projection == 'lonlat':

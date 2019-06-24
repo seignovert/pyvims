@@ -34,10 +34,8 @@ def R(lon, lat):
     ])
 
 
-def great_circle(lon, lat, npt=361):
+def great_circle(lon, lat, npt=361, ra=1):
     """Great circle coordinates.
-
-    The corrdinates are sorted by longitude.
 
     Parameters
     ----------
@@ -47,53 +45,85 @@ def great_circle(lon, lat, npt=361):
         Pointing latitude (degN)
     npt: int, optional
         Numver
+    ra: float, optional
+        Apparent circle radius.
 
     Return
     ------
     float, float
         Great circle latitude and longitude.
 
+    Raises
+    ------
+    ValueError
+        If the radius provided is larger than 1.
+
     """
+    if ra > 1:
+        raise ValueError('Radius must be smaller or equal to 1.')
 
     theta = np.radians(np.linspace(0, 360, npt))
-    M = np.array([np.cos(theta), np.sin(theta), 0 * theta])
-    x, y, z = np.dot(R(lon, lat), M)
+    P = np.array([
+        ra * np.cos(theta + 90),
+        ra * np.sin(theta + 90),
+        np.sqrt(1 - ra**2) + 0 * theta
+    ])
+    x, y, z = np.dot(R(lon, lat), P)
 
     return np.array([np.degrees(np.arctan2(y, x)),
-                           np.degrees(np.arcsin(z))])
+                    np.degrees(np.arcsin(z))])
 
 
-def pt_circle(pt0, pt1):
-    """Find point intersection on a unitary circle.
+def pt_circle(pt0, pt1, ra=1):
+    """Find point intersection on a circle.
                                 \
        +===========+------------>|
                                 /
       pt0         pt1           pt
 
+    Parameters
+    ----------
+    pt0: [float, float, float]
+        XYZ coordinates of the first point.
+    pt1: [float, float, float]
+        XYZ coordinates of the second point.
+    ra: float, optional
+        Apparent circle radius.
+
+    Raises
+    ------
+    ValueError
+        If the radius provided is larger than 1.
+    RuntimeError
+        If no solution was found.
+
     """
+    if ra > 1:
+        raise ValueError('Radius must be smaller or equal to 1.')
+
     x0, y0, _ = pt0
     x1, y1, _ = pt1
 
     if x0 == x1:
-        return x0, (1 if y1 >= y0 else -1) * np.sqrt(1 - x0**2)
+        return x0, (1 if y1 >= y0 else -1) * np.sqrt(ra**2 - x0**2)
 
     a = (y1 - y0) / (x1 - x0)
     b = y0 - a * x0
 
-    if a**2 - b**2 + 1 < 0:
-        raise ValueError('No intersection')
+    if (1 + a**2) * ra**2 - b**2 < 0:
+        raise RuntimeError('No intersection')
 
-    x = (-np.sqrt(a**2 - b**2 + 1) - a*b) / (1 + a**2)
+    x = (-np.sqrt((1 + a**2) * ra**2 - b**2) - a*b) / (1 + a**2)
 
     if not (x0 <= x1 and x1 <= x) and not (x <= x1 and x1 <= x0):
-        x = (np.sqrt(a**2 - b**2 + 1) - a*b) / (1 + a**2)
+        x = (np.sqrt((1 + a**2) * ra**2 - b**2) - a*b) / (1 + a**2)
 
     y = a * x + b
 
     return x, y
 
 
-def corner(pt0, pt1, pt2, pt3, dth=1):
+def corner(pt0, pt1, pt2, pt3, dth=1, ra=1):
     """Calculate missing corner on the limb.
 
     Points location:
@@ -104,16 +134,31 @@ def corner(pt0, pt1, pt2, pt3, dth=1):
         |
         + 0
 
+    Parameters
+    ----------
+    pt0: [float, float, float]
+        XYZ coordinates of the first point.
+    pt1: [float, float, float]
+        XYZ coordinates of the second point.
+    pt1: [float, float, float]
+        XYZ coordinates of the thrid point.
+    pt1: [float, float, float]
+        XYZ coordinates of the fourth point.
+    dth: float, optional
+        Angluar spteps (deg).
+    ra: float, optional
+        Apparent circle radius.
+
     """
-    p1 = pt_circle(pt0, pt1)
-    p2 = pt_circle(pt3, pt2)
+    p1 = pt_circle(pt0, pt1, ra=ra)
+    p2 = pt_circle(pt3, pt2, ra=ra)
 
     alpha = np.arccos(np.dot(p1, p2))
 
     ntheta = max([int(alpha/np.radians(dth)), 2])
     theta = np.arctan2(p1[1], p1[0]) - np.linspace(0, alpha, ntheta)
 
-    return np.cos(theta), np.sin(theta), 0*theta
+    return ra * np.cos(theta), ra * np.sin(theta), np.sqrt(1 - ra**2) + 0 * theta
 
 
 def lonlat2xyz(lon, lat, M):
@@ -162,7 +207,7 @@ def xyz2lonlat(xyz, M):
     return lon, lat
 
 
-def footprint(lon, lat, SC_lon, SC_lat, dth=1):
+def footprint(lon, lat, SC_lon, SC_lat, dth=1, ra=1):
     """Cube ground footprint with limb matching.
 
     Parameters
@@ -177,6 +222,8 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
         Sub-spacecraft latitude (degN)
     dth: float
         Limb angular resolution (degree).
+    ra: float, optional
+        Apparent circle radius.
 
     Return
     ------
@@ -201,7 +248,7 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
 
     # No edges
     if not (left.any() or top.any() or right.any() or bottom.any()):
-        gc = great_circle(SC_lon, SC_lat, npt=int(360/dth + 1))
+        gc = great_circle(SC_lon, SC_lat, npt=int(360/dth + 1), ra=ra)
         return np.hstack([[[gc[0, -1]], [gc[1, -1]]], gc])
 
     # Top left corner
@@ -224,7 +271,7 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
         elif left.size > 1:
             t = left
 
-        xyz = np.hstack([xyz, corner(l[:, -2], l[:, -1], t[:, 0], t[:, 1], dth=dth)])
+        xyz = np.hstack([xyz, corner(l[:, -2], l[:, -1], t[:, 0], t[:, 1], dth=dth, ra=ra)])
 
     # Top edge
     if top.any():
@@ -250,7 +297,7 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
         elif top.size > 1:
             r = top
 
-        xyz = np.hstack([xyz, corner(t[:, -2], t[:, -1], r[:, 0], r[:, 1], dth=dth)])
+        xyz = np.hstack([xyz, corner(t[:, -2], t[:, -1], r[:, 0], r[:, 1], dth=dth, ra=ra)])
 
     # Right edge
     if right.any():
@@ -276,7 +323,7 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
         elif right.size > 1:
             b = right
 
-        xyz = np.hstack([xyz, corner(r[:, -2], r[:, -1], b[:, 0], b[:, 1], dth=dth)])
+        xyz = np.hstack([xyz, corner(r[:, -2], r[:, -1], b[:, 0], b[:, 1], dth=dth, ra=ra)])
 
     # Bottom edge
     if bottom.any():
@@ -302,7 +349,7 @@ def footprint(lon, lat, SC_lon, SC_lat, dth=1):
         elif bottom.size > 1:
             l = bottom
 
-        xyz = np.hstack([xyz, corner(b[:, -2], b[:, -1], l[:, 0], l[:, 1], dth=dth)])
+        xyz = np.hstack([xyz, corner(b[:, -2], b[:, -1], l[:, 0], l[:, 1], dth=dth, ra=ra)])
 
     # Left edge
     if left.any():
