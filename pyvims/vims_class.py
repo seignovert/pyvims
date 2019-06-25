@@ -10,6 +10,7 @@ from ._communs import getImgID, imgClip, imgInterp
 from .plot import img_cube as plot_img_cube
 from .plot import spectrum_cube as plot_spectrum_cube
 from .map import map_cube as plot_map_cube
+from .map import geojson_cube
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
 from .spice_geojson import SPICE_GEOJSON
@@ -1187,3 +1188,25 @@ class VIMS_OBJ(object):
 
         """
         return plot_map_cube(self, projection=projection, **kwargs)
+
+    def geojson(self, save=False, root=''):
+        """Plot cube with different projections.
+
+        Parameters
+        ----------
+        save: bool, optional
+            Save geojson into a file.
+        root: str, optional
+            Root location where the file will be saved.
+
+        Return
+        ------
+        geojson.FeatureCollection
+            GeoJSON collection of features if :py:attr:`save` is ``False``.
+
+        See Also
+        --------
+        :py:func:`pyvims.map.plot.map_cube`
+
+        """
+        return geojson_cube(self, save=save, root=root)
