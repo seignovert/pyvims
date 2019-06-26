@@ -1,13 +1,12 @@
 numpy
+matplotlib
 scipy
-datetime
 opencv-python>3.3
 piexif
 geojson
 spiceypy
 GDAL
 lxml
-matplotlib
 shapely
 
 -e git+https://github.com/seignovert/pvl.git#egg=pvl
