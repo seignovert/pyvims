@@ -1206,7 +1206,7 @@ class VIMS_OBJ(object):
 
         See Also
         --------
-        :py:func:`pyvims.map.plot.map_cube`
+        :py:func:`pyvims.map.geojson.geojson_cube`
 
         """
         return geojson_cube(self, save=save, root=root)

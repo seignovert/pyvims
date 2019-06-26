@@ -5,7 +5,6 @@ from datetime import datetime as dt
 import pvl
 from planetaryimage import CubeFile
 
-from ._communs import getImgID
 from .vims_nav import VIMS_NAV
 
 NaN = -99999.
@@ -13,8 +12,9 @@ NaN = -99999.
 # To remove NaN comparaison warnings
 np.warnings.filterwarnings('ignore')
 
+
 class VIMS_NAV_ISIS3(VIMS_NAV):
-    def __init__(self,imgID, root='', ir=None):
+    def __init__(self, imgID, root='', ir=None):
         '''
         Note:
         -----
@@ -50,7 +50,7 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
                     self.ir = True
                     return self.fname_ir
         except NameError:
-            raise NameError('Neither ISIS3 VIS nor IR {} NAV CUBs files were found %s'.format(self.imgID))
+            raise NameError('Neither ISIS3 VIS nor IR {} NAV CUBs files were found'.format(self.imgID))
 
     @property
     def fname_vis(self):
@@ -86,7 +86,7 @@ class VIMS_NAV_ISIS3(VIMS_NAV):
         self.time = self.dtime.strftime('%Y-%m-%dT%H:%M:%S.%f')
         self.year = self.dtime.year
         self.doy = int(self.dtime.strftime('%j'))
-        self.year_d = self.year +  (self.doy-1) / 365.  # Decimal year [ISSUE: doest not apply take into account bissextile years]
+        self.year_d = self.year + (self.doy-1) / 365.  # Decimal year [ISSUE: does not apply take into account bissextile years]
         self.date = self.dtime.strftime('%Y/%m/%d')
         return
 
