@@ -13,7 +13,7 @@ build:
 requirements:
   build:
     - python {{ python }}
-    - pip
+    - pip 19.*
     - pbr
   run:
     - python {{ python }}
@@ -21,9 +21,21 @@ requirements:
     - numpy
     - matplotlib
     - scipy
+    - gdal
+    - basemap
+    - shapely
+    - opencv 3.3
+    - piexif
+    - geojson
+    - spiceypy
+    - lxml
+
 
 test:
   imports:
+    - osgeo
+    - shapely
+    - mpl_toolkits
     - pyvims
 
 about:
