@@ -24,12 +24,13 @@ requirements:
     - gdal
     - basemap
     - shapely
-    - opencv 3.3
+    - opencv >3.3
     - piexif
     - geojson
     - spiceypy
     - lxml
-
+    - pvl
+    - planetaryimage
 
 test:
   imports:
