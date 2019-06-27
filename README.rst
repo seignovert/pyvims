@@ -1,11 +1,13 @@
 PyVIMS
-===============================
+======
 
-|Build| |PyPI| |Status| |Version| |Python| |License|
+|Build| |Conda| |PyPI| |Status| |Version| |Python| |License|
 
 .. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=master
         :target: https://travis-ci.org/seignovert/pyvims
-.. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg
+.. |Conda| image:: https://img.shields.io/badge/conda|seignovert-pyvims-blue.svg?logo=python&logoColor=white
+        :target: https://anaconda.org/seignovert/pyvims
+.. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white
         :target: https://pypi.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
         :target: https://pypi.org/project/pyvims
@@ -16,44 +18,48 @@ PyVIMS
 .. |License| image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
         :target: https://pypi.org/project/pyvims
 
+
 Python package to manipulate the Cassini VIMS data.
-
-Pre-requisites
----------------
-This module use ``GDAL`` and ``Basemap`` libraries to create
-and load ``GeoTIFF`` files. You need to install it first
-before installing ``pyvims``.
-
-With ``conda``:
-
-.. code:: bash
-
-    $ conda config --add channels conda-forge
-    $ conda install -c conda-forge gdal basemap
 
 
 Install
 -------
-With ``pip``:
+
+With ``conda``
+~~~~~~~~~~~~~~
+
+Add conda-forge channel:
+
+.. code:: bash
+
+    $ conda config --add channels conda-forge
+
+Install ``pyvims`` package:
+
+.. code:: bash
+
+    $ conda install -c seignovert pyvims
+
+
+With ``pip``
+~~~~~~~~~~~~
+
+This module use ``OpenCV``, ``GDAL`` and ``Basemap`` libraries.
+Depending on your operating system you need to install them first.
+In python you should be able to do:
+
+.. code:: python
+
+    >>> import cv2
+    >>> import osgeo
+    >>> from mpl_toolkits.basemap import Basemap
+
+Then you can install ``pyvims``
 
 .. code:: bash
 
     $ pip install pyvims
 
-With the ``source files``:
-
-.. code:: bash
-
-    $ git clone https://github.com/seignovert/pyvims.git
-    $ cd pyvims ; python setup.py install
-
-Testing
--------
-Check the install:
-
-.. code:: python
-
-    >>> from pyvims import VIMS
 
 Examples
 --------
@@ -71,6 +77,7 @@ To use, simply do:
 .. code:: python
 
     >>> from pyvims import VIMS
+
     >>> cub = VIMS('1487096932_1')
 
     >>> cub
@@ -87,16 +94,8 @@ To use, simply do:
 
 For more details, take a look to the
 `Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/master/pyvims.ipynb>`_
-where more example of usage are provided.
+where more examples of usage are provided.
 
-Dependencies
-------------
-- Numpy
-- DateTime
-- CV2
-- Piexif
-- PVL_ (`patched issue #34 <https://github.com/planetarypy/pvl/pull/34>`_)
-- PlanetaryImage
-- SpiceyPy
-
-.. _PVL: https://github.com/seignovert/pvl
+Disclaimer
+----------
+This project is not supported or endorsed by either JPL, NAIF or NASA. The code is provided "as is", use at your own risk.
