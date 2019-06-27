@@ -13,7 +13,6 @@ from .map import map_cube as plot_map_cube
 from .map import geojson_cube
 from .vims_nav import VIMS_NAV
 from .vims_nav_isis3 import VIMS_NAV_ISIS3
-from .spice_geojson import SPICE_GEOJSON
 from .spice_moon import SPICE_MOON
 from .geotiff import GeoTiff, ENVI, ArcMap
 from .geotiff.ortho import grid as ortho_grid
@@ -1114,13 +1113,6 @@ class VIMS_OBJ(object):
 
         if self.mode['VIS'] is not None:
             self.quicklook_RGB_070_056_045
-
-    def saveGEOJSON(self, fout=None):
-        '''Save field of view into a geojson file'''
-        if not fout:
-            fout = self.root+self.imgID
-        SPICE_GEOJSON(self.target, self.time).save(fout=fout)
-        return
 
     def plot_band(self, band=167, **kwargs):
         """Plot cube with different projections.
