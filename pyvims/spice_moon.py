@@ -16,7 +16,7 @@ def lonlat(pt):
         lon = np.degrees(np.arctan2(pt[1], pt[0]))
         lat = np.degrees(np.arcsin(pt[2] / r))
     return r, lon, lat
-    
+
 class SPICE_MOON(SPICE_CASSINI):
     def __init__(self, target):
         SPICE_CASSINI.__init__(self)
@@ -79,6 +79,43 @@ class SPICE_MOON(SPICE_CASSINI):
         ca_et = times[ca_i]
         ca_dist = dists[ca_i]
         return spice.et2utc(ca_et, 'ISOC', 5), ca_dist
+
+    def ls(self, utc, body='Saturn', abcorr='CN+S'):
+        """Planetocentric longitude of the sun, as seen from a specified body.
+
+        Related orbital seasonal parameter:
+
+            - Vernal equinox:   Ls =   0º
+            - Summer solstice:  Ls =  90º
+            - Autumnal equinox: Ls = 180º
+            - Winter solstice:  Ls = 270º
+
+        Warning
+        -------
+        For the moons the solar longitude must be computed
+        for the parent body (ie. Saturn for Titan) otherwise
+        the output value does not provide the correct orbital
+        seasomal location. Generaly this approximation is
+        within a fraction of moon's orbit.
+
+
+        Parameters
+        ----------
+        utc: str
+            Input time in UTC format.
+        body: str, optional
+            Name of the central body.
+        abcorr: str, optional
+            Aberration correction.
+
+        Returns
+        -------
+        float
+            Solar longitude (in degrees).
+
+        """
+        et = spice.str2et(utc)
+        return np.degrees(spice.lspcn(body, et, abcorr))
 
 
 class SPICE_TITAN(SPICE_MOON):
