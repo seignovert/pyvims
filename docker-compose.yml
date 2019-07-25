@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  pyvims:
+    build: .
+    image: seignovert/pyvims
+    container_name: pyvims
+    hostname: pyvims
+    ports:
+      - "8888:8888"
+    volumes:
+      - $VIMS_DATA:/home/nbuser/data
+      - $CASSINI_KERNELS:/home/nbuser/kernels
+    stdin_open: true
+    tty: true

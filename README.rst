@@ -1,7 +1,7 @@
 PyVIMS
 ======
 
-|Build| |Conda| |PyPI| |Status| |Version| |Python| |License|
+|Build| |Conda| |PyPI| |Python| |Status| |Version| |Binder| |License|
 
 .. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=master
         :target: https://travis-ci.org/seignovert/pyvims
@@ -9,12 +9,14 @@ PyVIMS
         :target: https://anaconda.org/seignovert/pyvims
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white
         :target: https://pypi.org/project/pyvims
+.. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
+        :target: https://pypi.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
         :target: https://pypi.org/project/pyvims
 .. |Version| image:: https://img.shields.io/pypi/v/pyvims.svg?label=Version
         :target: https://pypi.org/project/pyvims
-.. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
-        :target: https://pypi.org/project/pyvims
+.. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
+        :target: https://mybinder.org/v2/gh/seignovert/pyvims/master?filepath=playground.ipynb
 .. |License| image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
         :target: https://pypi.org/project/pyvims
 
@@ -93,8 +95,10 @@ To use, simply do:
     (42, 42)
 
 For more details, take a look to the
-`Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/master/pyvims.ipynb>`_
-where more examples of usage are provided.
+`static Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/master/pyvims.ipynb>`_
+where more examples of usage are provided. You can also try this
+`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/master?filepath=playground.ipynb>`_.
+
 
 Disclaimer
 ----------
