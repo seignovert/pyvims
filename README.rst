@@ -69,10 +69,10 @@ Download test files (ISIS3 cubes of ``1487096932_1``):
 
 .. code:: bash
 
-    $ wget -O C1487096932_1_vis.cub https://vims.univ-nantes.fr/vis/cal/1487096932_1
-    $ wget -O C1487096932_1_ir.cub https://vims.univ-nantes.fr/ir/cal/1487096932_1
-    $ wget -O N1487096932_1_vis.cub https://vims.univ-nantes.fr/vis/nav/1487096932_1
-    $ wget -O N1487096932_1_ir.cub https://vims.univ-nantes.fr/ir/nav/1487096932_1
+    $ wget https://vims.univ-nantes.fr/cube/C1487096932_1_vis.cub
+    $ wget https://vims.univ-nantes.fr/cube/C1487096932_1_ir.cub
+    $ wget https://vims.univ-nantes.fr/cube/N1487096932_1_vis.cub
+    $ wget https://vims.univ-nantes.fr/cube/N1487096932_1_ir.cub
 
 To use, simply do:
 
