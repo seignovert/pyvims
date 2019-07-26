@@ -190,9 +190,9 @@ class ISISCube:
     @property
     def bands(self):
         """Cube bands numbers."""
-        return self._bands['OriginalBand']
+        return np.array(self._bands['OriginalBand'])
 
     @property
     def wvlns(self):
         """Cube central wavelengths (um)."""
-        return self._bands['Center']
+        return np.array(self._bands['Center'])

@@ -3,6 +3,8 @@
 import os
 import re
 
+import numpy as np
+
 from .errors import VIMSError
 from .isis import ISISCube
 
@@ -45,6 +47,43 @@ class VIMS:
     def __repr__(self):
         return f'<{self.__class__.__name__}> Cube: {self}'
 
+    def __matmul__(self, other):
+        if isinstance(other, int):
+            if not (1 <= other <= self.NB):
+                raise VIMSError(f'Band `{other}` invalid. Must be between 1 and {self.NB}')
+
+            return self.data[other-1, :, :]
+
+        if isinstance(other, float):
+            if not (self.wvlns[0] <= other <= self.wvlns[-1]):
+                raise VIMSError(f'Wavelength `{other}` invalid. Must be '
+                                f'between {self.wvlns[0]} and {self.wvlns[-1]}')
+
+            # No interpolation. Take the closest wavelength.
+            iwvln = np.argmin(np.abs(self.wvlns - other))
+            return self.data[iwvln, :, :]
+
+        if isinstance(other, tuple):
+            if len(other) != 2:
+                raise VIMSError(f'Tuple must have 2 values (Line, Sample).')
+
+            L, S = other
+
+            if not (1 <= L <= self.NL):
+                raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
+
+            if not (1 <= S <= self.NS):
+                raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
+
+            return self.data[:, int(L) - 1, int(S) - 1]
+
+        raise VIMSError('\n - '.join([
+            f'Invalid format. Use:',
+            'INT -> band',
+            'FLOAT -> wavelength',
+            '(INT, INT) -> Line, Sample',
+        ]))
+
     @property
     def img_id(self):
         """Cube image ID."""
@@ -80,7 +119,7 @@ class VIMS:
     @fname.setter
     def fname(self, fname):
         self.__fname = fname
-        self.__isis = ISISCube(self.filename)
+        self.__isis = None
 
     @property
     def filename(self):
@@ -90,6 +129,8 @@ class VIMS:
     @property
     def isis(self):
         """ISIS cube."""
+        if self.__isis is None:
+            self.__isis = ISISCube(self.filename)
         return self.__isis
 
     @property
@@ -123,9 +164,19 @@ class VIMS:
         return self.isis.bands
 
     @property
+    def b(self):
+        """Cube bands numbers shortcut."""
+        return self.bands
+
+    @property
     def wvlns(self):
         """Cube central wavelengths (um)."""
         return self.isis.wvlns
+
+    @property
+    def w(self):
+        """Cube central wavelengths (um) shortcut."""
+        return self.wvlns
 
     @property
     def extent(self):
