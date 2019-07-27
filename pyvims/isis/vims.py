@@ -229,3 +229,13 @@ class VIMS:
     def ilabel(self):
         """Cube I/F label."""
         return 'I/F'
+
+    @property
+    def start(self):
+        """Cube start time (UTC)."""
+        return self.isis.start
+
+    @property
+    def stop(self):
+        """Cube stop time (UTC)."""
+        return self.isis.stop

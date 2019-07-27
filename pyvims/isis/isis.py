@@ -9,8 +9,8 @@ import pvl
 from .errors import ISISError
 from .labels import ISISLabels
 from .tables import ISISTables
+from .time import time as _dt
 from .vars import BYTE_ORDERS, FIELD_TYPES
-
 
 class ISISCube:
     """VIMS ISIS header object.
@@ -102,7 +102,7 @@ class ISISCube:
     @property
     def header(self):
         """Main ISIS Cube header."""
-        return self.labels['IsisCube']
+        return self.pvl['IsisCube']
 
     @property
     def _core(self):
@@ -196,3 +196,18 @@ class ISISCube:
     def wvlns(self):
         """Cube central wavelengths (um)."""
         return np.array(self._bands['Center'])
+
+    @property
+    def _inst(self):
+        """Cube instrument header."""
+        return self.header['Instrument']
+
+    @property
+    def start(self):
+        """Instrument start time (UTC)."""
+        return _dt(self._inst['StartTime'])
+
+    @property
+    def stop(self):
+        """Instrument stop time (UTC)."""
+        return _dt(self._inst['StopTime'])
