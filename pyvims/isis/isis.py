@@ -211,3 +211,13 @@ class ISISCube:
     def stop(self):
         """Instrument stop time (UTC)."""
         return _dt(self._inst['StopTime'])
+
+    @property
+    def duration(self):
+        """Instrument acquisition dureation."""
+        return self.stop - self.start
+
+    @property
+    def time(self):
+        """Instrument mid time (UTC)."""
+        return self.start + self.duration / 2

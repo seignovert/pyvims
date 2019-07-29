@@ -239,3 +239,13 @@ class VIMS:
     def stop(self):
         """Cube stop time (UTC)."""
         return self.isis.stop
+
+    @property
+    def duration(self):
+        """Cube acquisition duration."""
+        return self.isis.duration
+
+    @property
+    def time(self):
+        """Cube mid time (UTC)."""
+        return self.isis.time
