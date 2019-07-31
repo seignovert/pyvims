@@ -278,6 +278,11 @@ class VIMS:
         return self._clock_et(self.native_stop)
 
     @property
+    def channel(self):
+        """Cube channel."""
+        return self.isis._inst['Channel']
+
+    @property
     def expo_ir(self):
         """IR exposure duration in secondes.
 
@@ -295,6 +300,11 @@ class VIMS:
             if u == 'IR':
                 return v * 1.01725 / 1e3
         return None
+
+    @property
+    def _is_ir(self):
+        """Boolean test if the cube channel is ``IR``."""
+        return self.channel == 'IR'
 
     @property
     def expo_vis(self):
@@ -315,6 +325,11 @@ class VIMS:
             if u == 'VIS':
                 return v / 1e3
         return None
+
+    @property
+    def expo(self):
+        """Cube exposure based on `channel`."""
+        return self.expo_ir if self._is_ir else self.expo_vis
 
     @property
     def interline_delay(self):
