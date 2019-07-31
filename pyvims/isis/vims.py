@@ -277,3 +277,46 @@ class VIMS:
         """Computed ET at native stop time."""
         return self._clock_et(self.native_stop)
 
+    @property
+    def expo_ir(self):
+        """IR exposure duration in secondes.
+
+        Corrected for the VIMS-IR clock drift (``x 1.01725``).
+
+        See also
+        --------
+        PDS: `VIMS-IR pixel timing`_ report.
+
+        .. _`VIMS-IR pixel timing`: https://pds-atmospheres.nmsu.edu/data_and_services/
+            atmospheres_data/Cassini/logs/VIMS%20IR%20Pixel%20Timing_final.pdf
+
+        """
+        for v, u in self.isis.exposure:
+            if u == 'IR':
+                return v * 1.01725 / 1e3
+        return None
+
+    @property
+    def expo_vis(self):
+        """Visible exposure duration in secondes.
+
+        Not corrected for the VIMS-IR timing factor.
+
+        See also
+        --------
+        ISIS3: `VIMS-VIS Camera`_ implementation.
+
+        .. _`VIMS-VIS Camera`: https://github.com/USGS-Astrogeology/ISIS3/blob/
+            af857368a3adadd6870ee551c91cbfd4ea60ac1b/isis/src/cassini/objs/
+            VimsCamera/VimsSkyMap.cpp#L87
+
+        """
+        for v, u in self.isis.exposure:
+            if u == 'VIS':
+                return v / 1e3
+        return None
+
+    @property
+    def interline_delay(self):
+        """VIMS interline delay in seconds."""
+        return self.isis._inst['InterlineDelayDuration'] / 1e3

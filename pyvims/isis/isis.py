@@ -227,3 +227,7 @@ class ISISCube:
         """NAIF keywords stored in ISIS header."""
         return self.pvl['NaifKeywords']
 
+    @property
+    def exposure(self):
+        """ISIS header exposure duration."""
+        return self._inst['ExposureDuration']
