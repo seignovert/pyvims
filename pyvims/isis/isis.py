@@ -221,3 +221,9 @@ class ISISCube:
     def time(self):
         """Instrument mid time (UTC)."""
         return self.start + self.duration / 2
+
+    @property
+    def _naif(self):
+        """NAIF keywords stored in ISIS header."""
+        return self.pvl['NaifKeywords']
+

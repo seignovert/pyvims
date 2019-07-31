@@ -1,5 +1,8 @@
 """Isis time parser."""
 
+import struct
+import binascii
+
 from datetime import datetime as dt
 
 
@@ -12,3 +15,8 @@ def time(t):
         return dt.strptime(t, '%Y-%jT%H:%m:%S.%f')
 
     raise TypeError(f'Time type `{t}` is invalid.')
+
+
+def hex2double(s):
+    """Convert Ephemeris Time hex string into double."""
+    return struct.unpack('d', binascii.unhexlify(s))[0]

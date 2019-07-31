@@ -7,6 +7,7 @@ import numpy as np
 
 from .errors import VIMSError
 from .isis import ISISCube
+from .time import hex2double
 
 
 def get_img_id(fname):
@@ -249,3 +250,30 @@ class VIMS:
     def time(self):
         """Cube mid time (UTC)."""
         return self.isis.time
+
+    @property
+    def native_start(self):
+        """Native start time."""
+        return self.isis._inst['NativeStartTime']
+
+    @property
+    def native_stop(self):
+        """Native stop time."""
+        return self.isis._inst['NativeStopTime']
+
+    def _clock_et(self, time):
+        """Convert clock ET from hex format to double."""
+        clock, ticks = str(time).split('.', 1)
+        et = hex2double(self.isis._naif[f'CLOCK_ET_-82_{clock}_COMPUTED'])
+        return et + int(ticks) / 15959
+
+    @property
+    def et_start(self):
+        """Computed ET at native start time."""
+        return self._clock_et(self.native_start)
+
+    @property
+    def et_stop(self):
+        """Computed ET at native stop time."""
+        return self._clock_et(self.native_stop)
+
