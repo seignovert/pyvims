@@ -7,3 +7,7 @@ class VIMSError(Exception):
 
 class ISISError(Exception):
     """Generic ISIS error."""
+
+
+class VIMSCameraError(VIMSError):
+    """Generic VIMS Camera error."""

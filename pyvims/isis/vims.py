@@ -5,6 +5,7 @@ import re
 
 import numpy as np
 
+from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
 from .time import hex2double
@@ -122,6 +123,7 @@ class VIMS:
         self.__fname = fname
         self.__isis = None
         self.__et = None
+        self.__camera = None
 
     @property
     def filename(self):
@@ -378,3 +380,17 @@ class VIMS:
         if self.__et is None:
             self.__et = self._et_ir if self._is_ir else self._et_vis
         return self.__et
+
+    @property
+    def mode(self):
+        """Cube sampling mode."""
+        return self.isis._inst['SamplingMode']
+
+    @property
+    def camera(self):
+        """VIMS camera."""
+        if self.__camera is None:
+            offsets = [self.isis._inst['XOffset'], self.isis._inst['ZOffset']]
+            swaths = [self.isis._inst['SwathWidth'], self.isis._inst['SwathLength']]
+            self.__camera = VIMSCamera(self.channel, self.mode, offsets, swaths)
+        return self.__camera
