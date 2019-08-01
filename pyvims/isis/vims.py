@@ -121,6 +121,7 @@ class VIMS:
     def fname(self, fname):
         self.__fname = fname
         self.__isis = None
+        self.__et = None
 
     @property
     def filename(self):
@@ -283,7 +284,7 @@ class VIMS:
         return self.isis._inst['Channel']
 
     @property
-    def expo_ir(self):
+    def _expo_ir(self):
         """IR exposure duration in secondes.
 
         Corrected for the VIMS-IR clock drift (``x 1.01725``).
@@ -307,7 +308,7 @@ class VIMS:
         return self.channel == 'IR'
 
     @property
-    def expo_vis(self):
+    def _expo_vis(self):
         """Visible exposure duration in secondes.
 
         Not corrected for the VIMS-IR timing factor.
@@ -329,9 +330,51 @@ class VIMS:
     @property
     def expo(self):
         """Cube exposure based on `channel`."""
-        return self.expo_ir if self._is_ir else self.expo_vis
+        return self._expo_ir if self._is_ir else self._expo_vis
 
     @property
     def interline_delay(self):
         """VIMS interline delay in seconds."""
         return self.isis._inst['InterlineDelayDuration'] / 1e3
+
+    @property
+    def _s(self):
+        """Camera samples array."""
+        return np.array([np.arange(1, self.NS)])
+
+    @property
+    def _l(self):
+        """Camera lines array."""
+        return np.transpose([np.arange(1, self.NL)])
+
+    @property
+    def _et_ir(self):
+        """IR pixels ephemeris time (ET)."""
+        line_duration = self.NS * self._expo_ir + self.interline_delay
+        return (self.et_start
+                + (self._l - 1) * line_duration
+                + (self._s - .5) * self._expo_ir)
+
+    @property
+    def _et_vis(self):
+        """Visible pixels ephemeris time (ET).
+
+        VIS exposure is for a single line. According to SIS,
+        ``NATIVE_START_TIME`` is for the first pixel of the IR exposure.
+
+        The offset from IR start to VIS start is calculated by:
+
+            (IrExposMsec - VisExposMsec) / 2
+
+        """
+        offset = .5 * (self.NS * self._expo_ir - self._expo_vis)
+        return (self.et_start + offset
+                + (self._l - .5) * self._expo_vis
+                + 0 * self._s)
+
+    @property
+    def et(self):
+        """Pixels ephemeris time based on channel."""
+        if self.__et is None:
+            self.__et = self._et_ir if self._is_ir else self._et_vis
+        return self.__et
