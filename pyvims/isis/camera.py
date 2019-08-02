@@ -1,5 +1,7 @@
 """VIMS camera model."""
 
+import numpy as np
+
 from .errors import VIMSCameraError
 
 
@@ -28,6 +30,7 @@ class VIMSCameraAbstract:
         self.xoffset, self.zoffset = offsets
         self.swath_width, self.swath_length = swaths
 
+        self.__grid = None
     def __str__(self):
         return self.__class__.__name__
 
@@ -105,6 +108,17 @@ class VIMSCameraAbstract:
     def offset_s(self):
         """Sample scaled offset."""
         return self._offset(self.scale_s, self.xoffset, self.swath_width)
+
+    @property
+    def grid(self):
+        """Camera pixel grid (L, S)."""
+        if self.__grid is None:
+            l = np.arange(1, self.swath_length + 1)
+            s = np.arange(1, self.swath_width + 1)
+
+            self.__grid = np.meshgrid(l, s, indexing='ij')
+
+        return self.__grid
 
 
 class VIMSCameraVis(VIMSCameraAbstract):
