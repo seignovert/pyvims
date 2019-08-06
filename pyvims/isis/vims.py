@@ -51,10 +51,13 @@ class VIMS:
 
     def __matmul__(self, other):
         if isinstance(other, int):
-            if not (1 <= other <= self.NB):
-                raise VIMSError(f'Band `{other}` invalid. Must be between 1 and {self.NB}')
+            if not (self.bands[0] <= other <= self.bands[-1]):
+                raise VIMSError(f'Band `{other}` invalid. Must be '
+                                f'between {self.bands[0]} and {self.bands[-1]}')
 
-            return self.data[other-1, :, :]
+            # No interpolation. Take the closest wavelength.
+            iband = np.argmin(np.abs(self.bands - other))
+            return self.data[iband, :, :]
 
         if isinstance(other, float):
             if not (self.wvlns[0] <= other <= self.wvlns[-1]):
