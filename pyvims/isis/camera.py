@@ -31,6 +31,8 @@ class VIMSCameraAbstract:
         self.swath_x, self.swath_y = swaths
 
         self.__grid = None
+        self.__pixels = None
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -89,7 +91,7 @@ class VIMSCameraAbstract:
         """Camera pixel grid (X, Y)."""
         if self.__grid is None:
             self.__grid = np.meshgrid(self._x, self._y)
-            self.__grid = np.meshgrid(self._l, self._s, indexing='ij')
+            self.__pixels = None
         return self.__grid
 
     @property
@@ -99,6 +101,42 @@ class VIMSCameraAbstract:
                 self._x[-1] + .5 / self.scale_x,
                 self._y[-1] + .5 / self.scale_y,
                 self._y[0] - .5 / self.scale_y]
+
+    def xy2ang(self, x, y):
+        """Convert pixel coordinates in camera look vector.
+
+        Parameters
+        ----------
+        x: float or np.array
+            Sample coordinates on the sensor.
+        y: float or np.array
+            Line coordinates on the sensor.
+
+        Return
+        ------
+        (float, float, float)
+            XYZ normalized pixel vector in Camera frame.
+
+        """
+        phi, theta = (np.array([x, y]) - self.BORESITE) * self.PIXEL_SIZE
+        return np.array([
+            np.cos(theta) * np.sin(phi),
+            np.sin(theta),
+            np.cos(theta) * np.cos(phi),
+        ])
+
+    @property
+    def pixels(self):
+        """Camera pixels orientation in J2000 frame.
+
+        Return
+        ------
+        array(3, NS, NL)
+            Pixel boresights in Camera frame.
+        """
+        if self.__pixels is None:
+            self.__pixels = self.xy2ang(*self.grid)
+        return self.__pixels
 
 
 class VIMSCameraVis(VIMSCameraAbstract):
@@ -122,7 +160,7 @@ class VIMSCameraVisHR(VIMSCameraVis):
 class VIMSCameraIrHR(VIMSCameraIr):
     """VIMS-IR camera in ``HI-RES`` sampling mode."""
 
-    SCALE = (1, 2)
+    SCALE = (2, 1)
 
 
 class VIMSCamera:
