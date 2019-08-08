@@ -112,16 +112,46 @@ class VIMSCameraAbstract:
         """Sample scaled offset."""
         return self._offset(self.scale_s, self.xoffset, self.swath_width)
 
+
+    @staticmethod
+    def _positions(offset, swath, scale):
+        """Scaled initial pixel position."""
+        if scale == 1:
+            start = offset
+        elif scale == 2:
+            start = offset + (swath//2)/2 - 1/4
+        elif scale == 3:
+            start = offset + swath/3 - 1/3
+        else:
+            raise VIMSCameraError(f'Scale value must be 1, 2, or 3.')
+
+        stop = start + (swath - 1) / scale
+        return np.linspace(start, stop, swath)
+
+    @property
+    def _l(self):
+        """Line position on the sensor."""
+        return self._positions(self.zoffset, self.swath_length, self.scale_l)
+
+    @property
+    def _s(self):
+        """Scaled sample position on the sensor."""
+        return self._positions(self.xoffset, self.swath_width, self.scale_s)
+
     @property
     def grid(self):
         """Camera pixel grid (L, S)."""
         if self.__grid is None:
-            l = np.arange(1, self.swath_length + 1)
-            s = np.arange(1, self.swath_width + 1)
-
-            self.__grid = np.meshgrid(l, s, indexing='ij')
-
+            self.__grid = np.meshgrid(self._l, self._s, indexing='ij')
         return self.__grid
+
+    @property
+    def extent(self):
+        """Camera grid extent."""
+        return [self._s[0] - .5 / self.scale_s,
+                self._s[-1] + .5 / self.scale_s,
+                self._l[-1] + .5 / self.scale_l,
+                self._l[0] - .5 / self.scale_l]
 
 
 class VIMSCameraVis(VIMSCameraAbstract):
