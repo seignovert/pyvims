@@ -17,14 +17,11 @@ class VIMSCameraAbstract:
 
     """
 
-    # Camera pixel size [rad/mm]
+    # Boresite location (33rd pixels from top left corner)
+    BORESITE = 32
+
+    # Camera pixel size [rad/pixel]
     PIXEL_SIZE = None
-
-    # Camera focal length [m]
-    FOCAL = None
-
-    # Boresite location
-    BORESITE = 31
 
     # Pixel scaling factor in (L, S) direction
     SCALE = (1, 1)
@@ -40,37 +37,13 @@ class VIMSCameraAbstract:
     def __repr__(self):
         return '\n - '.join([
             f'<{self}>',
-            f'Pixel scale: {self.scale_l, self.scale_s}',
-            f'Pixel size: {self.pixel_size_l, self.pixel_size_s}',
-            f'Boresite: {self.boresite_l, self.boresite_s}',
-            f'Offset: {self.offset_l, self.offset_s}',
+            f'Swath: {self.swath_width, self.swath_length}',
+            f'Offset: {self.xoffset, self.zoffset}',
+            f'Pixel scale: {self.scale_s, self.scale_l}',
+            f'Pixel size: {self.PIXEL_SIZE}',
+            f'Focal length: {self.PIXEL_SIZE}',
+            f'Boresite: {self.BORESITE, self.BORESITE}',
         ])
-
-    def _pixel_size(self, scale):
-        """Scaled pixel size."""
-        return self.PIXEL_SIZE / scale
-
-    def _boresite(self, scale):
-        """Scaled boresite.
-
-        scale: 1 -> 31
-        scale: 2 -> 62.5
-        scale: 3 -> 94
-
-        """
-        return self.BORESITE * scale + (scale - 1) / 2
-
-    @staticmethod
-    def _offset(scale, offset, swath):
-        """Scaled offset based on swath.
-
-        scale: 1 -> offset - 1
-        scale: 2 -> 2 * (offset - 1) + (swath - 1) / 2
-        scale: 3 -> 3 * (offset + swath / 2) - swath / 2
-
-        """
-        return (scale * (offset - 1)
-                + (scale - 1) * ((swath - 1) / 2 + (scale - 2) * 2))
 
     @property
     def scale_l(self):
@@ -81,37 +54,6 @@ class VIMSCameraAbstract:
     def scale_s(self):
         """Sample scaling factor."""
         return self.SCALE[1]
-
-    @property
-    def pixel_size_l(self):
-        """Line scaled pixel size."""
-        return self._pixel_size(self.scale_l)
-
-    @property
-    def pixel_size_s(self):
-        """Sample scaled pixel size."""
-        return self._pixel_size(self.scale_s)
-
-    @property
-    def boresite_l(self):
-        """Line scaled boresight."""
-        return self._boresite(self.scale_l)
-
-    @property
-    def boresite_s(self):
-        """Sample scaled boresight."""
-        return self._boresite(self.scale_s)
-
-    @property
-    def offset_l(self):
-        """Line scaled offset."""
-        return self._offset(self.scale_l, self.zoffset, self.swath_length)
-
-    @property
-    def offset_s(self):
-        """Sample scaled offset."""
-        return self._offset(self.scale_s, self.xoffset, self.swath_width)
-
 
     @staticmethod
     def _positions(offset, swath, scale):
@@ -158,14 +100,12 @@ class VIMSCameraVis(VIMSCameraAbstract):
     """VIMS-VIS camera in ``NORMAL`` sampling mode."""
 
     PIXEL_SIZE = 0.506e-3
-    FOCAL = 143.0e-3
 
 
 class VIMSCameraIr(VIMSCameraAbstract):
     """VIMS-IR camera in ``NORMAL`` sampling mode."""
 
     PIXEL_SIZE = 0.495e-3
-    FOCAL = 426.0e-3
 
 
 class VIMSCameraVisHR(VIMSCameraVis):
