@@ -23,12 +23,12 @@ class VIMSCameraAbstract:
     # Camera pixel size [rad/pixel]
     PIXEL_SIZE = None
 
-    # Pixel scaling factor in (L, S) direction
+    # Pixel scaling factor in (X, Y) direction
     SCALE = (1, 1)
 
     def __init__(self, offsets, swaths):
-        self.xoffset, self.zoffset = offsets
-        self.swath_width, self.swath_length = swaths
+        self.offset_x, self.offset_y = offsets
+        self.swath_x, self.swath_y = swaths
 
         self.__grid = None
     def __str__(self):
@@ -37,27 +37,31 @@ class VIMSCameraAbstract:
     def __repr__(self):
         return '\n - '.join([
             f'<{self}>',
-            f'Swath: {self.swath_width, self.swath_length}',
-            f'Offset: {self.xoffset, self.zoffset}',
-            f'Pixel scale: {self.scale_s, self.scale_l}',
-            f'Pixel size: {self.PIXEL_SIZE}',
-            f'Focal length: {self.PIXEL_SIZE}',
+            f'Swath: {self.swath_x, self.swath_y}',
+            f'Offset: {self.offset_x, self.offset_y}',
+            f'Scaling: {self.scale_x, self.scale_y}',
+            f'Pixel size: {self.PIXEL_SIZE * 1e3} mrad/pix',
             f'Boresite: {self.BORESITE, self.BORESITE}',
         ])
 
     @property
-    def scale_l(self):
-        """Line scaling factor."""
+    def scale_x(self):
+        """Scaling factor in X direction."""
         return self.SCALE[0]
 
     @property
-    def scale_s(self):
-        """Sample scaling factor."""
+    def scale_y(self):
+        """Scaling factor in Y direction."""
         return self.SCALE[1]
 
     @staticmethod
     def _positions(offset, swath, scale):
-        """Scaled initial pixel position."""
+        """Scaled initial pixel position (X, Y).
+
+        Pixel position are expressed in the
+        camera focal plane.
+
+        """
         if scale == 1:
             start = offset
         elif scale == 2:
@@ -71,29 +75,30 @@ class VIMSCameraAbstract:
         return np.linspace(start, stop, swath)
 
     @property
-    def _l(self):
-        """Line position on the sensor."""
-        return self._positions(self.zoffset, self.swath_length, self.scale_l)
+    def _x(self):
+        """Scaled sample position on the sensor."""
+        return self._positions(self.offset_x, self.swath_x, self.scale_x)
 
     @property
-    def _s(self):
-        """Scaled sample position on the sensor."""
-        return self._positions(self.xoffset, self.swath_width, self.scale_s)
+    def _y(self):
+        """Line position on the sensor."""
+        return self._positions(self.offset_y, self.swath_y, self.scale_y)
 
     @property
     def grid(self):
-        """Camera pixel grid (L, S)."""
+        """Camera pixel grid (X, Y)."""
         if self.__grid is None:
+            self.__grid = np.meshgrid(self._x, self._y)
             self.__grid = np.meshgrid(self._l, self._s, indexing='ij')
         return self.__grid
 
     @property
     def extent(self):
         """Camera grid extent."""
-        return [self._s[0] - .5 / self.scale_s,
-                self._s[-1] + .5 / self.scale_s,
-                self._l[-1] + .5 / self.scale_l,
-                self._l[0] - .5 / self.scale_l]
+        return [self._x[0] - .5 / self.scale_x,
+                self._x[-1] + .5 / self.scale_x,
+                self._y[-1] + .5 / self.scale_y,
+                self._y[0] - .5 / self.scale_y]
 
 
 class VIMSCameraVis(VIMSCameraAbstract):
