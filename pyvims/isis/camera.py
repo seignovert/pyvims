@@ -17,11 +17,14 @@ class VIMSCameraAbstract:
 
     """
 
-    # Camera pixel size [m]
+    # Camera pixel size [rad/mm]
     PIXEL_SIZE = None
 
-    # Boresight reference
-    BORE = 31
+    # Camera focal length [m]
+    FOCAL = None
+
+    # Boresite location
+    BORESITE = 31
 
     # Pixel scaling factor in (L, S) direction
     SCALE = (1, 1)
@@ -39,7 +42,7 @@ class VIMSCameraAbstract:
             f'<{self}>',
             f'Pixel scale: {self.scale_l, self.scale_s}',
             f'Pixel size: {self.pixel_size_l, self.pixel_size_s}',
-            f'Bore: {self.bore_l, self.bore_s}',
+            f'Boresite: {self.boresite_l, self.boresite_s}',
             f'Offset: {self.offset_l, self.offset_s}',
         ])
 
@@ -47,15 +50,15 @@ class VIMSCameraAbstract:
         """Scaled pixel size."""
         return self.PIXEL_SIZE / scale
 
-    def _bore(self, scale):
-        """Scaled boresight.
+    def _boresite(self, scale):
+        """Scaled boresite.
 
         scale: 1 -> 31
         scale: 2 -> 62.5
         scale: 3 -> 94
 
         """
-        return self.BORE * scale + (scale - 1) / 2
+        return self.BORESITE * scale + (scale - 1) / 2
 
     @staticmethod
     def _offset(scale, offset, swath):
@@ -90,14 +93,14 @@ class VIMSCameraAbstract:
         return self._pixel_size(self.scale_s)
 
     @property
-    def bore_l(self):
+    def boresite_l(self):
         """Line scaled boresight."""
-        return self._bore(self.scale_l)
+        return self._boresite(self.scale_l)
 
     @property
-    def bore_s(self):
+    def boresite_s(self):
         """Sample scaled boresight."""
-        return self._bore(self.scale_s)
+        return self._boresite(self.scale_s)
 
     @property
     def offset_l(self):
@@ -124,13 +127,15 @@ class VIMSCameraAbstract:
 class VIMSCameraVis(VIMSCameraAbstract):
     """VIMS-VIS camera in ``NORMAL`` sampling mode."""
 
-    PIXEL_SIZE = 0.00051
+    PIXEL_SIZE = 0.506e-3
+    FOCAL = 143.0e-3
 
 
 class VIMSCameraIr(VIMSCameraAbstract):
     """VIMS-IR camera in ``NORMAL`` sampling mode."""
 
-    PIXEL_SIZE = 0.000495
+    PIXEL_SIZE = 0.495e-3
+    FOCAL = 426.0e-3
 
 
 class VIMSCameraVisHR(VIMSCameraVis):
