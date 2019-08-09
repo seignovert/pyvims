@@ -47,7 +47,7 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}> Cube: {self}'
+        return f'<{self.__class__.__name__}> Cube: {self} [{self.channel}]'
 
     def __matmul__(self, other):
         if isinstance(other, int):
