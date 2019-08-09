@@ -17,8 +17,8 @@ class VIMSCameraAbstract:
 
     """
 
-    # Boresite location (33rd pixels from top left corner)
-    BORESITE = 32
+    # Boresite location
+    BORESITE = 33
 
     # Camera pixel size [rad/pixel]
     PIXEL_SIZE = None
