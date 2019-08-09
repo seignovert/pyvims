@@ -345,12 +345,12 @@ class VIMS:
     @property
     def _s(self):
         """Camera samples array."""
-        return np.array([np.arange(1, self.NS)])
+        return np.array([np.arange(1, self.NS + 1)])
 
     @property
     def _l(self):
         """Camera lines array."""
-        return np.transpose([np.arange(1, self.NL)])
+        return np.transpose([np.arange(1, self.NL + 1)])
 
     @property
     def _et_ir(self):
