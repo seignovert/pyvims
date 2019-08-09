@@ -90,7 +90,7 @@ class VIMSCameraAbstract:
     def grid(self):
         """Camera pixel grid (X, Y)."""
         if self.__grid is None:
-            self.__grid = np.meshgrid(self._x, self._y)
+            self.__grid = np.asarray(np.meshgrid(self._x, self._y))
             self.__pixels = None
         return self.__grid
 
