@@ -231,3 +231,20 @@ class ISISCube:
     def exposure(self):
         """ISIS header exposure duration."""
         return self._inst['ExposureDuration']
+
+    @property
+    def kernels(self):
+        """List of kernels cached by ISIS."""
+        if 'Kernels' not in self:
+            return None
+
+        kernels = []
+        for kernel in self['Kernels'].values():
+            if isinstance(kernel, str) and '$' in kernel:
+                kernels.append(kernel)
+            elif isinstance(kernel, list):
+                for k in kernel:
+                    if '$' in k:
+                        kernels.append(k)
+
+        return kernels
