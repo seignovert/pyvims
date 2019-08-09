@@ -39,7 +39,9 @@ class VIMS:
         with ``root='.'``.
 
     """
-    VIMS_SEC = 1.01725  # VIMS clock drift
+
+    # VIMS clock drift for IR scan
+    VIMS_SEC = 1.01725
 
     def __init__(self, fname, root=None):
         self.img_id = fname
@@ -131,6 +133,7 @@ class VIMS:
         self.__et = None
         self.__camera = None
         self.__pixels = None
+        self.__sky = None
 
     @property
     def filename(self):
@@ -440,6 +443,7 @@ class VIMS:
             swaths = [self.isis._inst['SwathWidth'], self.isis._inst['SwathLength']]
             self.__camera = VIMSCamera(self.channel, self.mode, offsets, swaths)
             self.__pixels = None
+            self.__sky = None
         return self.__camera
 
     @property
@@ -502,4 +506,12 @@ class VIMS:
         """Camera pixel pointing direction in J2000 frame."""
         if self.__pixels is None:
             self.__pixels = q_rot(self._inst_q, self.camera.pixels)
+            self.__sky = None
         return self.__pixels
+
+    @property
+    def sky(self):
+        """Camera pixel pointing direction in J2000 frame."""
+        if self.__sky is None:
+            self.__sky = radec(self.pixels)
+        return self.__sky
