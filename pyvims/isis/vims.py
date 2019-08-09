@@ -8,7 +8,9 @@ import numpy as np
 from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
+from .quaternions import m2q, q_mult, q_rot
 from .time import hex2double
+from .vectors import hat, radec
 
 
 def get_img_id(fname):
@@ -128,6 +130,7 @@ class VIMS:
         self.__isis = None
         self.__et = None
         self.__camera = None
+        self.__pixels = None
 
     @property
     def filename(self):
@@ -436,4 +439,67 @@ class VIMS:
             offsets = [self.isis._inst['XOffset'], self.isis._inst['ZOffset']]
             swaths = [self.isis._inst['SwathWidth'], self.isis._inst['SwathLength']]
             self.__camera = VIMSCamera(self.channel, self.mode, offsets, swaths)
+            self.__pixels = None
         return self.__camera
+
+    @property
+    def _cassini_pointing(self):
+        """Cassini pointing attitude.
+
+        The spacecraft pointing is extracted from
+        ISIS tables and linearly interpolated on pixel
+        ephemeris times. All quaternions are renormalized
+        to 1. And additional rotation (labeled
+        ``ConstantRotation`` in the header) is required to
+        get the actual instrument pointing (see
+        :py:func:`_inst_rot`).
+
+        Note
+        ----
+        Quaternions should be interpolated together with
+        Slerp method (see :py:func:`angles.q_interp`).
+        But most of the time the drift of the pointing
+        between the recorded ETs values is small enough
+        to use a linerar interpolation.
+
+        Returns
+        -------
+        np.array
+            Grid (Nl, NS) of SPICE quaternions of the spacecraft
+            pointing attitude.
+
+        """
+        p = self.isis.tables['InstrumentPointing'].data
+        q0 = p['J2000Q0']
+        q1 = p['J2000Q1']
+        q2 = p['J2000Q2']
+        q3 = p['J2000Q3']
+        ets = p['ET']
+
+        p = self._flat([
+            np.interp(self.et, ets, q0),
+            np.interp(self.et, ets, q1),
+            np.interp(self.et, ets, q2),
+            np.interp(self.et, ets, q3),
+        ])
+
+        return self._grid(hat(p))
+
+    @property
+    def _inst_rot(self):
+        """Instrument rotation matrix from the spacecraft frame."""
+        return np.reshape(
+            self.isis.tables['InstrumentPointing']['ConstantRotation'], (3, 3))
+
+    @property
+    def _inst_q(self):
+        """Instrument boresight pointing."""
+        q = q_mult(m2q(self._inst_rot), self._flat(self._cassini_pointing))
+        return self._grid(q)
+
+    @property
+    def pixels(self):
+        """Camera pixel pointing direction in J2000 frame."""
+        if self.__pixels is None:
+            self.__pixels = q_rot(self._inst_q, self.camera.pixels)
+        return self.__pixels
