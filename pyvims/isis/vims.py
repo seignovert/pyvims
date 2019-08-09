@@ -37,6 +37,7 @@ class VIMS:
         with ``root='.'``.
 
     """
+    VIMS_SEC = 1.01725  # VIMS clock drift
 
     def __init__(self, fname, root=None):
         self.img_id = fname
@@ -343,7 +344,7 @@ class VIMS:
         """
         for v, u in self.isis.exposure:
             if u == 'IR':
-                return v * 1.01725 / 1e3
+                return v * self.VIMS_SEC / 1e3
         return None
 
     @property
@@ -379,7 +380,7 @@ class VIMS:
     @property
     def interline_delay(self):
         """VIMS interline delay in seconds."""
-        return self.isis._inst['InterlineDelayDuration'] / 1e3
+        return self.isis._inst['InterlineDelayDuration'] * self.VIMS_SEC / 1e3
 
     @property
     def _s(self):
