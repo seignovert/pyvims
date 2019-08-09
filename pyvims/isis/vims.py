@@ -156,9 +156,48 @@ class VIMS:
         return self.isis.NS
 
     @property
+    def NP(self):
+        """Number of pixels."""
+        return self.NL * self.NS
+
+    @property
     def shape(self):
         """Data shape."""
         return self.isis.shape
+
+    def _flat(self, array):
+        """Flatten grid array.
+
+        Parameters
+        ----------
+        array: list or np.array
+            Grid array to flatten.
+
+        Returns
+        -------
+        np.array
+            Flattenned array.
+
+        """
+        ndim = int(np.product(np.shape(array)) / self.NP)
+        return np.reshape(array, (ndim, self.NP))
+
+    def _grid(self, array):
+        """Grid flatten array.
+
+        Parameters
+        ----------
+        array: list or np.array
+            Flatten array.
+
+        Returns
+        -------
+        np.array
+            Gridded array.
+
+        """
+        ndim = int(np.product(np.shape(array)) / self.NP)
+        return np.reshape(array, (ndim, self.NL, self.NS))
 
     @property
     def data(self):
