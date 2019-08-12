@@ -15,7 +15,7 @@ from .vectors import hat, radec, v_max_dist
 
 def get_img_id(fname):
     """Extract image ID from filename."""
-    img_ids = re.findall(r'^(?:C)?\d{10}_\d+(?:_\d+)?', fname)
+    img_ids = re.findall(r'^(?:C|v)?\d{10}_\d+(?:_\d+)?', fname)
 
     if not img_ids:
         raise VIMSError(f'File `{fname}` name does not '
