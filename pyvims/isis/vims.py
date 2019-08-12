@@ -10,7 +10,7 @@ from .errors import VIMSError
 from .isis import ISISCube
 from .quaternions import m2q, q_mult, q_rot
 from .time import hex2double
-from .vectors import hat, radec
+from .vectors import hat, radec, v_max_dist
 
 
 def get_img_id(fname):
@@ -515,3 +515,22 @@ class VIMS:
         if self.__sky is None:
             self.__sky = radec(self.pixels)
         return self.__sky
+
+    @property
+    def pointing(self):
+        """Mean camera pointing.
+
+        Returns
+        -------
+        float, float, float
+            Mean right-ascension, mean declination and fov radius (in degrees).
+
+        """
+        ra, dec = radec(np.mean(self.pixels, axis=(1, 2)))
+
+        # Search FOV max diameter
+        vecs = self._flat(self.pixels)
+        imaxs = v_max_dist(vecs)
+        fov = np.degrees(np.arccos(np.dot(vecs[:, imaxs[0]], vecs[:, imaxs[1]])))
+
+        return ra, dec, fov / 2

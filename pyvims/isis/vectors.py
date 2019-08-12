@@ -169,3 +169,23 @@ def hat(v):
 
     """
     return np.asarray(v) / norm(v)
+
+
+def v_max_dist(v):
+    """Find the two vector with the largest distance.
+
+    Parameters
+    ----------
+    v: np.array
+        3xN array of 3D vectors.
+
+    Returns
+    -------
+    (int, int)
+        Tuple of the two vectors with the largest
+        distance between them.
+
+    """
+    dist = np.sum(np.power(np.subtract(
+        v.T[np.newaxis, :], v.T[:, np.newaxis]), 2), axis=2)
+    return np.unravel_index(np.argmax(dist), dist.shape)
