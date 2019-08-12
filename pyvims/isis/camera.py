@@ -17,8 +17,8 @@ class VIMSCameraAbstract:
 
     """
 
-    # Boresite location
-    BORESITE = 33
+    # Boresite location (X, Y)
+    BORESITE = np.array([[[32]], [[32]]])
 
     # Camera pixel size [rad/pixel]
     PIXEL_SIZE = None
