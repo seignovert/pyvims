@@ -211,6 +211,31 @@ class VIMS:
         ndim = int(np.product(np.shape(array)) / self.NP)
         return np.reshape(array, (ndim, self.NL, self.NS))
 
+    @staticmethod
+    def _mean(self, arr):
+        """Mean cube values."""
+        return np.mean(arr, axis=(1, 2))
+
+    @staticmethod
+    def _med(self, arr):
+        """Median cube values."""
+        return np.median(arr, axis=(1, 2))
+
+    @staticmethod
+    def _std(self, arr):
+        """Standard deviation cube values."""
+        return np.std(arr, axis=(1, 2))
+
+    @staticmethod
+    def _min(self, arr):
+        """Minimum cube values."""
+        return np.min(arr, axis=(1, 2))
+
+    @staticmethod
+    def _max(self, arr):
+        """Maximum cube values."""
+        return np.max(arr, axis=(1, 2))
+
     @property
     def data(self):
         """Data cube."""
@@ -830,3 +855,43 @@ class VIMS:
     def ground_res(self):
         """Mean oblique pixel resolution on the ground."""
         return np.ma.array(self.res / np.cos(np.radians(self.eme)), mask=self.limb)
+
+    @property
+    def v_sc(self):
+        """Mean sub-spacecraft position vector in main target frame."""
+        return self._mean(self._sc_position)
+
+    @property
+    def sc(self):
+        """Mean sub-spacecraft geographic coordinates."""
+        return lonlat(self.v_sc)
+
+    @property
+    def sc_lon(self):
+        """Mean sub-spacecraft west longitude."""
+        return self.sc[0]
+
+    @property
+    def sc_lat(self):
+        """Mean sub-spacecraft north latitude."""
+        return self.sc[1]
+
+    @property
+    def v_ss(self):
+        """Mean sub-solar position vector in main target frame."""
+        return self._mean(self._sun_position)
+
+    @property
+    def ss(self):
+        """Mean sub-solar geographic coordinates."""
+        return lonlat(self.v_ss)
+
+    @property
+    def ss_lon(self):
+        """Mean sub-solar west longitude."""
+        return self.ss[0]
+
+    @property
+    def ss_lat(self):
+        """Mean sub-solar north latitude."""
+        return self.ss[1]
