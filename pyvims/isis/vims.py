@@ -583,7 +583,7 @@ class VIMS:
             Mean right-ascension, mean declination and fov radius (in degrees).
 
         """
-        ra, dec = radec(np.mean(self.pixels, axis=(1, 2)))
+        ra, dec = radec(self._mean(self.pixels))
 
         # Search FOV max diameter
         vecs = self._flat(self.pixels)
@@ -848,8 +848,13 @@ class VIMS:
 
     @property
     def res(self):
-        """Mean pixel resolution at the intersect point."""
+        """Pixels mean resolution at the intersect point."""
         return self._dist_sc * self.camera.pix_res
+
+    @property
+    def pix_res(self):
+        """Mean pixels resolution (km/pixel)."""
+        return self._mean([self.res])[0]
 
     @property
     def ground_res_s(self):

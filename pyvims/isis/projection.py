@@ -41,9 +41,9 @@ def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
 
     if alt is None:
         mask = cos_c < 0 | np.ma.getmask(lon) | np.ma.getmask(lat)
-        return np.ma.array(x, mask=mask), np.ma.array(y, mask=mask)
     else:
         x *= 1 + alt / r
         y *= 1 + alt / r
         mask = cos_c < 0
-        return np.ma.array(x, mask=mask), np.ma.array(y, mask=mask)
+
+    return np.ma.array([x, y], mask=[mask, mask])
