@@ -8,7 +8,7 @@ import numpy as np
 from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
-from .quaternions import m2q, q_mult, q_rot
+from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .time import hex2double
 from .vectors import hat, radec, v_max_dist
 
@@ -505,7 +505,7 @@ class VIMS:
     def pixels(self):
         """Camera pixel pointing direction in J2000 frame."""
         if self.__pixels is None:
-            self.__pixels = q_rot(self._inst_q, self.camera.pixels)
+            self.__pixels = q_rot_t(self._inst_q, self.camera.pixels)
             self.__sky = None
         return self.__pixels
 

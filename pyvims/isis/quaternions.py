@@ -237,9 +237,39 @@ def q_mult(q0, q1):
 
 
 def q_rot(q, v):
-    """Vection rotation based on quaternion.
+    """Vector rotation based on quaternion.
 
-    v2 = q * v1 * conj(q)
+    See :py:func:`q_rot_t` for the inverse rotation.
+
+    Parameters
+    ----------
+    q: np.array
+        Rotation quaternion(s).
+    v: np.array
+        Vector(s) to rotate.
+
+    Returns
+    -------
+    np.array
+        Rotated vector(s).
+
+    """
+    if np.ndim(q) == 1:
+        return np.dot(q2m(q), v)
+
+    if np.ndim(v) == 1:
+        return np.dot(np.transpose(v), q2m(q))
+
+    if np.shape(q)[1:] != np.shape(v)[1:]:
+        raise ValueError('Quaternion and vector must have the same number of points.')
+
+    return np.sum(np.multiply(q2m(q), v), axis=1)
+
+
+def q_rot_t(q, v):
+    """Reverse vector rotation based on quaternion.
+
+    Inverse rotation of :py:func:`q_rot`.
 
     Parameters
     ----------
