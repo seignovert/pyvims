@@ -241,6 +241,11 @@ class VIMS:
         return [.5, self.NS + .5, self.NL + .5, .5]
 
     @property
+    def cextent(self):
+        """Cube contours extent."""
+        return [.5, self.NS + .5, .5, self.NL + .5]
+
+    @property
     def sticks(self):
         """Cube sample ticks."""
         return [1, self.NS // 4, self.NS // 2, self.NS // 4 + self.NS // 2, self.NS]
