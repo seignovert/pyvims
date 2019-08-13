@@ -534,3 +534,70 @@ class VIMS:
         fov = np.degrees(np.arccos(np.dot(vecs[:, imaxs[0]], vecs[:, imaxs[1]])))
 
         return ra, dec, fov / 2
+
+    @property
+    def _cassini_position(self):
+        """Cassini position from the main target body.
+
+        The spacecraft position is extracted from
+        ISIS tables and linearly interpolated on pixel
+        ephemeris times.
+
+        Returns
+        -------
+        np.array
+            Grid (Nl, NS) of the spacecraft J2000 position
+            from the main target body.
+
+        """
+        p = self.isis.tables['InstrumentPosition'].data
+        x = p['J2000X']
+        y = p['J2000Y']
+        z = p['J2000Z']
+        ets = p['ET']
+
+        return np.array([
+            np.interp(self.et, ets, x),
+            np.interp(self.et, ets, y),
+            np.interp(self.et, ets, z),
+        ])
+
+    @property
+    def _body_rotation(self):
+        """Main target body rotation quaternion.
+
+        The body rotation is extracted from
+        ISIS tables and linearly interpolated on pixel
+        ephemeris times.
+
+        Note
+        ----
+        Quaternions should be interpolated together with
+        Slerp method (see :py:func:`angles.q_interp`).
+        But most of the time the drift of the pointing
+        between the recorded ETs values is small enough
+        to use a linerar interpolation.
+
+        Returns
+        -------
+        np.array
+            Grid (Nl, NS) of the main target body rotation
+            quaternion.
+
+        """
+        p = self.isis.tables['BodyRotation'].data
+        q0 = p['J2000Q0']
+        q1 = p['J2000Q1']
+        q2 = p['J2000Q2']
+        q3 = p['J2000Q3']
+        ets = p['ET']
+
+        p = self._flat([
+            np.interp(self.et, ets, q0),
+            np.interp(self.et, ets, q1),
+            np.interp(self.et, ets, q2),
+            np.interp(self.et, ets, q3),
+        ])
+
+        return self._grid(hat(p))
+
