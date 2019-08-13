@@ -189,3 +189,21 @@ def v_max_dist(v):
     dist = np.sum(np.power(np.subtract(
         v.T[np.newaxis, :], v.T[:, np.newaxis]), 2), axis=2)
     return np.unravel_index(np.argmax(dist), dist.shape)
+
+
+def vdot(v1, v2):
+    """Dot product between two vectors."""
+    if np.ndim(v1) == 1 and np.ndim(v2) == 1:
+        return np.dot(v1, v2)
+
+    if np.ndim(v1) == 1:
+        return np.dot(np.transpose(v2), v1)
+
+    if np.ndim(v2) == 1:
+        return np.dot(np.transpose(v1), v2)
+
+    if np.shape(v1)[1:] == np.shape(v2)[1:]:
+        return np.sum(np.multiply(np.transpose(v1), np.transpose(v2)), axis=1)
+
+    raise ValueError('The two vectors must have the same number of points.')
+

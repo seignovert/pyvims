@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from .vectors import norm
+from .vectors import norm, vdot
 
 
 def intersect(v, sc, r):
@@ -23,20 +23,7 @@ def intersect(v, sc, r):
         Intersect J2000 position in target frame.
 
     """
-    if np.ndim(sc) == 1 and np.ndim(v) == 1:
-        dot = np.dot(sc, v)
-
-    elif np.ndim(v) == 1:
-        dot = np.dot(np.transpose(sc), v)
-
-    elif np.ndim(sc) == 1:
-        dot = np.dot(np.transpose(v), sc)
-
-    elif np.shape(v)[1:] == np.shape(sc)[1:]:
-        dot = np.sum(np.multiply(np.transpose(v), np.transpose(sc)), axis=1)
-
-    else:
-        raise ValueError('SC and aim vectors must have the same number of points.')
+    dot = vdot(sc, v)
 
     delta = np.subtract(dot**2, np.subtract(norm(sc)**2, r**2))
 
