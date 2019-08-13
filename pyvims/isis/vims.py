@@ -11,7 +11,7 @@ from .isis import ISISCube
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
 from .time import hex2double
-from .vectors import hat, radec, v_max_dist
+from .vectors import deg180, hat, lonlat, norm, radec, v_max_dist
 
 
 def get_img_id(fname):
@@ -136,6 +136,8 @@ class VIMS:
         self.__pixels = None
         self.__sky = None
         self.__xyz = None
+        self.__lonlat = None
+        self.__alt = None
 
     @property
     def filename(self):
@@ -447,6 +449,8 @@ class VIMS:
             self.__pixels = None
             self.__sky = None
             self.__xyz = None
+            self.__lonlat = None
+            self.__alt = None
         return self.__camera
 
     @property
@@ -511,6 +515,8 @@ class VIMS:
             self.__pixels = q_rot_t(self._inst_q, self.camera.pixels)
             self.__sky = None
             self.__xyz = None
+            self.__lonlat = None
+            self.__alt = None
         return self.__pixels
 
     @property
@@ -519,6 +525,8 @@ class VIMS:
         if self.__sky is None:
             self.__sky = radec(self.pixels)
             self.__xyz = None
+            self.__lonlat = None
+            self.__alt = None
         return self.__sky
 
     @property
@@ -629,3 +637,78 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
         return self.__xyz
+
+    @property
+    def lonlat(self):
+        """Planetocentric geographic coordinates in main target frame."""
+        if self.__lonlat is None:
+            self.__lonlat = lonlat(self._xyz)
+        return self.__lonlat
+
+    @property
+    def lon(self):
+        """Planetocentric West longitude.
+
+        Longitude in degrees between ``[0ºW; 360ºW[``.
+
+        """
+        return self.lonlat[0]
+
+    @property
+    def lon_e(self):
+        """Planetocentric East coordinates.
+
+        Longitude in degrees between ``]-180ºE; 180ºE]``.
+
+        """
+        return deg180(-self.lon)
+
+    @property
+    def lat(self):
+        """Planetocentric North latitude.
+
+        Latitude in degrees between ``[-90ºN; 90ºN]``.
+
+        """
+        return self.lonlat[1]
+
+    @property
+    def _dist(self):
+        """Pixel distance to the main target body center."""
+        return norm(self._xyz)
+
+    @property
+    def alt(self):
+        """Planetocentric altitude from the main target body center."""
+        if self.__alt is None:
+            self.__alt = np.max([
+                np.zeros((self.NL, self.NS)),
+                self._dist - self.isis.target_radius
+            ], axis=0)
+
+        return self.__alt
+
+    @property
+    def limb(self):
+        """Is pixel at the limb."""
+        return self.alt > 1e-6
+
+    @property
+    def ground(self):
+        """Is pixel on the ground."""
+        return ~self.limb
+
+    @property
+    def ground_lon(self):
+        """Planetocentric West longitude on the ground."""
+        return np.ma.array(self.lon, mask=self.limb)
+
+    @property
+    def ground_lon_e(self):
+        """Planetocentric East longitude on the ground."""
+        return np.ma.array(self.lon_e, mask=self.limb)
+
+    @property
+    def ground_lat(self):
+        """Planetocentric latitude on the ground."""
+        return np.ma.array(self.lat, mask=self.limb)
