@@ -9,6 +9,7 @@ from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
+from .target import intersect
 from .time import hex2double
 from .vectors import hat, radec, v_max_dist
 
@@ -134,6 +135,7 @@ class VIMS:
         self.__camera = None
         self.__pixels = None
         self.__sky = None
+        self.__xyz = None
 
     @property
     def filename(self):
@@ -444,6 +446,7 @@ class VIMS:
             self.__camera = VIMSCamera(self.channel, self.mode, offsets, swaths)
             self.__pixels = None
             self.__sky = None
+            self.__xyz = None
         return self.__camera
 
     @property
@@ -507,6 +510,7 @@ class VIMS:
         if self.__pixels is None:
             self.__pixels = q_rot_t(self._inst_q, self.camera.pixels)
             self.__sky = None
+            self.__xyz = None
         return self.__pixels
 
     @property
@@ -514,6 +518,7 @@ class VIMS:
         """Camera pixel pointing direction in J2000 frame."""
         if self.__sky is None:
             self.__sky = radec(self.pixels)
+            self.__xyz = None
         return self.__sky
 
     @property
@@ -602,3 +607,25 @@ class VIMS:
         ])
 
         return q_rot(self._body_rotation, j2000)
+
+    @property
+    def _xyz(self):
+        """Camera pixels intersect with main traget frame (ref: J2000).
+
+        Intersection between the line-of-sight and the main target
+        body.
+
+        Note
+        ----
+        For now the target is considered as a sphere (not an ellipsoid)
+        to provide planecentric coordinates.
+
+        """
+        if self.__xyz is None:
+            v = self._flat(q_rot(self._body_rotation, self.pixels))
+            sc = self._flat(self._sc_position)
+
+            self.__xyz = self._grid(intersect(v, sc, self.isis.target_radius))
+            self.__lonlat = None
+            self.__alt = None
+        return self.__xyz
