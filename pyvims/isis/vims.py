@@ -11,7 +11,7 @@ from .isis import ISISCube
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
 from .time import hex2double
-from .vectors import deg180, hat, lonlat, norm, radec, v_max_dist
+from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
 
 
 def get_img_id(fname):
@@ -138,6 +138,7 @@ class VIMS:
         self.__xyz = None
         self.__lonlat = None
         self.__alt = None
+        self.__ill = None
 
     @property
     def filename(self):
@@ -456,6 +457,7 @@ class VIMS:
             self.__xyz = None
             self.__lonlat = None
             self.__alt = None
+            self.__ill = None
         return self.__camera
 
     @property
@@ -522,6 +524,7 @@ class VIMS:
             self.__xyz = None
             self.__lonlat = None
             self.__alt = None
+            self.__ill = None
         return self.__pixels
 
     @property
@@ -532,6 +535,7 @@ class VIMS:
             self.__xyz = None
             self.__lonlat = None
             self.__alt = None
+            self.__ill = None
         return self.__sky
 
     @property
@@ -604,7 +608,7 @@ class VIMS:
         -------
         np.array
             Grid (Nl, NS) of the spacecraft J2000 position
-            from the main target body.
+            in the main target frame.
 
         """
         p = self.isis.tables['InstrumentPosition'].data
@@ -641,6 +645,7 @@ class VIMS:
             self.__xyz = self._grid(intersect(v, sc, self.isis.target_radius))
             self.__lonlat = None
             self.__alt = None
+            self.__ill = None
         return self.__xyz
 
     @property
@@ -717,3 +722,77 @@ class VIMS:
     def ground_lat(self):
         """Planetocentric latitude on the ground."""
         return np.ma.array(self.lat, mask=self.limb)
+
+    @property
+    def _sun_position(self):
+        """Sun position in the main target body frame.
+
+        The sun position is extracted from
+        ISIS tables and linearly interpolated on pixel
+        ephemeris times.
+
+        Returns
+        -------
+        np.array
+            Grid (Nl, NS) of the sun J2000 position
+            in the main target frame.
+
+        """
+        p = self.isis.tables['SunPosition'].data
+        x = p['J2000X']
+        y = p['J2000Y']
+        z = p['J2000Z']
+        ets = p['ET']
+
+        j2000 = np.array([
+            np.interp(self.et, ets, x),
+            np.interp(self.et, ets, y),
+            np.interp(self.et, ets, z),
+        ])
+
+        return q_rot(self._body_rotation, j2000)
+
+    @property
+    def _illumination(self):
+        """Cube local illumination angles (degrees)."""
+        if self.__ill is None:
+            xyz = self._flat(self._xyz)
+            sc = self._flat(self._sc_position) - xyz
+            sun = self._flat(self._sun_position) - xyz
+
+            inc = angle(xyz, sun)
+            eme = angle(xyz, sc)
+            phase = angle(sc, sun)
+            self.__ill = self._grid(np.vstack([inc, eme, phase]))
+        return self.__ill
+
+    @property
+    def inc(self):
+        """Cube local incidence angle (degrees)."""
+        return self._illumination[0]
+
+    @property
+    def eme(self):
+        """Cube local emergence angle (degrees)."""
+        return self._illumination[1]
+
+    @property
+    def phase(self):
+        """Cube local phase angle (degrees)."""
+        return self._illumination[2]
+
+    @property
+    def ground_inc(self):
+        """Incidence angle on the ground (degrees)."""
+        return np.ma.array(self.inc, mask=self.limb)
+
+    @property
+    def ground_eme(self):
+        """Emergence angle on the ground (degrees)."""
+        return np.ma.array(self.eme, mask=self.limb)
+
+    @property
+    def ground_phase(self):
+        """Phase angle on the ground (degrees)."""
+        return np.ma.array(self.phase, mask=self.limb)
+

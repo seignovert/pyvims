@@ -207,3 +207,8 @@ def vdot(v1, v2):
 
     raise ValueError('The two vectors must have the same number of points.')
 
+
+def angle(v1, v2):
+    """Angular separation between two vectors."""
+    dot = vdot(hat(v1), hat(v2))
+    return np.degrees(np.arccos(dot))
