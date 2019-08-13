@@ -248,3 +248,21 @@ class ISISCube:
                         kernels.append(k)
 
         return kernels
+
+    @property
+    def target_name(self):
+        """Main target name."""
+        return self._inst['TargetName']
+
+    @property
+    def target_radii(self):
+        """Main target radii (km)."""
+        for k, v in self.__pvl['NaifKeywords']:
+            if 'RADII' in k:
+                return v
+        raise ValueError(f'Target radii not found in the header.')
+
+    @property
+    def target_radius(self):
+        """Main target mean radius (km)."""
+        return np.power(np.prod(self.target_radii), 1/3)
