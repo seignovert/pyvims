@@ -536,33 +536,6 @@ class VIMS:
         return ra, dec, fov / 2
 
     @property
-    def _cassini_position(self):
-        """Cassini position from the main target body.
-
-        The spacecraft position is extracted from
-        ISIS tables and linearly interpolated on pixel
-        ephemeris times.
-
-        Returns
-        -------
-        np.array
-            Grid (Nl, NS) of the spacecraft J2000 position
-            from the main target body.
-
-        """
-        p = self.isis.tables['InstrumentPosition'].data
-        x = p['J2000X']
-        y = p['J2000Y']
-        z = p['J2000Z']
-        ets = p['ET']
-
-        return np.array([
-            np.interp(self.et, ets, x),
-            np.interp(self.et, ets, y),
-            np.interp(self.et, ets, z),
-        ])
-
-    @property
     def _body_rotation(self):
         """Main target body rotation quaternion.
 
@@ -601,3 +574,31 @@ class VIMS:
 
         return self._grid(hat(p))
 
+    @property
+    def _sc_position(self):
+        """Spacecraft position in the main target body frame.
+
+        The spacecraft position is extracted from
+        ISIS tables and linearly interpolated on pixel
+        ephemeris times.
+
+        Returns
+        -------
+        np.array
+            Grid (Nl, NS) of the spacecraft J2000 position
+            from the main target body.
+
+        """
+        p = self.isis.tables['InstrumentPosition'].data
+        x = p['J2000X']
+        y = p['J2000Y']
+        z = p['J2000Z']
+        ets = p['ET']
+
+        j2000 = np.array([
+            np.interp(self.et, ets, x),
+            np.interp(self.et, ets, y),
+            np.interp(self.et, ets, z),
+        ])
+
+        return q_rot(self._body_rotation, j2000)
