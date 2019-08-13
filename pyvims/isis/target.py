@@ -38,11 +38,6 @@ def intersect(v, sc, r):
     else:
         raise ValueError('SC and aim vectors must have the same number of points.')
 
-    # print(sc[:, 1333])
-    # print(r)
-    # print(norm(sc)[1333])
-    # print(dot[1333])
-    # print(np.subtract(norm(sc)**2, r**2))
     delta = np.subtract(dot**2, np.subtract(norm(sc)**2, r**2))
 
     if np.ndim(delta) > 0:
@@ -50,8 +45,6 @@ def intersect(v, sc, r):
     elif delta < 0:
         delta = 0
 
-    # return delta
-    # return np.sqrt(-delta)
     lamb = np.multiply(dot + np.sqrt(delta), np.transpose([v]) if np.ndim(v) == 1 else v)
 
     return (np.transpose([sc]) if np.ndim(sc) == 1 else sc) - lamb
