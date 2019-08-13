@@ -8,11 +8,11 @@ import numpy as np
 from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
+from .projection import ortho
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
 from .time import hex2double
 from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
-
 
 def get_img_id(fname):
     """Extract image ID from filename."""
@@ -471,6 +471,16 @@ class VIMS:
         return self.isis._inst['SamplingMode']
 
     @property
+    def target_name(self):
+        """Main target name from ISIS header."""
+        return self.isis.target_name
+
+    @property
+    def target_radius(self):
+        """Main target radius from ISIS header."""
+        return self.isis.target_radius
+
+    @property
     def camera(self):
         """VIMS camera."""
         if self.__camera is None:
@@ -667,7 +677,7 @@ class VIMS:
             v = self._flat(q_rot(self._body_rotation, self.pixels))
             sc = self._flat(self._sc_position)
 
-            self.__xyz = self._grid(intersect(v, sc, self.isis.target_radius))
+            self.__xyz = self._grid(intersect(v, sc, self.target_radius))
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
@@ -718,7 +728,7 @@ class VIMS:
         if self.__alt is None:
             self.__alt = np.max([
                 np.zeros((self.NL, self.NS)),
-                self._dist - self.isis.target_radius
+                self._dist - self.target_radius
             ], axis=0)
 
         return self.__alt
@@ -895,3 +905,13 @@ class VIMS:
     def ss_lat(self):
         """Mean sub-solar north latitude."""
         return self.ss[1]
+
+    @property
+    def ortho(self):
+        """Pixel orthographic projection."""
+        return ortho(*self.lonlat, *self.sc, self.target_radius, self.alt)
+
+    @property
+    def ground_ortho(self):
+        """Orthographic projection of the pixels on the ground."""
+        return ortho(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
