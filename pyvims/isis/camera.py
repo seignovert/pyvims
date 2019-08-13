@@ -138,6 +138,21 @@ class VIMSCameraAbstract:
             self.__pixels = self.xy2ang(*self.grid)
         return self.__pixels
 
+    @property
+    def pix_res_x(self):
+        """Pixel angular resolution in X direction."""
+        return 2 * np.tan(self.PIXEL_SIZE / (2 * self.scale_x))
+
+    @property
+    def pix_res_y(self):
+        """Pixel angular resolution in Y direction."""
+        return 2 * np.tan(self.PIXEL_SIZE / (2 * self.scale_y))
+
+    @property
+    def pix_res(self):
+        """Mean pixel angular resolution."""
+        return np.sqrt(self.pix_res_x * self.pix_res_y)
+
 
 class VIMSCameraVis(VIMSCameraAbstract):
     """VIMS-VIS camera in ``NORMAL`` sampling mode."""

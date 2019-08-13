@@ -796,3 +796,37 @@ class VIMS:
         """Phase angle on the ground (degrees)."""
         return np.ma.array(self.phase, mask=self.limb)
 
+    @property
+    def _dist_sc(self):
+        """Intersect point distance to the spacecraft."""
+        return norm(self._xyz - self._sc_position)
+
+    @property
+    def res_s(self):
+        """Sample pixel resolution at the intersect point."""
+        return self._dist_sc * self.camera.pix_res_x
+
+    @property
+    def res_l(self):
+        """Line pixel resolution at the intersect point."""
+        return self._dist_sc * self.camera.pix_res_y
+
+    @property
+    def res(self):
+        """Mean pixel resolution at the intersect point."""
+        return self._dist_sc * self.camera.pix_res
+
+    @property
+    def ground_res_s(self):
+        """Oblique pixel resolution on the ground in sample direction."""
+        return np.ma.array(self.res_s / np.cos(np.radians(self.eme)), mask=self.limb)
+
+    @property
+    def ground_res_l(self):
+        """Oblique pixel resolution on the ground in line direction."""
+        return np.ma.array(self.res_l / np.cos(np.radians(self.eme)), mask=self.limb)
+
+    @property
+    def ground_res(self):
+        """Mean oblique pixel resolution on the ground."""
+        return np.ma.array(self.res / np.cos(np.radians(self.eme)), mask=self.limb)
