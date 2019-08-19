@@ -495,8 +495,7 @@ class VIMS:
             self.__ill = None
         return self.__camera
 
-    @property
-    def _cassini_pointing(self):
+    def _cassini_pointing(self, et):
         """Cassini pointing attitude.
 
         The spacecraft pointing is extracted from
@@ -515,11 +514,15 @@ class VIMS:
         between the recorded ETs values is small enough
         to use a linerar interpolation.
 
+        Parameters
+        ----------
+        et: float or np.array
+            Input ephemeris time.
+
         Returns
         -------
         np.array
-            Grid (Nl, NS) of SPICE quaternions of the spacecraft
-            pointing attitude.
+            SPICE quaternions of the spacecraft pointing attitude.
 
         """
         p = self.isis.tables['InstrumentPointing'].data
@@ -529,14 +532,14 @@ class VIMS:
         q3 = p['J2000Q3']
         ets = p['ET']
 
-        p = self._flat([
-            np.interp(self.et, ets, q0),
-            np.interp(self.et, ets, q1),
-            np.interp(self.et, ets, q2),
-            np.interp(self.et, ets, q3),
+        p = np.array([
+            np.interp(et, ets, q0),
+            np.interp(et, ets, q1),
+            np.interp(et, ets, q2),
+            np.interp(et, ets, q3),
         ])
 
-        return self._grid(hat(p))
+        return hat(p)
 
     @property
     def _inst_rot(self):
@@ -547,7 +550,7 @@ class VIMS:
     @property
     def _inst_q(self):
         """Instrument boresight pointing."""
-        q = q_mult(m2q(self._inst_rot), self._flat(self._cassini_pointing))
+        q = q_mult(m2q(self._inst_rot), self._flat(self._cassini_pointing(self.et)))
         return self._grid(q)
 
     @property
@@ -592,8 +595,7 @@ class VIMS:
 
         return ra, dec, fov / 2
 
-    @property
-    def _body_rotation(self):
+    def _body_rotation(self, et):
         """Main target body rotation quaternion.
 
         The body rotation is extracted from
@@ -607,6 +609,11 @@ class VIMS:
         But most of the time the drift of the pointing
         between the recorded ETs values is small enough
         to use a linerar interpolation.
+
+        Parameters
+        ----------
+        et: float or np.array
+            Input ephemeris time.
 
         Returns
         -------
@@ -622,22 +629,26 @@ class VIMS:
         q3 = p['J2000Q3']
         ets = p['ET']
 
-        p = self._flat([
-            np.interp(self.et, ets, q0),
-            np.interp(self.et, ets, q1),
-            np.interp(self.et, ets, q2),
-            np.interp(self.et, ets, q3),
+        p = np.array([
+            np.interp(et, ets, q0),
+            np.interp(et, ets, q1),
+            np.interp(et, ets, q2),
+            np.interp(et, ets, q3),
         ])
 
-        return self._grid(hat(p))
+        return hat(p)
 
-    @property
-    def _sc_position(self):
+    def _sc_position(self, et):
         """Spacecraft position in the main target body frame.
 
         The spacecraft position is extracted from
         ISIS tables and linearly interpolated on pixel
         ephemeris times.
+
+        Parameters
+        ----------
+        et: float or np.array
+            Input ephemeris time.
 
         Returns
         -------
@@ -653,12 +664,12 @@ class VIMS:
         ets = p['ET']
 
         j2000 = np.array([
-            np.interp(self.et, ets, x),
-            np.interp(self.et, ets, y),
-            np.interp(self.et, ets, z),
+            np.interp(et, ets, x),
+            np.interp(et, ets, y),
+            np.interp(et, ets, z),
         ])
 
-        return q_rot(self._body_rotation, j2000)
+        return q_rot(self._body_rotation(et), j2000)
 
     @property
     def _xyz(self):
@@ -674,8 +685,8 @@ class VIMS:
 
         """
         if self.__xyz is None:
-            v = self._flat(q_rot(self._body_rotation, self.pixels))
-            sc = self._flat(self._sc_position)
+            v = self._flat(q_rot(self._body_rotation(self.et), self.pixels))
+            sc = self._flat(self._sc_position(self.et))
 
             self.__xyz = self._grid(intersect(v, sc, self.target_radius))
             self.__lonlat = None
@@ -758,13 +769,17 @@ class VIMS:
         """Planetocentric latitude on the ground."""
         return np.ma.array(self.lat, mask=self.limb)
 
-    @property
-    def _sun_position(self):
+    def _sun_position(self, et):
         """Sun position in the main target body frame.
 
         The sun position is extracted from
         ISIS tables and linearly interpolated on pixel
         ephemeris times.
+
+        Parameters
+        ----------
+        et: float or np.array
+            Input ephemeris time.
 
         Returns
         -------
@@ -780,20 +795,20 @@ class VIMS:
         ets = p['ET']
 
         j2000 = np.array([
-            np.interp(self.et, ets, x),
-            np.interp(self.et, ets, y),
-            np.interp(self.et, ets, z),
+            np.interp(et, ets, x),
+            np.interp(et, ets, y),
+            np.interp(et, ets, z),
         ])
 
-        return q_rot(self._body_rotation, j2000)
+        return q_rot(self._body_rotation(et), j2000)
 
     @property
     def _illumination(self):
         """Cube local illumination angles (degrees)."""
         if self.__ill is None:
             xyz = self._flat(self._xyz)
-            sc = self._flat(self._sc_position) - xyz
-            sun = self._flat(self._sun_position) - xyz
+            sc = self._flat(self._sc_position(self.et)) - xyz
+            sun = self._flat(self._sun_position(self.et)) - xyz
 
             inc = angle(xyz, sun)
             eme = angle(xyz, sc)
@@ -834,7 +849,7 @@ class VIMS:
     @property
     def _dist_sc(self):
         """Intersect point distance to the spacecraft."""
-        return norm(self._xyz - self._sc_position)
+        return norm(self._xyz - self._sc_position(self.et))
 
     @property
     def res_s(self):
@@ -874,7 +889,7 @@ class VIMS:
     @property
     def v_sc(self):
         """Mean sub-spacecraft position vector in main target frame."""
-        return self._mean(self._sc_position)
+        return self._mean(self._sc_position(self.et))
 
     @property
     def sc(self):
@@ -894,7 +909,7 @@ class VIMS:
     @property
     def v_ss(self):
         """Mean sub-solar position vector in main target frame."""
-        return self._mean(self._sun_position)
+        return self._mean(self._sun_position(self.et))
 
     @property
     def ss(self):
