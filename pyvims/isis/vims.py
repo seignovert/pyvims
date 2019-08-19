@@ -212,27 +212,27 @@ class VIMS:
         return np.reshape(array, (ndim, self.NL, self.NS))
 
     @staticmethod
-    def _mean(self, arr):
+    def _mean(arr):
         """Mean cube values."""
         return np.mean(arr, axis=(1, 2))
 
     @staticmethod
-    def _med(self, arr):
+    def _med(arr):
         """Median cube values."""
         return np.median(arr, axis=(1, 2))
 
     @staticmethod
-    def _std(self, arr):
+    def _std(arr):
         """Standard deviation cube values."""
         return np.std(arr, axis=(1, 2))
 
     @staticmethod
-    def _min(self, arr):
+    def _min(arr):
         """Minimum cube values."""
         return np.min(arr, axis=(1, 2))
 
     @staticmethod
-    def _max(self, arr):
+    def _max(arr):
         """Maximum cube values."""
         return np.max(arr, axis=(1, 2))
 
