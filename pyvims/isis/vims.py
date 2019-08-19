@@ -139,6 +139,7 @@ class VIMS:
         self.__lonlat = None
         self.__alt = None
         self.__ill = None
+        self.__cxyz = None
 
     @property
     def filename(self):
@@ -935,3 +936,73 @@ class VIMS:
     def ground_ortho(self):
         """Orthographic projection of the pixels on the ground."""
         return ortho(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
+
+    @property
+    def cet(self):
+        """Contour ephemeris time."""
+        return np.hstack([
+            self.et[0, 0],      # Top-Left corner
+            self.et[0, :],      # Top edge
+            self.et[0, -1],     # Top-Right corner
+            self.et[:, -1],     # Right edge
+            self.et[-1, -1],    # Bottom-Right corner
+            self.et[-1, ::-1],  # Bottom edge
+            self.et[-1, 0],     # Bottom-Left corner
+            self.et[::-1, 0],   # Left edge
+            self.et[0, 0],      # Top-Left corner
+        ])
+
+    @property
+    def cpixels(self):
+        """Camera contour pixel pointing direction in J2000 frame."""
+        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.cet))
+        return q_rot_t(q, self.camera.cpixels)
+
+    @property
+    def csky(self):
+        """Camera contour pixel pointing direction in J2000 frame."""
+        return radec(self.cpixels)
+
+    @property
+    def _cxyz(self):
+        """Camera pixels intersect with main traget frame (ref: J2000).
+
+        Intersection between the line-of-sight and the main target
+        body.
+
+        Note
+        ----
+        For now the target is considered as a sphere (not an ellipsoid)
+        to provide planecentric coordinates.
+
+        """
+        if self.__cxyz is None:
+            et = self.cet
+            v = q_rot(self._body_rotation(et), self.cpixels)
+            sc = self._sc_position(et)
+
+            self.__cxyz = intersect(v, sc, self.target_radius)
+        return self.__cxyz
+
+    @property
+    def clonlat(self):
+        """Planetocentric geographic contour coordinates in main target frame."""
+        return lonlat(self._cxyz)
+
+    @property
+    def calt(self):
+        """Planetocentric contour altitude from the main target body center."""
+        dist = norm(self._cxyz)
+        return np.max([
+            np.zeros(np.shape(dist)), dist - self.target_radius
+        ], axis=0)
+
+    @property
+    def cortho(self):
+        """Pixel contour orthographic projection."""
+        return ortho(*self.clonlat, *self.sc, self.target_radius, self.calt)
+
+    @property
+    def ground_cortho(self):
+        """Orthographic projection of the contour pixels on the ground."""
+        return ortho(*self.clonlat, *self.sc, self.target_radius)
