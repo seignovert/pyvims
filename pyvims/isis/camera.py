@@ -39,12 +39,22 @@ class VIMSCameraAbstract:
     def __repr__(self):
         return '\n - '.join([
             f'<{self}>',
-            f'Swath: {self.swath_x, self.swath_y}',
-            f'Offset: {self.offset_x, self.offset_y}',
-            f'Scaling: {self.scale_x, self.scale_y}',
+            f'Swath: {self.swath}',
+            f'Offset: {self.offset}',
+            f'Scaling: {self.scale}',
             f'Pixel size: {self.PIXEL_SIZE * 1e3} mrad/pix',
-            f'Boresite: {self.BORESITE, self.BORESITE}',
+            f'Boresite: {tuple(self.BORESITE.flatten())}',
         ])
+
+    @property
+    def swath(self):
+        """Camera swath (x, y)."""
+        return self.swath_x, self.swath_y
+
+    @property
+    def offset(self):
+        """Camera offset (x, y)."""
+        return self.offset_x, self.offset_y
 
     @property
     def scale_x(self):
@@ -55,6 +65,11 @@ class VIMSCameraAbstract:
     def scale_y(self):
         """Scaling factor in Y direction."""
         return self.SCALE[1]
+
+    @property
+    def scale(self):
+        """Camera scale (x, y)."""
+        return self.scale_x, self.scale_y
 
     @staticmethod
     def _positions(offset, swath, scale):
