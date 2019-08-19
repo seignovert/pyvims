@@ -264,12 +264,12 @@ class VIMS:
 
     @property
     def extent(self):
-        """Cube images extent."""
+        """Pyplot imshow cube extent."""
         return [.5, self.NS + .5, self.NL + .5, .5]
 
     @property
     def cextent(self):
-        """Cube contours extent."""
+        """Pyplot contour cube extent."""
         return [.5, self.NS + .5, .5, self.NL + .5]
 
     @property
