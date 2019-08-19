@@ -110,6 +110,34 @@ class VIMSCameraAbstract:
         return self.__grid
 
     @property
+    def cgrid(self):
+        """Camera grid contour.
+
+        Note
+        ----
+        The corners pixels are set on circle or an ellipse
+        based on the shape of the pixel (:py:attr:`scale`).
+
+        """
+        x, y = self._x, self._y
+        xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
+
+        a, b = .5 / np.array(self.scale)
+        xc, yc = a / np.sqrt(2), b / np.sqrt(2)
+
+        return np.hstack([
+            [[xl - xc], [yt + yc]],
+            [x, self.swath_x * [yt + b]],
+            [[xr + xc], [yt + yc]],
+            [self.swath_y * [xr + a], y[::-1]],
+            [[xr + xc], [yb - yc]],
+            [x[::-1], self.swath_x * [yb - b]],
+            [[xl - xc], [yb - yc]],
+            [self.swath_y * [xl - a], y],
+            [[xl - xc], [yt + yc]],
+        ])
+
+    @property
     def extent(self):
         """Camera grid extent."""
         return [self._x[0] - .5 / self.scale_x,
@@ -152,6 +180,18 @@ class VIMSCameraAbstract:
         if self.__pixels is None:
             self.__pixels = self.xy2ang(*self.grid)
         return self.__pixels
+
+    @property
+    def cpixels(self):
+        """Camera contour pixels orientation in J2000 frame.
+
+        Return
+        ------
+        array(3, N)
+            Pixel contours boresights in Camera frame.
+        """
+        x, y = self.cgrid
+        return self.xy2ang([x], [y])[:, 0, :]
 
     @property
     def pix_res_x(self):
