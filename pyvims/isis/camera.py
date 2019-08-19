@@ -120,21 +120,21 @@ class VIMSCameraAbstract:
 
         """
         x, y = self._x, self._y
-        xl, xr, yb, yt = x[0], x[-1], y[0], y[-1]
+        xl, xr, yt, yb = x[0], x[-1], y[0], y[-1]
 
         a, b = .5 / np.array(self.scale)
         xc, yc = a / np.sqrt(2), b / np.sqrt(2)
 
         return np.hstack([
-            [[xl - xc], [yt + yc]],
-            [x, self.swath_x * [yt + b]],
-            [[xr + xc], [yt + yc]],
-            [self.swath_y * [xr + a], y[::-1]],
-            [[xr + xc], [yb - yc]],
-            [x[::-1], self.swath_x * [yb - b]],
-            [[xl - xc], [yb - yc]],
-            [self.swath_y * [xl - a], y],
-            [[xl - xc], [yt + yc]],
+            [[xl - xc], [yt - yc]],              # Top-Left corner
+            [x, self.swath_x * [yt - b]],        # Top edge
+            [[xr + xc], [yt - yc]],              # Top-Right corner
+            [self.swath_y * [xr + a], y],        # Right edge
+            [[xr + xc], [yb + yc]],              # Bottom-Right corner
+            [x[::-1], self.swath_x * [yb + b]],  # Bottom edge
+            [[xl - xc], [yb + yc]],              # Bottom-Left corner
+            [self.swath_y * [xl - a], y[::-1]],  # Left edge
+            [[xl - xc], [yt - yc]],              # Top-Left corner
         ])
 
     @property
