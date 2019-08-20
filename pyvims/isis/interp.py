@@ -117,10 +117,11 @@ def ortho_interp(xy, data, res, contour=False, n=10, method='cubic'):
     x = _linspace(x0, x1, res, n)
     y = _linspace(y0, y1, res, n)
     X, Y = np.meshgrid(x, y)
+    grid = (X, Y)
 
-    z = griddata(pts, values, (X, Y), method=method)
+    z = griddata(pts, values, grid, method=method)
 
     if is_contour:
-        z = np.ma.array(z, mask=_mask((X, Y), contour))
+        z = np.ma.array(z, mask=_mask(grid, contour))
 
-    return z, _extent(x, y)
+    return z, grid, _extent(x, y)

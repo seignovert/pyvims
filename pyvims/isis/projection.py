@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from .vectors import deg180
 
 def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
     """Orthographic projection centered on (lon_0, lat_0).
@@ -16,7 +17,7 @@ def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
         Centered longitude (degrees).
     lat_0: float or np.array
         Centered latitude (degrees).
-    alt: float or np.array, optional
+    r: float or np.array, optional
         Planet radius.
     alt: float or np.array, optional
         Points altitude (same units as r).
@@ -47,3 +48,41 @@ def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
         mask = cos_c < 0
 
     return np.ma.array([x, y], mask=[mask, mask])
+
+
+def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
+    """Orthographic grid centered on (lon_0, lat_0).
+
+    Parameters
+    ----------
+    x: float or np.array
+        Orthograpahic projected point on X-axis.
+    y: float or np.array
+        Orthograpahic projected point on Y-axis.
+    lon_0: float or np.array
+        Centered longitude (degrees).
+    lat_0: float or np.array
+        Centered latitude (degrees).
+    r: float or np.array, optional
+        Planet radius.
+
+    Returns
+    -------
+    np.array
+        Projected planetocentric coordinates.
+
+    """
+    lambda_0, phi_0 = np.radians([lon_0, lat_0])
+    c_lambda_0, c_phi_0 = np.cos([lambda_0, phi_0])
+    s_lambda_0, s_phi_0 = np.sin([lambda_0, phi_0])
+
+    rho = np.sqrt(np.power(x, 2) + np.power(y, 2))
+    c = np.arcsin(np.min([np.ones(np.shape(rho)), rho / r], axis=0))
+    c_c, s_c = np.cos(c), np.sin(c)
+
+    phi = np.arcsin(c_c * s_phi_0 + y / rho * s_c * c_phi_0)
+    lambd = lambda_0 - np.arctan2(x * s_c, rho * c_c * c_phi_0 - y * s_c * s_phi_0)
+
+    lon, lat = np.degrees([lambd, phi])
+    alt = r * (np.max([np.ones(np.shape(rho)), rho / r], axis=0) - 1)
+    return deg180(lon), lat, alt
