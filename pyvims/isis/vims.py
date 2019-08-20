@@ -14,6 +14,7 @@ from .target import intersect
 from .time import hex2double
 from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
 
+
 def get_img_id(fname):
     """Extract image ID from filename."""
     img_ids = re.findall(r'^(?:C|v)?\d{10}_\d+(?:_\d+)?', fname)
