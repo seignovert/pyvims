@@ -62,7 +62,7 @@ def plot_img(c, index, ax=None, title=None,
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
 
-    ax.imshow(c@index, cmap=cmap, extent=c.extent, interpolation=interp)
+    ax.imshow(c[index], cmap=cmap, extent=c.extent, interpolation=interp)
 
     if title is None:
         if isinstance(index, int):
@@ -135,7 +135,7 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
     if label is None:
         label = f'S={S}, L={L}'
 
-    ax.plot(x, c@(S, L) + offset, label=label, color=color)
+    ax.plot(x, c[S, L] + offset, label=label, color=color)
 
     if title is None:
         title = f'{c} at S={S}, L={L}'

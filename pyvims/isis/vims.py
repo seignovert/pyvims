@@ -1133,6 +1133,11 @@ class VIMS:
         if val.step is not None:
             raise NotImplementedError('Slice steps is not implemented')
 
+        istart = self._index(val.start)
+        istop = self._index(val.stop)
+
+        return np.nanmean(self.data[istart:istop, :, :], axis=0)
+
     def _rgb(self, r, g, b):
         """Parse RGB self data.
 
