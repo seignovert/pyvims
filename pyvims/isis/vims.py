@@ -18,7 +18,13 @@ from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
 
 
 def get_img_id(fname):
-    """Extract image ID from filename."""
+    """Extract image ID from filename.
+
+    Parameters
+    ----------
+    fname:
+
+    """
     img_ids = re.findall(r'^(?:C|v)?\d{10}_\d+(?:_\d+)?', fname)
 
     if not img_ids:
@@ -60,46 +66,25 @@ class VIMS:
 
     def __matmul__(self, other):
         if isinstance(other, int):
-            if not (self.bands[0] <= other <= self.bands[-1]):
-                raise VIMSError(f'Band `{other}` invalid. Must be '
-                                f'between {self.bands[0]} and {self.bands[-1]}')
-
-            # No interpolation. Take the closest wavelength.
-            iband = np.argmin(np.abs(self.bands - other))
-            return self.data[iband, :, :]
+            return self._band(other)
 
         if isinstance(other, float):
-            if not (self.wvlns[0] <= other <= self.wvlns[-1]):
-                raise VIMSError(f'Wavelength `{other}` invalid. Must be '
-                                f'between {self.wvlns[0]} and {self.wvlns[-1]}')
-
-            # No interpolation. Take the closest wavelength.
-            iwvln = np.argmin(np.abs(self.wvlns - other))
-            return self.data[iwvln, :, :]
+            return self._wvln(other)
 
         if isinstance(other, tuple):
             if len(other) == 2:
-                S, L = other
-
-                if not (1 <= L <= self.NL):
-                    raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
-
-                if not (1 <= S <= self.NS):
-                    raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
-
-                return self.data[:, int(L) - 1, int(S) - 1]
+                return self._spec(*other)
 
             if len(other) == 3:
-                r, g, b = other
-                return rgb(self@r, self@g, self@b)
+                return self._rgb(*other)
 
         raise VIMSError('\n - '.join([
             f'Invalid format. Use:',
-            'INT -> band',
-            'FLOAT -> wavelength',
-            '(INT, INT) -> Sample, Line',
-            '(INT, INT, INT) -> RGB bands',
-            '(FLOAT, FLOAT, FLOAT) -> RGB wavelengths',
+            'INT -> Band image',
+            'FLOAT -> Wavelength image',
+            '(INT, INT) -> Sample, Line spectrum',
+            '(INT, INT, INT) -> Bands RGB',
+            '(FLOAT, FLOAT, FLOAT) -> Wavelengths RGB',
         ]))
 
     @property
@@ -1019,3 +1004,136 @@ class VIMS:
     def plot(self, *args, **kwargs):
         """Generic cube plot function."""
         return plot_cube(self, *args, **kwargs)
+
+    def _band(self, b):
+        """Get wavelength from value.
+
+        Parameters
+        ----------
+        b: int
+            VIMS channel band number.
+
+        Returns
+        -------
+        np.array
+            Nearest image plane at requested band.
+
+        Raises
+        ------
+        VIMSError
+            If the provided band is outside the image range.
+
+        Note
+        ----
+        No interpolation are implemented yet. Take the closest band for now.
+
+        """
+        if not (self.bands[0] <= b <= self.bands[-1]):
+            raise VIMSError(f'Band `{b}` invalid. Must be '
+                            f'between {self.bands[0]} and {self.bands[-1]}')
+
+        iband = np.argmin(np.abs(self.bands - b))
+        return self.data[iband, :, :]
+
+    def _wvln(self, w):
+        """Get wavelength from value.
+
+        Parameters
+        ----------
+        w: float
+            Wavelength in microns.
+
+        Returns
+        -------
+        np.array
+            Nearest image plane at requested wavelength.
+
+        Raises
+        ------
+        VIMSError
+            If the provided wavelength is outside the image range.
+
+        Note
+        ----
+        No interpolation are implemented yet. Take the closest wavelength for now.
+
+        """
+        if not (self.wvlns[0] <= w <= self.wvlns[-1]):
+            raise VIMSError(f'Wavelength `{w}` invalid. Must be '
+                            f'between {self.wvlns[0]} and {self.wvlns[-1]}')
+
+        iwvln = np.argmin(np.abs(self.wvlns - w))
+        return self.data[iwvln, :, :]
+
+    def _spec(self, S, L):
+        """Get spectrum data.
+
+        Parameters
+        ----------
+        S: int
+            Sample position (``1`` to ``NS``).
+        L: int
+            Line position (``1`` to ``NL``).
+
+        Returns
+        -------
+        np.array
+            Sprectrum at (S, L).
+
+        Raises
+        ------
+        VIMSError
+            If the sample or line provided are outside the image range.
+
+        """
+        if not (1 <= L <= self.NL):
+            raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
+
+        if not (1 <= S <= self.NS):
+            raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
+
+        return self.data[:, int(L) - 1, int(S) - 1]
+
+    def _img(self, index):
+        """Get data based on index.
+
+        Parameters
+        ----------
+        index: int, float or str
+            Data index.
+
+        Returns
+        -------
+        np.array
+            Data at index.
+
+        Raises
+        ------
+        VIMSError
+            If the index is not a ``INT`` or a ``FLOAT``.
+
+        """
+        if isinstance(index, (int, float)):
+            return self@index
+
+        raise VIMSError('Index must be a INT or a FLOAT')
+
+    def _rgb(self, r, g, b):
+        """Parse RGB self data.
+
+        Parameters
+        ----------
+        r: int, float or str
+            Red data index.
+        g: int, float or str
+            Green data index.
+        b: int, float or str
+            Blue data index.
+
+        Returns
+        -------
+        np.array
+            8 bits RGB image.
+
+        """
+        return rgb(self._img(r), self._img(g), self._img(b))
