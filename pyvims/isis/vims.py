@@ -8,6 +8,7 @@ import numpy as np
 from .camera import VIMSCamera
 from .errors import VIMSError
 from .isis import ISISCube
+from .plot import plot_cube
 from .projection import ortho
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
@@ -1009,3 +1010,7 @@ class VIMS:
     def ground_cortho(self):
         """Orthographic projection of the contour pixels on the ground."""
         return ortho(*self.clonlat, *self.sc, self.target_radius)
+
+    def plot(self, *args, **kwargs):
+        """Generic cube plot function."""
+        return plot_cube(self, *args, **kwargs)
