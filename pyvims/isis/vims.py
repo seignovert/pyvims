@@ -7,6 +7,7 @@ import numpy as np
 
 from .camera import VIMSCamera
 from .errors import VIMSError
+from .img import rgb
 from .isis import ISISCube
 from .plot import plot_cube
 from .projection import ortho
@@ -77,24 +78,28 @@ class VIMS:
             return self.data[iwvln, :, :]
 
         if isinstance(other, tuple):
-            if len(other) != 2:
-                raise VIMSError(f'Tuple must have 2 values (Line, Sample).')
+            if len(other) == 2:
+                S, L = other
 
-            S, L = other
+                if not (1 <= L <= self.NL):
+                    raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
 
-            if not (1 <= L <= self.NL):
-                raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
+                if not (1 <= S <= self.NS):
+                    raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
 
-            if not (1 <= S <= self.NS):
-                raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
+                return self.data[:, int(L) - 1, int(S) - 1]
 
-            return self.data[:, int(L) - 1, int(S) - 1]
+            if len(other) == 3:
+                r, g, b = other
+                return rgb(self@r, self@g, self@b)
 
         raise VIMSError('\n - '.join([
             f'Invalid format. Use:',
             'INT -> band',
             'FLOAT -> wavelength',
             '(INT, INT) -> Sample, Line',
+            '(INT, INT, INT) -> RGB bands',
+            '(FLOAT, FLOAT, FLOAT) -> RGB wavelengths',
         ]))
 
     @property

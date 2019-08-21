@@ -21,7 +21,11 @@ def plot_cube(c, *args, **kwargs):
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
-        return plot_spectrum(c, *args[0], **kwargs)
+        if len(args[0]) == 2:
+            return plot_spectrum(c, *args[0], **kwargs)
+
+        if len(args[0]) == 3:
+            return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], list):
         if isinstance(args[0][0], tuple):
@@ -61,10 +65,15 @@ def plot_img(c, index, ax=None, title=None,
     ax.imshow(c@index, cmap=cmap, extent=c.extent, interpolation=interp)
 
     if title is None:
-        if isinstance(index, float):
-            title = f'{c} at {index:.2f} µm'
-        else:
+        if isinstance(index, int):
             title = f'{c} on band {index}'
+        elif isinstance(index, float):
+            title = f'{c} at {index:.2f} µm'
+        elif isinstance(index, tuple):
+            if isinstance(index[0], float):
+                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
+            else:
+                title = f'{c} on bands {index}'
 
     if title:
         ax.set_title(title)
