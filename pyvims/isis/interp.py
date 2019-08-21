@@ -9,7 +9,7 @@ from scipy.interpolate import griddata
 from .projection import ortho_grid
 
 
-def _linspace(x0, x1, res, n=1):
+def _linspace(x0, x1, res):
     """Interpolation linspace.
 
     Parameters
@@ -20,8 +20,6 @@ def _linspace(x0, x1, res, n=1):
         End point value.
     res: float:
         Pixel nominal resolution.
-    n: int, optional
-        Scaling factor.
 
     Returns
     -------
@@ -29,7 +27,7 @@ def _linspace(x0, x1, res, n=1):
         Interpolation points list.
 
     """
-    nx = n * int(np.ceil((x1 - x0) / res))
+    nx = int(np.ceil((x1 - x0) / res))
     return np.linspace(x0, x1, nx)
 
 
@@ -64,7 +62,7 @@ def _mask(grid, contour):
     return ~mask
 
 
-def ortho_interp(xy, data, res, contour=False, n=10, method='cubic'):
+def ortho_interp(xy, data, res, contour=False, method='cubic'):
     """Interpolate data in orthographic projection.
 
     Parameters
@@ -77,8 +75,6 @@ def ortho_interp(xy, data, res, contour=False, n=10, method='cubic'):
         Pixel resolution (for grid interpolation).
     contour: np.array, optional
         Pixels contour location in orthographic projection.
-    n: int, optional
-        Scaling factor.
     method: str, optional
         Interpolation method
 
@@ -114,8 +110,8 @@ def ortho_interp(xy, data, res, contour=False, n=10, method='cubic'):
     x0, y0 = np.min(pts, axis=0)
     x1, y1 = np.max(pts, axis=0)
 
-    x = _linspace(x0, x1, res, n)
-    y = _linspace(y0, y1, res, n)
+    x = _linspace(x0, x1, res)
+    y = _linspace(y0, y1, res)
     X, Y = np.meshgrid(x, y)
     grid = (X, Y)
 
@@ -204,7 +200,7 @@ def _equi_grid(glon, glat, npix=1440):
     return grid, extent
 
 
-def equi_interp(xy, data, res, contour, sc, r, npix=1440, n_interp=10, method='cubic'):
+def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
     """Interpolate data in equirectangular projection.
 
     Parameters
@@ -223,8 +219,6 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, n_interp=10, method='c
         Target radius (km).
     npix: int, optional
         Maximum mumber of pixel in X-axis (or half in Y-axis)
-    n_interp: int, optional
-        Scaling interpolation factor in orthographic projection.
     method: str, optional
         Interpolation method
 
@@ -239,7 +233,7 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, n_interp=10, method='c
 
     """
     # Orthographic interpolation
-    z, grid, extent = ortho_interp(xy, data, res, contour, n=n_interp, method=method)
+    z, grid, extent = ortho_interp(xy, data, res, contour, method=method)
 
     # Orthographic geographic pixels coordinates
     o_lon, o_lat, o_alt = ortho_grid(*grid, *sc, r)
