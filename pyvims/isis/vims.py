@@ -286,7 +286,9 @@ class VIMS:
     @property
     def bticks(self):
         """Cube bands ticks."""
-        return [1, self.NB // 4, self.NB // 2, self.NB // 4 + self.NB // 2, self.NB]
+        b = self.bands
+        bi = [b[k * self.NB // 6 - 1] for k in range(1, 6)]
+        return [b[0], *bi, b[-1]]
 
     @property
     def wticks(self):
