@@ -79,7 +79,7 @@ class VIMS:
             if len(other) != 2:
                 raise VIMSError(f'Tuple must have 2 values (Line, Sample).')
 
-            L, S = other
+            S, L = other
 
             if not (1 <= L <= self.NL):
                 raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
@@ -93,7 +93,7 @@ class VIMS:
             f'Invalid format. Use:',
             'INT -> band',
             'FLOAT -> wavelength',
-            '(INT, INT) -> Line, Sample',
+            '(INT, INT) -> Sample, Line',
         ]))
 
     @property
