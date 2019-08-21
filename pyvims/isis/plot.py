@@ -13,12 +13,19 @@ def plot_cube(c, *args, **kwargs):
         raise VIMSError('Not attribute provided: '
                         'band(s), wavelength(s), (S, L) coordinates or keyword')
 
-    if len(args) == 1:
-        if isinstance(args[0], (int, float)):
-            return plot_img(c, args[0], **kwargs)
+    if len(args) > 1:
+        if 'bands' in args:
+            kwargs['as_bands'] = True
 
-        if isinstance(args[0], tuple):
-            return plot_spectrum(c, *args[0], **kwargs)
+    if isinstance(args[0], (int, float)):
+        return plot_img(c, args[0], **kwargs)
+
+    if isinstance(args[0], tuple):
+        return plot_spectrum(c, *args[0], **kwargs)
+
+    if isinstance(args[0], list):
+        if isinstance(args[0][0], tuple):
+            return plot_spectra(c, *args[0], **kwargs)
 
 
 def plot_img(c, index, ax=None, title=None,
@@ -104,7 +111,6 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
     figsize: tuple, optional
         Pyplot figure size.
     """
-
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
 
@@ -116,6 +122,9 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
         x = c.wvlns
         xticks = c.wticks
         xlabel = c.wlabel
+
+    if label is None:
+        label = f'S={S}, L={L}'
 
     ax.plot(x, c@(S, L) + offset, label=label, color=color)
 
@@ -133,3 +142,71 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
         ax.set_ylabel(c.ilabel)
 
     return ax
+
+
+def _extract(n, key, kwargs, default=None):
+    """Extract key from kwargs and set repetition if needed.
+
+    Parameters
+    ----------
+    n: int
+        Number of repetition.
+    key: str
+        Input key.
+    kwargs: dict
+        Arguments key-values dictionary.
+    default: any
+        Default value.
+
+    """
+    if key in kwargs.keys():
+        values = kwargs[key]
+        del kwargs[key]
+
+        if isinstance(values, (int, float)):
+            values = np.arange(0, n * values, values)
+
+        elif isinstance(values, str):
+            values = n * [values]
+
+        elif isinstance(values, (list, tuple)):
+            if len(values) != n:
+                raise VIMSError('`coordinates` and `offset` must have '
+                                f'the same length ({n} vs. {len(values)}).')
+        else:
+            raise VIMSError
+    else:
+        values = n * [default]
+
+    return values
+
+
+def plot_spectra(c, *coordinates, legend=True, **kwargs):
+    """Plot multiple specra on the same plot.
+
+    Parameters
+    ----------
+    coordinates: [(int, int), …]
+        Sprectrum coordinates.
+    legend: bool, optional
+        Show spectra legend.
+
+    """
+    n = len(coordinates)
+    offsets = _extract(n, 'offset', kwargs, default=0)
+    colors = _extract(n, 'color', kwargs)
+    labels = _extract(n, 'label', kwargs)
+
+    ax = None
+    for (S, L), offset, color, label in zip(coordinates, offsets, colors, labels):
+        ax = plot_spectrum(c, S, L, offset=offset, color=color, label=label,
+                           title=False, ax=ax, **kwargs)
+
+    if 'title' not in kwargs.keys():
+        title = f'{c}'
+
+    if title:
+        ax.set_title(title)
+
+    if legend:
+        ax.legend()
