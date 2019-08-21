@@ -64,28 +64,31 @@ class VIMS:
     def __repr__(self):
         return f'<{self.__class__.__name__}> Cube: {self} [{self.channel}]'
 
-    def __matmul__(self, other):
-        if isinstance(other, int):
-            return self._band(other)
+    def __getitem__(self, val):
+        if isinstance(val, (int, float)):
+            return self._img(val)
 
-        if isinstance(other, float):
-            return self._wvln(other)
+        if isinstance(val, slice):
+            return self._slice(val)
 
-        if isinstance(other, tuple):
-            if len(other) == 2:
-                return self._spec(*other)
+        if isinstance(val, tuple):
+            if len(val) == 2:
+                return self._spec(*val)
 
-            if len(other) == 3:
-                return self._rgb(*other)
+            if len(val) == 3:
+                return self._rgb(*val)
 
         raise VIMSError('\n - '.join([
             f'Invalid format. Use:',
             'INT -> Band image',
             'FLOAT -> Wavelength image',
-            '(INT, INT) -> Sample, Line spectrum',
-            '(INT, INT, INT) -> Bands RGB',
-            '(FLOAT, FLOAT, FLOAT) -> Wavelengths RGB',
+            '[INT, INT] -> Sample, Line spectrum',
+            '[INT, INT, INT] -> Bands RGB',
+            '[FLOAT, FLOAT, FLOAT] -> Wavelengths RGB',
         ]))
+
+    def __matmul__(self, val):
+        return self[val]
 
     @property
     def img_id(self):
@@ -1006,7 +1009,7 @@ class VIMS:
         return plot_cube(self, *args, **kwargs)
 
     def _band(self, b):
-        """Get wavelength from value.
+        """Get band index from value.
 
         Parameters
         ----------
@@ -1015,8 +1018,8 @@ class VIMS:
 
         Returns
         -------
-        np.array
-            Nearest image plane at requested band.
+        int
+            Nearest data index at requested band.
 
         Raises
         ------
@@ -1025,18 +1028,18 @@ class VIMS:
 
         Note
         ----
-        No interpolation are implemented yet. Take the closest band for now.
+            No interpolation are implemented yet.
+            Take the closest band for now.
 
         """
         if not (self.bands[0] <= b <= self.bands[-1]):
             raise VIMSError(f'Band `{b}` invalid. Must be '
                             f'between {self.bands[0]} and {self.bands[-1]}')
 
-        iband = np.argmin(np.abs(self.bands - b))
-        return self.data[iband, :, :]
+        return np.argmin(np.abs(self.bands - b))
 
     def _wvln(self, w):
-        """Get wavelength from value.
+        """Get wavelength index from value.
 
         Parameters
         ----------
@@ -1045,8 +1048,8 @@ class VIMS:
 
         Returns
         -------
-        np.array
-            Nearest image plane at requested wavelength.
+        int
+            Nearest data index at requested wavelength.
 
         Raises
         ------
@@ -1055,15 +1058,100 @@ class VIMS:
 
         Note
         ----
-        No interpolation are implemented yet. Take the closest wavelength for now.
+            No interpolation are implemented yet.
+            Take the closest wavelength for now.
 
         """
         if not (self.wvlns[0] <= w <= self.wvlns[-1]):
             raise VIMSError(f'Wavelength `{w}` invalid. Must be '
                             f'between {self.wvlns[0]} and {self.wvlns[-1]}')
 
-        iwvln = np.argmin(np.abs(self.wvlns - w))
-        return self.data[iwvln, :, :]
+        return np.argmin(np.abs(self.wvlns - w))
+
+    def _index(self, val):
+        """Get index for band of wavelength.
+
+        Parameters
+        ----------
+        val: int or float
+            Data index value.
+
+        Returns
+        -------
+        int
+            Data image index.
+
+        Raises
+        ------
+        VIMSError
+            If the index is not a ``INT`` or a ``FLOAT``.
+
+        """
+        if isinstance(val, int):
+            return self._band(val)
+
+        if isinstance(val, float):
+            return self._wvln(val)
+
+        raise VIMSError('Index value must be a INT or a FLOAT')
+
+    def _img(self, val):
+        """Get data based on index value.
+
+        Parameters
+        ----------
+        val: int or float
+            Data index value.
+
+        Returns
+        -------
+        np.array
+            Data image at index.
+
+        """
+        return self.data[self._index(val), :, :]
+
+    def _slice(self, val):
+        """Get band or wavelength image from value.
+
+        Parameters
+        ----------
+        val: slice
+            Band of wavelength slice.
+
+        Returns
+        -------
+        np.array
+            Mean image over the slice.
+
+        Raises
+        ----
+        NotImplementedError
+            If the slice contains a step attribute.
+
+        """
+        if val.step is not None:
+            raise NotImplementedError('Slice steps is not implemented')
+
+    def _rgb(self, r, g, b):
+        """Parse RGB self data.
+
+        Parameters
+        ----------
+        r: int, float or str
+            Red data index.
+        g: int, float or str
+            Green data index.
+        b: int, float or str
+            Blue data index.
+
+        Returns
+        -------
+        np.array
+            8 bits RGB image.
+
+        """
+        return rgb(self._img(r), self._img(g), self._img(b))
 
     def _spec(self, S, L):
         """Get spectrum data.
@@ -1086,54 +1174,18 @@ class VIMS:
             If the sample or line provided are outside the image range.
 
         """
+        if not isinstance(S, int):
+            raise VIMSError(f'Sample `{S}` must be an integer')
+
+        if not isinstance(L, int):
+            raise VIMSError(f'Sample `{S}` must be an integer')
+
         if not (1 <= L <= self.NL):
-            raise VIMSError(f'Line `{L}` invalid. Must be between 1 and {self.NL}')
+            raise VIMSError(
+                f'Line `{L}` invalid. Must be between 1 and {self.NL}')
 
         if not (1 <= S <= self.NS):
-            raise VIMSError(f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
+            raise VIMSError(
+                f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
 
-        return self.data[:, int(L) - 1, int(S) - 1]
-
-    def _img(self, index):
-        """Get data based on index.
-
-        Parameters
-        ----------
-        index: int, float or str
-            Data index.
-
-        Returns
-        -------
-        np.array
-            Data at index.
-
-        Raises
-        ------
-        VIMSError
-            If the index is not a ``INT`` or a ``FLOAT``.
-
-        """
-        if isinstance(index, (int, float)):
-            return self@index
-
-        raise VIMSError('Index must be a INT or a FLOAT')
-
-    def _rgb(self, r, g, b):
-        """Parse RGB self data.
-
-        Parameters
-        ----------
-        r: int, float or str
-            Red data index.
-        g: int, float or str
-            Green data index.
-        b: int, float or str
-            Blue data index.
-
-        Returns
-        -------
-        np.array
-            8 bits RGB image.
-
-        """
-        return rgb(self._img(r), self._img(g), self._img(b))
+        return self.data[:, L - 1, S - 1]
