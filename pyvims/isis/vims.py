@@ -34,6 +34,39 @@ def get_img_id(fname):
     return img_ids[0]
 
 
+def _parse(val):
+    """Parse index values based on type or format."""
+    if isinstance(val, (int, float, slice)):
+        return val
+
+    if isinstance(val, (tuple, list)):
+        values = ()
+        for v in val:
+            values += (_parse(v),)
+        return values
+
+    if isinstance(val, str):
+        s = re.findall(r'^\d+$', val)
+        if s:
+            return int(s[0])
+
+        s = re.findall(r'^\d+\.\d*$', val)
+        if s:
+            return float(s[0])
+
+        s = re.findall(r'^\d+:\d+$', val)
+        if s:
+            s = re.findall(r'\d+', val)
+            return slice(int(s[0]), int(s[1]))
+
+        s = re.findall(r'^\d+\.\d*:\d+\.\d*$', val)
+        if s:
+            s = re.findall(r'\d+\.\d*', val)
+            return slice(float(s[0]), float(s[1]))
+
+    raise TypeError(f'Value: `{val}` has invalid a unknown type: `{type(val)}`.')
+
+
 class VIMS:
     """VIMS object from ISIS file.
 
@@ -65,11 +98,10 @@ class VIMS:
         return f'<{self.__class__.__name__}> Cube: {self} [{self.channel}]'
 
     def __getitem__(self, val):
-        if isinstance(val, (int, float)):
-            return self._img(val)
+        val = _parse(val)
 
-        if isinstance(val, slice):
-            return self._slice(val)
+        if isinstance(val, (int, float, slice)):
+            return self._img(val)
 
         if isinstance(val, tuple):
             if len(val) == 2:
@@ -1095,22 +1127,6 @@ class VIMS:
 
         raise VIMSError('Index value must be a INT or a FLOAT')
 
-    def _img(self, val):
-        """Get data based on index value.
-
-        Parameters
-        ----------
-        val: int or float
-            Data index value.
-
-        Returns
-        -------
-        np.array
-            Data image at index.
-
-        """
-        return self.data[self._index(val), :, :]
-
     def _slice(self, val):
         """Get band or wavelength image from value.
 
@@ -1137,6 +1153,25 @@ class VIMS:
         istop = self._index(val.stop)
 
         return np.nanmean(self.data[istart:istop, :, :], axis=0)
+
+    def _img(self, val):
+        """Get data based on index value.
+
+        Parameters
+        ----------
+        val: int, float or slice
+            Data index value.
+
+        Returns
+        -------
+        np.array
+            Data image at index.
+
+        """
+        if isinstance(val, slice):
+            return self._slice(val)
+
+        return self.data[self._index(val), :, :]
 
     def _rgb(self, r, g, b):
         """Parse RGB self data.
@@ -1183,7 +1218,7 @@ class VIMS:
             raise VIMSError(f'Sample `{S}` must be an integer')
 
         if not isinstance(L, int):
-            raise VIMSError(f'Sample `{S}` must be an integer')
+            raise VIMSError(f'Line `{L}` must be an integer')
 
         if not (1 <= L <= self.NL):
             raise VIMSError(
