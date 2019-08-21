@@ -125,3 +125,45 @@ def ortho_interp(xy, data, res, contour=False, n=10, method='cubic'):
         z = np.ma.array(z, mask=_mask(grid, contour))
 
     return z, grid, _extent(x, y)
+
+
+def _cross_180(lons, dlon=180):
+    """Find the location of contour segment crossing the change of date meridian.
+
+    Note
+    ----
+    The order is reverse to append new data
+    without modifying the cross index.
+
+    """
+    i = np.arange(np.size(lons) - 1)
+    return i[np.abs(lons[1:] - lons[:-1]) > dlon][::-1]
+
+
+def c_equi(contour, sc_lat, dlon=180):
+    """Extented contour in equirectangular geometry.
+
+    Parameters
+    ----------
+    contour: np.array
+        Longitude and latitude contour coordinates.
+    sc_lat: float
+        Sub-spacecradt latitude.
+
+    Returns
+    -------
+    np.array
+        Wrapped contour(s) in equirectangular projection.
+
+    """
+    clon, clat = contour
+    pole = 90 * np.sign(sc_lat)
+
+    for i in _cross_180(clon):
+        frac = np.abs(180 - (clon[i] % 360)) / np.abs(clon[i+1] % 360 - clon[i] % 360)
+        edge = 180 * np.sign(clon[i])
+        lat = (clat[i+1] - clat[i]) * frac + clat[i]
+        clon = np.insert(clon, i+1, [edge, edge, -edge, -edge])
+        clat = np.insert(clat, i+1, [lat, pole, pole, lat])
+
+    return clon, clat
