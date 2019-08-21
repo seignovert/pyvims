@@ -17,7 +17,7 @@ def plot_cube(c, *args, **kwargs):
         if 'bands' in args:
             kwargs['as_bands'] = True
 
-    if isinstance(args[0], (int, float)):
+    if isinstance(args[0], (int, float, str)):
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -69,6 +69,8 @@ def plot_img(c, index, ax=None, title=None,
             title = f'{c} on band {index}'
         elif isinstance(index, float):
             title = f'{c} at {index:.2f} µm'
+        elif isinstance(index, str):
+            title = f'{c} with `{index}`'
         elif isinstance(index, tuple):
             if isinstance(index[0], float):
                 title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'

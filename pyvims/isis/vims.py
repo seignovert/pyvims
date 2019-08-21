@@ -7,7 +7,7 @@ import numpy as np
 
 from .camera import VIMSCamera
 from .errors import VIMSError
-from .img import rgb
+from .img import rgb, save_img
 from .isis import ISISCube
 from .plot import plot_cube
 from .projection import ortho
@@ -1229,3 +1229,27 @@ class VIMS:
                 f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
 
         return self.data[:, L - 1, S - 1]
+
+    def save(self, index, fname=None):
+        """Save image plane.
+
+        Parameters
+        ----------
+        index: int, float, str, tuple, list.
+            Data index.
+        fname: str, optional
+            Output filename.
+
+        """
+        if fname is None:
+            suffix = f'{index}'\
+                .replace(':', '-')\
+                .replace(',', '_')\
+                .replace('(', '')\
+                .replace(')', '')\
+                .replace('\'', '')\
+                .replace(' ', '')
+
+            fname = f'{self}_{suffix}.jpg'
+
+        save_img(fname, self[index])
