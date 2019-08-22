@@ -34,7 +34,7 @@ def plot_cube(c, *args, **kwargs):
 
 def plot_img(c, index, ax=None, title=None,
              ticks=True, labels=True, figsize=(8, 8),
-             cmap='gray', interp='bicubic'):
+             cmap='gray', interp='bicubic', ir_hr=False):
     """Plot VIMS cube image.
 
     Parameters
@@ -57,6 +57,8 @@ def plot_img(c, index, ax=None, title=None,
         Pyplot colormap keyword.
     interp: str, optional
         Interpolation choice (see :py:func:`pyplot.imshow` for details).
+    ir_hr: bool, optional
+        Infrared high resolution aspect ratio (before projection).
 
     """
     if ax is None:
@@ -76,6 +78,9 @@ def plot_img(c, index, ax=None, title=None,
                 title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
             else:
                 title = f'{c} on bands {index}'
+
+    if ir_hr:
+        ax.set_aspect(2)
 
     if title:
         ax.set_title(title)

@@ -55,32 +55,57 @@ def rgb(r, g, b):
     ]), 0, 2)
 
 
-def save_img(fname, data, npix=256, quality=65, interp='bicubic'):
-    """Save JPG image from data array."""
+def save_img(fname, data, ir_hr=False, npix=256, quality=65, interp='bicubic'):
+    """Save JPG image from data array.
+
+    Parameters
+    ----------
+    fname: str
+        Output filename.
+    data: np.array
+        Input data array.
+    ir_hr: bool, optional
+        Infrared high resolution aspect ratio (before projection).
+    npix: int, optional
+        Number of pixels in the largest dimension.
+    quality: int, optional
+        JPEG compression quality.
+    interp: str, optional
+        Pyplot interpolation method.
+
+    """
     if np.ndim(data) == 2:
-        w, h = np.shape(data)
+        h, w = np.shape(data)
     elif np.ndim(data) == 3:
-        w, h, _ = np.shape(data)
+        h, w, _ = np.shape(data)
     else:
         raise ValueError('Data must be a 2D or 3D array.')
 
-    if w > h:
+    extent = [0, w, h, 0]
+
+    if ir_hr:
+        w /= 2
+
+    if w >= h:
         nx = 1
         ny = h / w
     else:
         nx = w / h
         ny = 1
 
-    fig = plt.figure(frameon=False, dpi=256, figsize=(nx, ny))
+    fig = plt.figure(frameon=False, dpi=npix, figsize=(nx, ny))
 
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    ax.imshow(data, cmap='gray', interpolation=interp)
+    ax.imshow(data, extent=extent, cmap='gray', interpolation=interp)
 
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+
+    if ir_hr:
+        ax.set_aspect(2)
 
     fig.savefig(fname, quality=quality, bbox_inches='tight', pad_inches=0)
     plt.close()

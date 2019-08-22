@@ -95,7 +95,17 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}> Cube: {self} [{self.channel}]'
+        return ('\n - '.join([
+            f'<{self.__class__.__name__}> Cube: {self}',
+            f'Size: {self.NS, self.NL}',
+            f'Channel: {self.channel}',
+            f'Mode: {self.mode}',
+            f'Start time: {self.start}',
+            f'Stop time: {self.stop}',
+            f'Exposure: {self.expo} sec',
+            f'Duration: {self.duration}',
+            f'Main target: {self.target_name}',
+        ]))
 
     def __getitem__(self, val):
         val = _parse(val)
@@ -424,6 +434,21 @@ class VIMS:
         return self.channel == 'IR'
 
     @property
+    def mode(self):
+        """Cube sampling mode."""
+        return self.isis._inst['SamplingMode']
+
+    @property
+    def _is_hr(self):
+        """Boolean test if the cube sampling is ``HI-RES``."""
+        return self.mode == 'HI-RES'
+
+    @property
+    def _is_ir_hr(self):
+        """Boolean test if the cube channel is ``IR`` and sampling is ``HI-RES``."""
+        return self._is_ir and self._is_hr
+
+    @property
     def _expo_vis(self):
         """Visible exposure duration in secondes.
 
@@ -494,11 +519,6 @@ class VIMS:
         if self.__et is None:
             self.__et = self._et_ir if self._is_ir else self._et_vis
         return self.__et
-
-    @property
-    def mode(self):
-        """Cube sampling mode."""
-        return self.isis._inst['SamplingMode']
 
     @property
     def target_name(self):
@@ -1038,7 +1058,7 @@ class VIMS:
 
     def plot(self, *args, **kwargs):
         """Generic cube plot function."""
-        return plot_cube(self, *args, **kwargs)
+        return plot_cube(self, *args, ir_hr=self._is_ir_hr, **kwargs)
 
     def _band(self, b):
         """Get band index from value.
@@ -1252,4 +1272,4 @@ class VIMS:
 
             fname = f'{self}_{suffix}.jpg'
 
-        save_img(fname, self[index])
+        save_img(fname, self[index], ir_hr=self._is_ir_hr)
