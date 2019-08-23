@@ -521,6 +521,11 @@ class VIMS:
         return self.__et
 
     @property
+    def et_median(self):
+        """Median ephemeris time."""
+        return self._med([self.et])[0]
+
+    @property
     def target_name(self):
         """Main target name from ISIS header."""
         return self.isis.target_name
@@ -938,42 +943,42 @@ class VIMS:
 
     @property
     def v_sc(self):
-        """Mean sub-spacecraft position vector in main target frame."""
-        return self._mean(self._sc_position(self.et))
+        """Median sub-spacecraft position vector in main target frame."""
+        return self._sc_position(self.et_median)
 
     @property
     def sc(self):
-        """Mean sub-spacecraft geographic coordinates."""
+        """Median sub-spacecraft geographic coordinates."""
         return lonlat(self.v_sc)
 
     @property
     def sc_lon(self):
-        """Mean sub-spacecraft west longitude."""
+        """Median sub-spacecraft west longitude."""
         return self.sc[0]
 
     @property
     def sc_lat(self):
-        """Mean sub-spacecraft north latitude."""
+        """Median sub-spacecraft north latitude."""
         return self.sc[1]
 
     @property
     def v_ss(self):
-        """Mean sub-solar position vector in main target frame."""
-        return self._mean(self._sun_position(self.et))
+        """Median sub-solar position vector in main target frame."""
+        return self._sun_position(self.et_median)
 
     @property
     def ss(self):
-        """Mean sub-solar geographic coordinates."""
+        """Median sub-solar geographic coordinates."""
         return lonlat(self.v_ss)
 
     @property
     def ss_lon(self):
-        """Mean sub-solar west longitude."""
+        """Median sub-solar west longitude."""
         return self.ss[0]
 
     @property
     def ss_lat(self):
-        """Mean sub-solar north latitude."""
+        """Median sub-solar north latitude."""
         return self.ss[1]
 
     @property
