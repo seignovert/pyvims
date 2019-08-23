@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from .vectors import deg180, deg360
+
 
 def cs(theta):
     '''COS and SIN values.
@@ -79,8 +81,8 @@ def xy(ra, dec, sky):
 def radec(x, y, sky):
     """Project vector from sky tangant plane to RA/DEC coordinates."""
     u = np.array([np.ones(np.shape(x)), x, y])
-    u = u / np.linalg.norm(u)
+    u = u / np.linalg.norm(u, axis=0)
     v = np.dot(np.transpose(sky), u)
-    ra = np.arctan2(v[1], v[0])
-    dec = np.arcsin(v[2])
-    return np.degrees([ra, dec])
+    ra = np.degrees(np.arctan2(v[1], v[0]))
+    dec = np.degrees(np.arcsin(v[2]))
+    return np.array([deg360(ra), deg180(dec)])
