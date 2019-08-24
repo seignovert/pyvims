@@ -4,6 +4,7 @@ import numpy as np
 
 from .vectors import deg180
 
+
 def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
     """Orthographic projection centered on (lon_0, lat_0).
 
