@@ -112,7 +112,7 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
-        self.plot('surface')
+        self.plot('surface') if self._is_ir else self.plot(75)
 
         return ('\n - '.join([
             f'<{self.__class__.__name__}> Cube: {self}',
