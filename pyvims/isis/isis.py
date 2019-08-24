@@ -12,6 +12,7 @@ from .tables import ISISTables
 from .time import time as _dt
 from .vars import BYTE_ORDERS, FIELD_TYPES
 
+
 class ISISCube:
     """VIMS ISIS header object.
 

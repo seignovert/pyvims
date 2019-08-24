@@ -5,6 +5,8 @@ import re
 
 import numpy as np
 
+from requests import HTTPError
+
 from .camera import VIMSCamera
 from .errors import VIMSError
 from .img import rgb, save_img
@@ -15,6 +17,8 @@ from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
 from .time import hex2double
 from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
+from .vars import VIMS_DATA_PORTAL
+from .wget import wget
 
 
 def get_img_id(fname):
@@ -89,16 +93,20 @@ class VIMS:
         first or the local directory otherwise.
         You can manually force the local directory
         with ``root='.'``.
+    download: bool, optional
+        Enable download cube data from the VIMS data portal
+        if not localy present on the disk.
 
     """
 
     # VIMS clock drift for IR scan
     VIMS_SEC = 1.01725
 
-    def __init__(self, fname, root=None):
+    def __init__(self, fname, root=None, download=True):
         self.img_id = fname
         self.root = root
         self.fname = fname
+        self.download = download
 
     def __str__(self):
         return self.img_id
@@ -195,10 +203,38 @@ class VIMS:
         return os.path.join(self.root, self.fname)
 
     @property
+    def url(self):
+        """Data URL on the VIMS Data Portal."""
+        return f'{VIMS_DATA_PORTAL}/cube/{self.fname}'
+
+    def download_cube(self, overwrite=False):
+        """Download cube from the VIMS Data Portal.
+
+        Parameters
+        ----------
+        overwrite: bool, optional
+            Enable file overwrite.
+
+        """
+        try:
+            wget(self.url, filename=self.filename, overwrite=overwrite)
+        except HTTPError:
+            raise FileNotFoundError(f'`{self.fname}` is not available on '
+                                    'the VIMS Data Portal.')
+
+    @property
     def isis(self):
         """ISIS cube."""
         if self.__isis is None:
-            self.__isis = ISISCube(self.filename)
+            try:
+                self.__isis = ISISCube(self.filename)
+            except FileNotFoundError as err:
+                if self.download:
+                    self.download_cube()
+                    self.__isis = ISISCube(self.filename)
+                else:
+                    raise err
+
         return self.__isis
 
     @property
