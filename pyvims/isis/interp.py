@@ -6,6 +6,7 @@ import numpy as np
 
 from scipy.interpolate import griddata
 
+from .img import rgb
 from .projection import equi_contour, equi_grid, ortho_grid
 
 
@@ -62,38 +63,11 @@ def _mask(grid, contour):
     return ~mask
 
 
-def ortho_interp(xy, data, res, contour=False, method='cubic'):
-    """Interpolate data in orthographic projection.
-
-    Parameters
-    ----------
-    xy: np.array
-        2D orthographic points location (X and Y).
-    data: np.array
-        2D data values.
-    res: float
-        Pixel resolution (for grid interpolation).
-    contour: np.array, optional
-        Pixels contour location in orthographic projection.
-    method: str, optional
-        Interpolation method
-
-    Returns
-    -------
-    np.array
-        Interpolated data.
-    np.array
-        Interpolated grid.
-    list
-        Data extent for pyplot.
-
-    """
-    pts = np.reshape(xy, (2, np.size(data))).T
+def _interp_1d(pts, data, grid, method='cubic', is_contour=True):
+    """1D data grid interpolation."""
     values = np.array(data).flatten()
-    is_contour = isinstance(contour, (list, np.ndarray))
 
     if is_contour:
-        pts = np.vstack([pts, np.transpose(contour)])
         values = np.hstack([
             values,
             data[0, 0],      # Top-Left corner
@@ -107,18 +81,76 @@ def ortho_interp(xy, data, res, contour=False, method='cubic'):
             data[0, 0],      # Top-Left corner
         ])
 
+    return griddata(pts, values, grid, method=method)
+
+
+def cube_interp(xy, data, res, contour=False, method='cubic'):
+    """Interpolate cube data.
+
+    Parameters
+    ----------
+    xy: np.array
+        2D points location (X and Y).
+    data: np.array
+        2D data values.
+    res: float
+        Pixel resolution (for grid interpolation).
+    contour: np.array, optional
+        Pixels contour location.
+    method: str, optional
+        Interpolation method
+
+    Returns
+    -------
+    np.array
+        Interpolated data.
+    np.array
+        Interpolated grid.
+    list
+        Data extent for pyplot.
+
+    Raises
+    ------
+    ValueError
+        If the data provided are 3D but without 3 backplanes (R, G, B).
+
+    """
+    pts = np.reshape(xy, (2, int(np.size(xy) / 2))).T
+    is_contour = isinstance(contour, (list, tuple, np.ndarray))
+
+    if is_contour:
+        pts = np.vstack([pts, np.transpose(contour)])
+
     x0, y0 = np.min(pts, axis=0)
     x1, y1 = np.max(pts, axis=0)
 
     x = _linspace(x0, x1, res)
     y = _linspace(y0, y1, res)
-    X, Y = np.meshgrid(x, y)
-    grid = (X, Y)
+    xx, yy = np.meshgrid(x, y)
+    grid = (xx, yy)
 
-    z = griddata(pts, values, grid, method=method)
+    kwargs = {'method': method, 'is_contour': is_contour}
+
+    if np.ndim(data) == 3:
+        if np.shape(data)[-1] == 3:
+            r = _interp_1d(pts, data[:, :, 0], grid, **kwargs)
+            g = _interp_1d(pts, data[:, :, 1], grid, **kwargs)
+            b = _interp_1d(pts, data[:, :, 2], grid, **kwargs)
+            z = rgb(r, g, b)
+        else:
+            raise ValueError('3D data array can only have 3 planes (R, G, B), '
+                             f'{np.shape(data)[-1]} planes were provided.')
+
+    else:
+        z = _interp_1d(pts, data, grid, **kwargs)
 
     if is_contour:
-        z = np.ma.array(z, mask=_mask(grid, contour))
+        mask = _mask(grid, contour)
+
+        if np.ndim(data) == 3:
+            z = np.moveaxis([z[:, :, 0], z[:, :, 1], z[:, :, 2], 255 * np.int8(~mask)], 0, 2)
+        else:
+            z = np.ma.array(z, mask=mask)
 
     return z, grid, _extent(x, y)
 
@@ -156,7 +188,7 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
 
     """
     # Orthographic interpolation
-    z, grid, extent = ortho_interp(xy, data, res, contour, method=method)
+    z, grid, extent = cube_interp(xy, data, res, contour, method=method)
 
     # Orthographic geographic pixels coordinates
     o_lon, o_lat, o_alt = ortho_grid(*grid, *sc, r)
