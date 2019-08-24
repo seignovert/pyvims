@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from .errors import VIMSError
+from .sky import sky_cube
 
 
 def _ticks_levels(cnt, x, p_x):
@@ -63,6 +64,9 @@ def plot_cube(c, *args, **kwargs):
             kwargs['as_bands'] = True
 
     if isinstance(args[0], (int, float, str)):
+        if 'sky' in args:
+            return plot_sky(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -70,6 +74,9 @@ def plot_cube(c, *args, **kwargs):
             return plot_spectrum(c, *args[0], **kwargs)
 
         if len(args[0]) == 3:
+            if 'sky' in args:
+                return plot_sky(c, args[0], **kwargs)
+
             return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], list):
@@ -171,6 +178,7 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
         Spectrum label.
     figsize: tuple, optional
         Pyplot figure size.
+
     """
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
@@ -271,3 +279,99 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
 
     if legend:
         ax.legend()
+
+
+def plot_sky(c, index, ax=None, title=None,
+             labels=True,
+             figsize=(8, 8), cmap='gray',
+             twist=0, n_interp=512,
+             interp='cubic', grid='lightgray',
+             show_img=True, show_pixels=False,
+             show_contour=False, **kwargs):
+    """Plot VIMS cube image.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+    ax: matplotlib.axis, optional
+        Optional matplotlib axis object.
+    title: str, optional
+        Figure title.
+    ticks: bool, optional
+        Show sample and line ticks.
+    labels: bool, optional
+        Show sample and line labels.
+    figsize: tuple, optional
+        Pyplot figure size.
+    cmap: str, optional
+        Pyplot colormap keyword.
+    twist: float, optional
+        Camera poiting twist angle (degree).
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method (see :py:func:`scipy.griddata` for details).
+    grid: str, optional
+        Color grid. Set ``None`` to remove the grid.
+
+    """
+    img, (x, y), extent, pix, cnt, (ra, dec) = sky_cube(c, index,
+                                                        twist=twist,
+                                                        n=n_interp,
+                                                        interp=interp)
+
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=figsize)
+
+    if show_img:
+        ax.imshow(img, cmap=cmap, extent=extent)
+
+    if show_pixels:
+        ax.scatter(*pix, s=25, facecolors='none', edgecolors=show_pixels)
+
+    if show_contour:
+        ax.plot(*cnt, '-', color=show_contour)
+
+    if title is None:
+        if isinstance(index, int):
+            title = f'{c} on band {index}'
+        elif isinstance(index, float):
+            title = f'{c} at {index:.2f} µm'
+        elif isinstance(index, str):
+            title = f'{c} with `{index}`'
+        elif isinstance(index, tuple):
+            if isinstance(index[0], float):
+                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
+            else:
+                title = f'{c} on bands {index}'
+
+    if grid is not None:
+        cextent = [extent[0], extent[1], extent[3], extent[2]]
+        cx = plt.contour(ra, extent=cextent, colors=grid, linewidths=.75)
+        cy = plt.contour(dec, extent=cextent, colors=grid, linewidths=.75)
+
+        tx, lx = _ticks_levels(cx, ra[0, :], x[0, :])
+        ty, ly = _ticks_levels(cy, dec[:, -1], y[:, -1])
+
+        ax.set_xticks(tx)
+        ax.set_yticks(ty)
+        ax.set_xticklabels(lx)
+        ax.set_yticklabels(ly)
+
+        plt.xlim(extent[:2])
+        plt.ylim(extent[2:])
+
+    if title:
+        ax.set_title(title)
+
+    if labels:
+        ax.set_xlabel('Right ascension')
+        ax.set_ylabel('Declination')
+
+    # Reverse Ra-Dec axis
+    ax.invert_xaxis()
+    ax.invert_yaxis()
+    return ax
