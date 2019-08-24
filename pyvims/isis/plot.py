@@ -7,6 +7,51 @@ import matplotlib.pyplot as plt
 from .errors import VIMSError
 
 
+def _ticks_levels(cnt, x, p_x):
+    """Extract levels from contour.
+
+    Parameters
+    ----------
+    cnt: pyplot.contour
+        Pyplot contour
+    x: np.array
+        Input values.
+    p_x: np.array
+        Projected values on the grid.
+
+    Returns
+    -------
+    list
+        Visible contour levels.
+
+    """
+    levels = cnt.levels
+    labels = _ticks_fmt(levels)
+    ticks = np.interp(levels, x, p_x)
+    valid = (ticks != p_x[0]) & (ticks != p_x[-1])
+    return ticks[valid], labels[valid]
+
+
+def _ticks_fmt(t, suffix='°'):
+    """Format ticks labels.
+
+    Parameters
+    ----------
+    t: list
+        Ticks values.
+    suffix: str, optional
+        Add suffix to tick labels.
+
+    Returns
+    -------
+    [str. …]
+        Ticks labels.
+
+    """
+    d = max(-int(np.log10(t[-1] - t[0]) - 1.5), 0)
+    return np.array(['{v:0.{d}f}{s}'.format(v=v, d=d, s=suffix) for v in t])
+
+
 def plot_cube(c, *args, **kwargs):
     """Generic cube plot."""
     if not args:
