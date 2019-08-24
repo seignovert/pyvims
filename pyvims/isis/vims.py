@@ -46,6 +46,15 @@ def _parse(val):
         return values
 
     if isinstance(val, str):
+        if val.lower() == 'surface':
+            return _parse(('165:169', '138:141', '212:213'))
+
+        if val.lower() == 'surface 2':
+            return _parse(('339:351', '138:141', '121:122'))
+
+        if val.lower() == 'surface 3':
+            return _parse(('339:351', '207:213', '165:169'))
+
         s = re.findall(r'^\d+$', val)
         if s:
             return int(s[0])
@@ -95,6 +104,8 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
+        self.plot('surface')
+
         return ('\n - '.join([
             f'<{self.__class__.__name__}> Cube: {self}',
             f'Size: {self.NS, self.NL}',

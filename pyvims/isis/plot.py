@@ -343,7 +343,7 @@ def plot_sky(c, index, ax=None, title=None,
         elif isinstance(index, float):
             title = f'{c} at {index:.2f} µm'
         elif isinstance(index, str):
-            title = f'{c} with `{index}`'
+            title = f'{c} | {index.title()}'
         elif isinstance(index, tuple):
             if isinstance(index[0], float):
                 title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
