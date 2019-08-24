@@ -86,7 +86,8 @@ def plot_cube(c, *args, **kwargs):
 
 def plot_img(c, index, ax=None, title=None,
              ticks=True, labels=True, figsize=(8, 8),
-             cmap='gray', interp='bicubic', ir_hr=False):
+             cmap='gray', interp='bicubic', ir_hr=False,
+             **kwargs):
     """Plot VIMS cube image.
 
     Parameters
@@ -149,7 +150,8 @@ def plot_img(c, index, ax=None, title=None,
 
 
 def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
-                  title=None, ticks=True, labels=True, label=None, figsize=(12, 6)):
+                  title=None, ticks=True, labels=True, label=None,
+                  figsize=(12, 6), **kwargs):
     """Plot VIMS cube spectrum.
 
     Parameters
