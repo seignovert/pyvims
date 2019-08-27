@@ -5,7 +5,7 @@ import numpy as np
 from scipy.interpolate import griddata
 
 from .orthographic import ortho_grid
-from ..interp import cube_interp, _mask
+from ..interp import cube_interp, mask
 
 
 def _cross_180(lons, dlon=180):
@@ -139,6 +139,60 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
     gz_interp = griddata((glon, glat), gz, grid, method='nearest')
 
     # Create mask for pixels outside the contour
-    mask = _mask(grid, ctn)
+    m = mask(grid, ctn)
 
-    return np.ma.array(gz_interp, mask=mask), grid, extent
+    if np.ndim(gz_interp) == 3:
+        z_mask = np.moveaxis([
+            gz_interp[:, :, 0],
+            gz_interp[:, :, 1],
+            gz_interp[:, :, 2],
+            255 * np.int8(~m)
+        ], 0, 2)
+    else:
+        z_mask = np.ma.array(gz_interp, mask=m)
+
+    return z_mask, grid, extent, ctn
+
+
+def equi_cube(c, index, ppd=4, n=512, res_min=1, interp='cubic'):
+    """VIMS cube equirectangular projected.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to interpolate.
+    index: int, float, str, list, tuple
+        VIMS band or wavelength to plot.
+    ppd: int
+        Number of pixels per degree
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method
+    res_min: float, optional
+        Minimal resolution
+
+    """
+    # Pixel data
+    data = c[index]
+
+    # Pixel positions on the FOV tangent plane
+    pixels = c.ortho
+
+    # Contour positions on the FOV tangent plane
+    contour = c.cortho
+
+    # Orthogrpahic resolution
+    res = max(np.min(np.max(contour, axis=1) - np.min(contour, axis=1)) / n, res_min)
+
+    # Equirectangular resolution at the equator
+    npix = 360 * ppd
+
+    # Sub-spacecraft location for initial orthographic projection
+    sc = c.sc
+
+    # Target radius for initial orthographic projection
+    r = c.target_radius
+
+    # Interpolate data (with mask)
+    return equi_interp(pixels, data, res, contour, sc, r, npix=npix, method=interp)
