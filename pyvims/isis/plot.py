@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from .errors import VIMSError
-from .sky import sky_cube
+from .projections import sky_cube
 
 
 def _ticks_levels(cnt, x, p_x):

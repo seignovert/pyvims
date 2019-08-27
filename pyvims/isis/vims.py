@@ -12,7 +12,7 @@ from .errors import VIMSError
 from .img import rgb, save_img
 from .isis import ISISCube
 from .plot import plot_cube
-from .projection import ortho
+from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .target import intersect
 from .time import hex2double
@@ -1031,12 +1031,12 @@ class VIMS:
     @property
     def ortho(self):
         """Pixel orthographic projection."""
-        return ortho(*self.lonlat, *self.sc, self.target_radius, self.alt)
+        return ortho_proj(*self.lonlat, *self.sc, self.target_radius, self.alt)
 
     @property
     def ground_ortho(self):
         """Orthographic projection of the pixels on the ground."""
-        return ortho(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
+        return ortho_proj(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
 
     @property
     def cet(self):
@@ -1101,12 +1101,12 @@ class VIMS:
     @property
     def cortho(self):
         """Pixel contour orthographic projection."""
-        return ortho(*self.clonlat, *self.sc, self.target_radius, self.calt)
+        return ortho_proj(*self.clonlat, *self.sc, self.target_radius, self.calt)
 
     @property
     def ground_cortho(self):
         """Orthographic projection of the contour pixels on the ground."""
-        return ortho(*self.clonlat, *self.sc, self.target_radius)
+        return ortho_proj(*self.clonlat, *self.sc, self.target_radius)
 
     def plot(self, *args, **kwargs):
         """Generic cube plot function."""
