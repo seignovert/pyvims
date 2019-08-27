@@ -29,7 +29,7 @@ def get_img_id(fname):
     fname:
 
     """
-    img_ids = re.findall(r'^(?:C|v)?\d{10}_\d+(?:_\d+)?', fname)
+    img_ids = re.findall(r'\d{10}_\d+(?:_\d+)?', fname)
 
     if not img_ids:
         raise VIMSError(f'File `{fname}` name does not '
@@ -102,10 +102,11 @@ class VIMS:
     # VIMS clock drift for IR scan
     VIMS_SEC = 1.01725
 
-    def __init__(self, fname, root=None, download=True):
-        self.img_id = fname
+    def __init__(self, fname, root=None, download=True,
+                 channel='ir', prefix='C', ext='cub'):
+        self.img_id = get_img_id(fname)
+        self.fname = f'{prefix}{self.img_id}_{channel}.{ext}'
         self.root = root
-        self.fname = fname
         self.download = download
 
     def __str__(self):
@@ -150,15 +151,6 @@ class VIMS:
 
     def __matmul__(self, val):
         return self[val]
-
-    @property
-    def img_id(self):
-        """Cube image ID."""
-        return self.__img_id
-
-    @img_id.setter
-    def img_id(self, fname):
-        self.__img_id = get_img_id(fname)
 
     @property
     def root(self):
