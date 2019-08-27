@@ -3,9 +3,10 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 from .errors import VIMSError
-from .projections import sky_cube
+from .projections import ortho_cube, sky_cube
 
 
 def plot_cube(c, *args, **kwargs):
@@ -22,6 +23,9 @@ def plot_cube(c, *args, **kwargs):
         if 'sky' in args:
             return plot_sky(c, args[0], **kwargs)
 
+        if 'ortho' in args:
+            return plot_ortho(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -31,6 +35,9 @@ def plot_cube(c, *args, **kwargs):
         if len(args[0]) == 3:
             if 'sky' in args:
                 return plot_sky(c, args[0], **kwargs)
+
+            if 'ortho' in args:
+                return plot_ortho(c, args[0], **kwargs)
 
             return plot_img(c, args[0], **kwargs)
 
@@ -373,5 +380,158 @@ def plot_sky(c, index, ax=None, title=None,
 
     # Reverse Ra-Dec axis
     ax.invert_xaxis()
+    ax.invert_yaxis()
+    return ax
+
+
+def plot_ortho(c, index, ax=None, title=None,
+               labels=True,
+               figsize=(8, 8), cmap='gray',
+               twist=0, n_interp=512,
+               interp='cubic', grid='lightgray',
+               show_img=True, show_pixels=False,
+               show_contour=False, **kwargs):
+    """Plot projected VIMS cube image in median orthographic plane.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+    ax: matplotlib.axis, optional
+        Optional matplotlib axis object.
+    title: str, optional
+        Figure title.
+    ticks: bool, optional
+        Show sample and line ticks.
+    labels: bool, optional
+        Show sample and line labels.
+    figsize: tuple, optional
+        Pyplot figure size.
+    cmap: str, optional
+        Pyplot colormap keyword.
+    twist: float, optional
+        Camera poiting twist angle (degree).
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method (see :py:func:`scipy.griddata` for details).
+    grid: str, optional
+        Color grid. Set ``None`` to remove the grid.
+
+    """
+    img, (x, y), extent, pix, cnt, (lon, lat, alt) = ortho_cube(c, index,
+                                                                n=n_interp,
+                                                                interp=interp)
+
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=figsize)
+
+    if show_img:
+        ax.imshow(img, cmap=cmap, extent=extent)
+
+    if show_pixels:
+        ax.scatter(*pix, s=25, facecolors='none', edgecolors=show_pixels)
+
+    if show_contour:
+        ax.plot(*cnt, '-', color=show_contour)
+
+    if title is None:
+        if isinstance(index, int):
+            title = f'{c} on band {index}'
+        elif isinstance(index, float):
+            title = f'{c} at {index:.2f} µm'
+        elif isinstance(index, str):
+            title = f'{c} | {index.title()}'
+        elif isinstance(index, tuple):
+            if isinstance(index[0], float):
+                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
+            else:
+                title = f'{c} on bands {index}'
+
+    if grid is not None:
+        cextent = [extent[0], extent[1], extent[3], extent[2]]
+
+        is_limb = alt > 1e-6
+
+        glon = np.ma.array(lon, mask=is_limb)
+        glat = np.ma.array(lat, mask=is_limb)
+
+        _lon_offset = c.sc_lon
+
+        clon = (glon - _lon_offset + 180) % 360 - 180
+        clat = lat
+
+        dlon = np.max(clon) - np.min(clon)
+        dlat = np.max(clat) - np.min(clat)
+
+        if dlon > 90:
+            lons = np.arange(-180, 360, 30) - _lon_offset
+        elif dlon > 30:
+            lons = np.arange(-180, 360, 10) - _lon_offset
+        else:
+            lons = np.arange(int(np.min(clon)), int(np.max(clon)), 1)
+
+        if dlat > 90:
+            lats = np.arange(-90, 90, 30)
+        elif dlat > 30:
+            lats = np.arange(-90, 90, 10)
+        else:
+            lats = np.arange(int(np.min(clat)), int(np.max(clat)), 1)
+
+        alts = np.arange(500, np.max(alt), 500)
+
+        @FuncFormatter
+        def _fmt_lon(x, pos=None):
+            lon = (x + _lon_offset + 180) % 360 - 180
+            s = '' if lon == 0 else ('W' if lon > 0 else 'E')
+            return f'{abs(lon):.0f}°{s}'
+
+        @FuncFormatter
+        def _fmt_lat(x, pos=None):
+            s = '' if x == 0 else ('N' if x > 0 else 'S')
+            return f'{abs(x):.0f}°{s}'
+
+        @FuncFormatter
+        def _fmt_alt(x, pos=None):
+            return f'{x:.0f} km'
+
+        kwargs = {
+            'extent': cextent,
+            'colors': grid,
+            'linewidths': .75,
+            'linestyles': 'solid'
+        }
+
+        llon = ax.contour(clon, lons, **kwargs)
+        llat = ax.contour(clat, lats, **kwargs)
+
+        lalt = ax.contour(alt, alts, **kwargs)
+        ax.contour(alt, [0], **kwargs)
+
+        ax.clabel(llon, fmt=_fmt_lon, inline=True, use_clabeltext=True)
+        ax.clabel(llat, fmt=_fmt_lat, inline=True, use_clabeltext=True)
+        ax.clabel(lalt, fmt=_fmt_alt, inline=True, use_clabeltext=True)
+
+        # Polar reticule for large FOV
+        r = c.target_radius
+        kwargs_r = {'color': kwargs['colors'], 'linewidth': kwargs['linewidths']}
+        ax.plot([0, 0], [extent[2], r], '-', **kwargs_r)
+        ax.plot([0, 0], [-r, extent[3]], '-', **kwargs_r)
+
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        ax.set_xlim(extent[:2])
+        ax.set_ylim(extent[2:])
+
+    if title:
+        ax.set_title(title)
+
+    if labels:
+        ax.set_xlabel('← West / East →')
+        ax.set_ylabel('← South / North →')
+
     ax.invert_yaxis()
     return ax
