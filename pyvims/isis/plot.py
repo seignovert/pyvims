@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 from .errors import VIMSError
-from .projections import ortho_cube, sky_cube
+from .projections import equi_cube, ortho_cube, sky_cube
 
 
 def plot_cube(c, *args, **kwargs):
@@ -26,6 +26,9 @@ def plot_cube(c, *args, **kwargs):
         if 'ortho' in args:
             return plot_ortho(c, args[0], **kwargs)
 
+        if 'equi' in args:
+            return plot_equi(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -38,6 +41,9 @@ def plot_cube(c, *args, **kwargs):
 
             if 'ortho' in args:
                 return plot_ortho(c, args[0], **kwargs)
+
+            if 'equi' in args:
+                return plot_equi(c, args[0], **kwargs)
 
             return plot_img(c, args[0], **kwargs)
 
@@ -456,7 +462,7 @@ def plot_ortho(c, index, ax=None, title=None,
         is_limb = alt > 1e-6
 
         glon = np.ma.array(lon, mask=is_limb)
-        glat = np.ma.array(lat, mask=is_limb)
+        # glat = np.ma.array(lat, mask=is_limb)
 
         _lon_offset = c.sc_lon
 
@@ -471,14 +477,14 @@ def plot_ortho(c, index, ax=None, title=None,
         elif dlon > 30:
             lons = np.arange(-180, 360, 10) - _lon_offset
         else:
-            lons = np.arange(int(np.min(clon)), int(np.max(clon)), 1)
+            lons = np.arange(int(np.min(clon)), int(np.max(clon)))
 
         if dlat > 90:
             lats = np.arange(-90, 90, 30)
         elif dlat > 30:
             lats = np.arange(-90, 90, 10)
         else:
-            lats = np.arange(int(np.min(clat)), int(np.max(clat)), 1)
+            lats = np.arange(int(np.min(clat)), int(np.max(clat)))
 
         alts = np.arange(500, np.max(alt), 500)
 
@@ -533,5 +539,120 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.set_xlabel('← West / East →')
         ax.set_ylabel('← South / North →')
 
+    ax.invert_yaxis()
+    return ax
+
+
+def plot_equi(c, index, ax=None, title=None,
+              labels=True,
+              figsize=(16, 8), cmap='gray',
+              twist=0, n_interp=512,
+              interp='cubic', grid='lightgray',
+              show_img=True, show_pixels=False,
+              show_contour=False, **kwargs):
+    """Plot projected VIMS cube image as equirectangular.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+    ax: matplotlib.axis, optional
+        Optional matplotlib axis object.
+    title: str, optional
+        Figure title.
+    ticks: bool, optional
+        Show sample and line ticks.
+    labels: bool, optional
+        Show sample and line labels.
+    figsize: tuple, optional
+        Pyplot figure size.
+    cmap: str, optional
+        Pyplot colormap keyword.
+    twist: float, optional
+        Camera poiting twist angle (degree).
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method (see :py:func:`scipy.griddata` for details).
+    grid: str, optional
+        Color grid. Set ``None`` to remove the grid.
+
+    """
+    img, (x, y), extent, cnt = equi_cube(c, index, n=n_interp, interp=interp)
+    glon, glat = c.ground_lon, c.ground_lat
+
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=figsize)
+
+    if show_img:
+        ax.imshow(img, cmap=cmap, extent=extent)
+
+    if show_pixels:
+        ax.scatter(glon, glat, s=25, facecolors='none', edgecolors=show_pixels)
+
+    if show_contour:
+        ax.plot(*cnt, '-', color=show_contour)
+
+    if title is None:
+        if isinstance(index, int):
+            title = f'{c} on band {index}'
+        elif isinstance(index, float):
+            title = f'{c} at {index:.2f} µm'
+        elif isinstance(index, str):
+            title = f'{c} | {index.title()}'
+        elif isinstance(index, tuple):
+            if isinstance(index[0], float):
+                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
+            else:
+                title = f'{c} on bands {index}'
+
+    @FuncFormatter
+    def _fmt_lon(x, pos=None):
+        s = '' if x == 0 else ('W' if x > 0 else 'E')
+        return f'{abs(x):.0f}°{s}'
+
+    @FuncFormatter
+    def _fmt_lat(x, pos=None):
+        s = '' if x == 0 else ('N' if x > 0 else 'S')
+        return f'{abs(x):.0f}°{s}'
+
+    dlon, dlat = np.max(cnt, axis=1) - np.min(cnt, axis=1)
+
+    if dlon > 90:
+        lons = np.arange(-180, 180 + 45, 45)
+    elif dlon > 30:
+        lons = np.arange(-180, 180 + 10, 10)
+    else:
+        lons = np.arange(int(np.min(cnt[0])), int(np.max(cnt[0])) + 1)
+
+    if dlat > 90:
+        lats = np.arange(-90, 90 + 30, 30)
+    elif dlat > 30:
+        lats = np.arange(-90, 90 + 10, 10)
+    else:
+        lats = np.arange(int(np.min(cnt[1])), int(np.max(cnt[1])) + 1)
+
+    ax.set_xticks(lons)
+    ax.set_yticks(lats)
+    ax.xaxis.set_major_formatter(_fmt_lon)
+    ax.yaxis.set_major_formatter(_fmt_lat)
+
+    if grid is not None:
+        plt.grid(color=grid, linewidth=.75)
+
+    if title:
+        ax.set_title(title)
+
+    if labels:
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
+
+    ax.set_xlim(extent[:2])
+    ax.set_ylim(extent[2:])
+
+    # Reverse axis
+    ax.invert_xaxis()
     ax.invert_yaxis()
     return ax
