@@ -8,51 +8,6 @@ from .errors import VIMSError
 from .projections import sky_cube
 
 
-def _ticks_levels(cnt, x, p_x):
-    """Extract levels from contour.
-
-    Parameters
-    ----------
-    cnt: pyplot.contour
-        Pyplot contour
-    x: np.array
-        Input values.
-    p_x: np.array
-        Projected values on the grid.
-
-    Returns
-    -------
-    list
-        Visible contour levels.
-
-    """
-    levels = cnt.levels
-    labels = _ticks_fmt(levels)
-    ticks = np.interp(levels, x, p_x)
-    valid = (ticks != p_x[0]) & (ticks != p_x[-1])
-    return ticks[valid], labels[valid]
-
-
-def _ticks_fmt(t, suffix='°'):
-    """Format ticks labels.
-
-    Parameters
-    ----------
-    t: list
-        Ticks values.
-    suffix: str, optional
-        Add suffix to tick labels.
-
-    Returns
-    -------
-    [str. …]
-        Ticks labels.
-
-    """
-    d = max(-int(np.log10(t[-1] - t[0]) - 1.5), 0)
-    return np.array(['{v:0.{d}f}{s}'.format(v=v, d=d, s=suffix) for v in t])
-
-
 def plot_cube(c, *args, **kwargs):
     """Generic cube plot."""
     if not args:
@@ -290,7 +245,7 @@ def plot_sky(c, index, ax=None, title=None,
              interp='cubic', grid='lightgray',
              show_img=True, show_pixels=False,
              show_contour=False, **kwargs):
-    """Plot VIMS cube image.
+    """Plot projected VIMS cube image on the sky.
 
     Parameters
     ----------
@@ -320,6 +275,49 @@ def plot_sky(c, index, ax=None, title=None,
         Color grid. Set ``None`` to remove the grid.
 
     """
+    def _ticks_levels(cnt, x, p_x):
+        """Extract levels from contour.
+
+        Parameters
+        ----------
+        cnt: pyplot.contour
+            Pyplot contour
+        x: np.array
+            Input values.
+        p_x: np.array
+            Projected values on the grid.
+
+        Returns
+        -------
+        list
+            Visible contour levels.
+
+        """
+        levels = cnt.levels
+        labels = _ticks_fmt(levels)
+        ticks = np.interp(levels, x, p_x)
+        valid = (ticks != p_x[0]) & (ticks != p_x[-1])
+        return ticks[valid], labels[valid]
+
+    def _ticks_fmt(t, suffix='°'):
+        """Format ticks labels.
+
+        Parameters
+        ----------
+        t: list
+            Ticks values.
+        suffix: str, optional
+            Add suffix to tick labels.
+
+        Returns
+        -------
+        [str. …]
+            Ticks labels.
+
+        """
+        d = max(-int(np.log10(t[-1] - t[0]) - 1.5), 0)
+        return np.array(['{v:0.{d}f}{s}'.format(v=v, d=d, s=suffix) for v in t])
+
     img, (x, y), extent, pix, cnt, (ra, dec) = sky_cube(c, index,
                                                         twist=twist,
                                                         n=n_interp,
@@ -352,8 +350,8 @@ def plot_sky(c, index, ax=None, title=None,
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
-        cx = plt.contour(ra, extent=cextent, colors=grid, linewidths=.75)
-        cy = plt.contour(dec, extent=cextent, colors=grid, linewidths=.75)
+        cx = ax.contour(ra, extent=cextent, colors=grid, linewidths=.75)
+        cy = ax.contour(dec, extent=cextent, colors=grid, linewidths=.75)
 
         tx, lx = _ticks_levels(cx, ra[0, :], x[0, :])
         ty, ly = _ticks_levels(cy, dec[:, -1], y[:, -1])
@@ -363,8 +361,8 @@ def plot_sky(c, index, ax=None, title=None,
         ax.set_xticklabels(lx)
         ax.set_yticklabels(ly)
 
-        plt.xlim(extent[:2])
-        plt.ylim(extent[2:])
+        ax.set_xlim(extent[:2])
+        ax.set_ylim(extent[2:])
 
     if title:
         ax.set_title(title)
