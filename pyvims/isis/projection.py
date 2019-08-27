@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from .interp import cube_interp
 from .vectors import deg180
 
 
@@ -52,7 +53,7 @@ def ortho(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):
 
 
 def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
-    """Orthographic grid centered on (lon_0, lat_0).
+    """Convert orthographic coordinates to planetocentric coordinates.
 
     Parameters
     ----------
@@ -61,16 +62,16 @@ def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
     y: float or np.array
         Orthograpahic projected point on Y-axis.
     lon_0: float or np.array
-        Centered longitude (degrees).
+        Orthographic centered longitude (degrees).
     lat_0: float or np.array
-        Centered latitude (degrees).
+        Orthographic centered latitude (degrees).
     r: float or np.array, optional
         Planet radius.
 
     Returns
     -------
     np.array
-        Projected planetocentric coordinates.
+        Planetocentric coordinates.
 
     """
     lambda_0, phi_0 = np.radians([lon_0, lat_0])
@@ -87,6 +88,42 @@ def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
     lon, lat = np.degrees([lambd, phi])
     alt = r * (np.max([np.ones(np.shape(rho)), rho / r], axis=0) - 1)
     return deg180(lon), lat, alt
+
+
+def ortho_cube(c, index, n=512, interp='cubic'):
+    """VIMS cube orthographicly projected on the median FOV.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to interpolate.
+    index: int, float, str, list, tuple
+        VIMS band or wavelength to plot.
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method
+
+    """
+    # Pixel data
+    data = c[index]
+
+    # Pixel positions on the FOV tangent plane
+    pixels = c.ortho
+
+    # Contour positions on the FOV tangent plane
+    contour = c.cortho
+
+    # Plane resolution
+    res = np.min(np.max(contour, axis=1) - np.min(contour, axis=1)) / n
+
+    # Interpolate data (with mask)
+    z, grid, extent = cube_interp(pixels, data, res=res, contour=contour, method=interp)
+
+    # Coordinates of the interpolated grid
+    o_grid = ortho_grid(*grid, *c.sc, c.target_radius)
+
+    return z, grid, extent, pixels, contour, o_grid
 
 
 def _cross_180(lons, dlon=180):

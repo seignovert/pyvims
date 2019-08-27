@@ -53,7 +53,21 @@ def _extent(x, y):
 
 
 def _mask(grid, contour):
-    """Mask data outside the contour."""
+    """Mask data outside the contour.
+
+    Parameters
+    ----------
+    grid: np.array
+        X-Y grid of pixels.
+    contour: np.array
+        X-Y coordinates of the contour
+
+    Returns
+    -------
+    np.array
+        Boolean array of all the pixels ouside the contour.
+
+    """
     x, y = grid
     pts = np.hstack((x.reshape(-1, 1), y.reshape(-1, 1)))
 

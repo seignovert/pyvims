@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from .vectors import deg180, deg360
 from .interp import cube_interp
+from .vectors import deg180, deg360
 
 
 def cs(theta):
