@@ -210,3 +210,57 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
 
     return z, grid, extent
 
+
+def cube_interp_filled(xy, data, res, contour, method='cubic'):
+    """Interpolate cube data within a contour.
+
+    The missing data into the contour are filled with the nearest value.
+
+    Parameters
+    ----------
+    xy: np.array
+        2D points location (X and Y).
+    data: np.array
+        2D data values.
+    res: float
+        Pixel resolution (for grid interpolation).
+    contour: np.array
+        Pixels contour location.
+    method: str, optional
+        Interpolation method
+
+    Returns
+    -------
+    np.array
+        Interpolated data.
+    np.array
+        Interpolated grid.
+    list
+        Data extent for pyplot.
+
+    """
+    # Create grid based on contour size and resolution.
+    grid, extent = _grid(np.transpose(contour), res)
+
+    # Remove masked data
+    x, y = xy
+    if isinstance(x, np.ma.core.MaskedArray):
+        xx, yy, dd = x[~x.mask], y[~y.mask], data[~x.mask]
+    else:
+        xx, yy, data = x, y, data
+
+    # Cube interpolation without the contour
+    z = griddata((xx, yy), dd, grid, method='cubic')
+
+    # Cube nearest extrapolation
+    nearest = griddata((xx, yy), dd, grid, method='nearest')
+
+    # Create mask based on the contour
+    m = mask(grid, contour)
+
+    # Fill the missing data
+    missing = np.isnan(z)
+    z[missing] = nearest[missing]
+
+    # Mask the data outside the contour
+    return np.ma.array(z, mask=m), grid, extent
