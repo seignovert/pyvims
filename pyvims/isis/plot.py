@@ -97,6 +97,9 @@ def plot_cube(c, *args, **kwargs):
         if 'polar' in args:
             return plot_polar(c, args[0], **kwargs)
 
+        if 'all' in args:
+            return plot_all(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -115,6 +118,9 @@ def plot_cube(c, *args, **kwargs):
 
             if 'polar' in args:
                 return plot_polar(c, args[0], **kwargs)
+
+            if 'all' in args:
+                return plot_all(c, args[0], **kwargs)
 
             return plot_img(c, args[0], **kwargs)
 
@@ -691,7 +697,7 @@ def plot_polar(c, index, ax=None, title=None,
                twist=0, n_interp=512,
                interp='cubic', grid='lightgray',
                show_img=True, show_pixels=False,
-               show_contour=False, lat_min=60, ** kwargs):
+               show_contour=False, lat_min=60, **kwargs):
     """Plot projected VIMS cube image in polar view.
 
     Parameters
@@ -812,3 +818,29 @@ def plot_polar(c, index, ax=None, title=None,
         ax.invert_yaxis()
 
     return ax
+
+
+def plot_all(c, index, **kwargs):
+    """Plot the cube in all projection.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+
+    """
+    plt.figure(figsize=(20, 10))
+
+    ax0 = plt.subplot(241)
+    ax1 = plt.subplot(242)
+    ax2 = plt.subplot(243)
+    ax3 = plt.subplot(244)
+    ax4 = plt.subplot(212)
+
+    c.plot(index, ax=ax0, title='Camera FOV')
+    c.plot(index, 'sky', ax=ax1, title='Sky projection')
+    c.plot(index, 'ortho', ax=ax2, title='Orthogrpahic projection')
+    c.plot(index, 'polar', ax=ax3, title='Polar projection')
+    c.plot(index, 'equi', ax=ax4, title='Equirectangular')
