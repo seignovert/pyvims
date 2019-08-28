@@ -32,6 +32,39 @@ def _fmt_alt(x, pos=None):
     return f'{x:.0f} km'
 
 
+def _title(index):
+    """Generic image title if not provided.
+
+    Parameters
+    -----------
+    index: int, float, str or tuple
+        VIMS band or wavelength to plot.
+
+    Returns
+    -------
+    str
+        Default title.
+
+    """
+    if isinstance(index, int):
+        return f'{c} on band {index}'
+
+    if isinstance(index, float):
+        return f'{c} at {index:.2f} µm'
+
+    if isinstance(index, str):
+        return f'{c} | {index.title()}'
+
+    if isinstance(index, tuple):
+        if isinstance(index[0], float):
+            return f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
+
+        else:
+            return f'{c} on bands {index}'
+
+    return None
+
+
 def plot_cube(c, *args, **kwargs):
     """Generic cube plot."""
     if not args:
@@ -372,17 +405,7 @@ def plot_sky(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        if isinstance(index, int):
-            title = f'{c} on band {index}'
-        elif isinstance(index, float):
-            title = f'{c} at {index:.2f} µm'
-        elif isinstance(index, str):
-            title = f'{c} | {index.title()}'
-        elif isinstance(index, tuple):
-            if isinstance(index[0], float):
-                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
-            else:
-                title = f'{c} on bands {index}'
+        title = _title(index)
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
@@ -467,17 +490,7 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        if isinstance(index, int):
-            title = f'{c} on band {index}'
-        elif isinstance(index, float):
-            title = f'{c} at {index:.2f} µm'
-        elif isinstance(index, str):
-            title = f'{c} | {index.title()}'
-        elif isinstance(index, tuple):
-            if isinstance(index[0], float):
-                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
-            else:
-                title = f'{c} on bands {index}'
+        title = _title(index)
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
@@ -616,17 +629,7 @@ def plot_equi(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        if isinstance(index, int):
-            title = f'{c} on band {index}'
-        elif isinstance(index, float):
-            title = f'{c} at {index:.2f} µm'
-        elif isinstance(index, str):
-            title = f'{c} | {index.title()}'
-        elif isinstance(index, tuple):
-            if isinstance(index[0], float):
-                title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
-            else:
-                title = f'{c} on bands {index}'
+        title = _title(index)
 
     dlon, dlat = np.max(cnt, axis=1) - np.min(cnt, axis=1)
 
