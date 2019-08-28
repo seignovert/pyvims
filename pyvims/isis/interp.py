@@ -6,7 +6,7 @@ import numpy as np
 
 from scipy.interpolate import griddata
 
-from .img import rgb
+from .img import rgb, rgba
 
 
 def _linspace(x0, x1, res):
@@ -255,12 +255,18 @@ def cube_interp_filled(xy, data, res, contour, method='cubic'):
     # Cube nearest extrapolation
     nearest = griddata((xx, yy), dd, grid, method='nearest')
 
-    # Create mask based on the contour
-    m = mask(grid, contour)
-
     # Fill the missing data
     missing = np.isnan(z)
     z[missing] = nearest[missing]
 
-    # Mask the data outside the contour
-    return np.ma.array(z, mask=m), grid, extent
+    # Create mask based on the contour
+    m = mask(grid, contour)
+
+    if np.ndim(data) == 3:
+        # Add alpha channel outside the contour
+        z = rgba(z[:, :, 0], z[:, :, 1], z[:, :, 2], np.int8(~m))
+    else:
+        # Mask the data outside the contour
+        z = np.ma.array(z, mask=m)
+
+    return z, grid, extent
