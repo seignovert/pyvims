@@ -7,6 +7,29 @@ from matplotlib.ticker import FuncFormatter
 
 from .errors import VIMSError
 from .projections import equi_cube, ortho_cube, sky_cube
+from .vectors import deg180, deg360
+
+
+@FuncFormatter
+def _fmt_lon(x, pos=None):
+    s = '' if x in [0, 180, -180] else ('W' if x > 0 else 'E')
+    return f'{abs(x):.0f}°{s}'
+
+
+@FuncFormatter
+def _fmt_lon_180(x, pos=None):
+    return _fmt_lon(deg180(x), pos=pos)
+
+
+@FuncFormatter
+def _fmt_lat(x, pos=None):
+    s = '' if x == 0 else ('N' if x > 0 else 'S')
+    return f'{abs(x):.0f}°{s}'
+
+
+@FuncFormatter
+def _fmt_alt(x, pos=None):
+    return f'{x:.0f} km'
 
 
 def plot_cube(c, *args, **kwargs):
@@ -464,44 +487,9 @@ def plot_ortho(c, index, ax=None, title=None,
         glon = np.ma.array(lon, mask=is_limb)
         # glat = np.ma.array(lat, mask=is_limb)
 
-        _lon_offset = c.sc_lon
-
-        clon = (glon - _lon_offset + 180) % 360 - 180
+        clon = np.ma.array(glon, mask=(np.abs(glon) > 95))
+        clon_180 = np.ma.array(deg360(glon), mask=(np.abs(glon) < 95))
         clat = lat
-
-        dlon = np.max(clon) - np.min(clon)
-        dlat = np.max(clat) - np.min(clat)
-
-        if dlon > 90:
-            lons = np.arange(-180, 360, 30) - _lon_offset
-        elif dlon > 30:
-            lons = np.arange(-180, 360, 10) - _lon_offset
-        else:
-            lons = np.arange(int(np.min(clon)), int(np.max(clon)))
-
-        if dlat > 90:
-            lats = np.arange(-90, 90, 30)
-        elif dlat > 30:
-            lats = np.arange(-90, 90, 10)
-        else:
-            lats = np.arange(int(np.min(clat)), int(np.max(clat)))
-
-        alts = np.arange(500, np.max(alt), 500)
-
-        @FuncFormatter
-        def _fmt_lon(x, pos=None):
-            lon = (x + _lon_offset + 180) % 360 - 180
-            s = '' if lon == 0 else ('W' if lon > 0 else 'E')
-            return f'{abs(lon):.0f}°{s}'
-
-        @FuncFormatter
-        def _fmt_lat(x, pos=None):
-            s = '' if x == 0 else ('N' if x > 0 else 'S')
-            return f'{abs(x):.0f}°{s}'
-
-        @FuncFormatter
-        def _fmt_alt(x, pos=None):
-            return f'{x:.0f} km'
 
         kwargs = {
             'extent': cextent,
@@ -510,15 +498,45 @@ def plot_ortho(c, index, ax=None, title=None,
             'linestyles': 'solid'
         }
 
+        dlon = np.max(clon) - np.min(clon)
+        dlat = np.max(clat) - np.min(clat)
+
+        # Longitude grid
+        if dlon > 90:
+            lons = np.arange(-90, 90 + 30, 30)
+            lons_180 = np.arange(90, 270 + 30, 30)
+        elif dlon > 30:
+            lons = np.arange(-90, 90 + 10, 10)
+            lons_180 = np.arange(90, 270 + 10, 10)
+        else:
+            clon = glon
+            lons = np.arange(int(np.min(clon)), int(np.max(clon)))
+
         llon = ax.contour(clon, lons, **kwargs)
-        llat = ax.contour(clat, lats, **kwargs)
-
-        lalt = ax.contour(alt, alts, **kwargs)
-        ax.contour(alt, [0], **kwargs)
-
         ax.clabel(llon, fmt=_fmt_lon, inline=True, use_clabeltext=True)
+
+        if dlon > 30:
+            llon_180 = ax.contour(clon_180, lons_180, **kwargs)
+            ax.clabel(llon_180, fmt=_fmt_lon_180, inline=True, use_clabeltext=True)
+
+        # Latitude grid
+        if dlat > 90:
+            lats = np.arange(-90, 90, 30)
+        elif dlat > 30:
+            lats = np.arange(-90, 90, 10)
+        else:
+            lats = np.arange(int(np.min(clat)), int(np.max(clat)))
+
+        llat = ax.contour(clat, lats, **kwargs)
         ax.clabel(llat, fmt=_fmt_lat, inline=True, use_clabeltext=True)
+
+        # Altitude grid
+        alts = np.arange(500, np.max(alt), 500)
+        lalt = ax.contour(alt, alts, **kwargs)
         ax.clabel(lalt, fmt=_fmt_alt, inline=True, use_clabeltext=True)
+
+        # Planet cercle
+        ax.contour(alt, [0], **kwargs)
 
         # Polar reticule for large FOV
         r = c.target_radius
@@ -526,9 +544,11 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.plot([0, 0], [extent[2], r], '-', **kwargs_r)
         ax.plot([0, 0], [-r, extent[3]], '-', **kwargs_r)
 
+        # Remove old ticks
         ax.set_xticks([])
         ax.set_yticks([])
 
+        # Scale limits to extent
         ax.set_xlim(extent[:2])
         ax.set_ylim(extent[2:])
 
@@ -607,16 +627,6 @@ def plot_equi(c, index, ax=None, title=None,
                 title = f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
             else:
                 title = f'{c} on bands {index}'
-
-    @FuncFormatter
-    def _fmt_lon(x, pos=None):
-        s = '' if x == 0 else ('W' if x > 0 else 'E')
-        return f'{abs(x):.0f}°{s}'
-
-    @FuncFormatter
-    def _fmt_lat(x, pos=None):
-        s = '' if x == 0 else ('N' if x > 0 else 'S')
-        return f'{abs(x):.0f}°{s}'
 
     dlon, dlat = np.max(cnt, axis=1) - np.min(cnt, axis=1)
 
