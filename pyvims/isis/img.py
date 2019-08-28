@@ -55,6 +55,31 @@ def rgb(r, g, b):
     ]), 0, 2)
 
 
+def rgba(r, g, b, a):
+    """Create RGBA 8 bits image from 4 channels.
+
+    Parameters
+    ----------
+    r: np.array
+        Red image plane data.
+    g: np.array
+        Green image plane data.
+    b: np.array
+        Blue image plane data.
+    a: np.array
+        Alpha image plane data.
+
+    Returns
+    -------
+    np.array
+        8 bits RGBA image.
+
+    """
+    return np.moveaxis(np.vstack([
+        [_clip(r)], [_clip(g)], [_clip(b)], [_clip(a)]
+    ]), 0, 2)
+
+
 def save_img(fname, data, ir_hr=False, npix=256, quality=65, interp='bicubic'):
     """Save JPG image from data array.
 
