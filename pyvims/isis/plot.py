@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 from .errors import VIMSError
-from .projections import equi_cube, ortho_cube, sky_cube
+from .projections import equi_cube, ortho_cube, polar_cube, sky_cube
 from .vectors import deg180, deg360
 
 
@@ -32,11 +32,13 @@ def _fmt_alt(x, pos=None):
     return f'{x:.0f} km'
 
 
-def _title(index):
+def _title(c, index):
     """Generic image title if not provided.
 
     Parameters
     -----------
+    c: pyvims.VIMS
+        Cube to plot.
     index: int, float, str or tuple
         VIMS band or wavelength to plot.
 
@@ -65,6 +67,13 @@ def _title(index):
     return None
 
 
+def _circle(r, npt=181):
+    """Circle coordinates."""
+    theta = np.linspace(0, 2 * np.pi, npt)
+    ct, st = np.cos(theta), np.sin(theta)
+    return [r * ct, r * st]
+
+
 def plot_cube(c, *args, **kwargs):
     """Generic cube plot."""
     if not args:
@@ -85,6 +94,9 @@ def plot_cube(c, *args, **kwargs):
         if 'equi' in args:
             return plot_equi(c, args[0], **kwargs)
 
+        if 'polar' in args:
+            return plot_polar(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -100,6 +112,9 @@ def plot_cube(c, *args, **kwargs):
 
             if 'equi' in args:
                 return plot_equi(c, args[0], **kwargs)
+
+            if 'polar' in args:
+                return plot_polar(c, args[0], **kwargs)
 
             return plot_img(c, args[0], **kwargs)
 
@@ -405,7 +420,7 @@ def plot_sky(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        title = _title(index)
+        title = _title(c, index)
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
@@ -490,7 +505,7 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        title = _title(index)
+        title = _title(c, index)
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
@@ -629,12 +644,12 @@ def plot_equi(c, index, ax=None, title=None,
         ax.plot(*cnt, '-', color=show_contour)
 
     if title is None:
-        title = _title(index)
+        title = _title(c, index)
 
     dlon, dlat = np.max(cnt, axis=1) - np.min(cnt, axis=1)
 
     if dlon > 90:
-        lons = np.arange(-180, 180 + 45, 45)
+        lons = np.arange(-180, 180 + 30, 30)
     elif dlon > 30:
         lons = np.arange(-180, 180 + 10, 10)
     else:
@@ -653,7 +668,7 @@ def plot_equi(c, index, ax=None, title=None,
     ax.yaxis.set_major_formatter(_fmt_lat)
 
     if grid is not None:
-        plt.grid(color=grid, linewidth=.75)
+        ax.grid(color=grid, linewidth=.75)
 
     if title:
         ax.set_title(title)
@@ -668,4 +683,132 @@ def plot_equi(c, index, ax=None, title=None,
     # Reverse axis
     ax.invert_xaxis()
     ax.invert_yaxis()
+    return ax
+
+
+def plot_polar(c, index, ax=None, title=None,
+               figsize=(8, 8), cmap='gray',
+               twist=0, n_interp=512,
+               interp='cubic', grid='lightgray',
+               show_img=True, show_pixels=False,
+               show_contour=False, lat_min=60, ** kwargs):
+    """Plot projected VIMS cube image in polar view.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+    ax: matplotlib.axis, optional
+        Optional matplotlib axis object.
+    title: str, optional
+        Figure title.
+    ticks: bool, optional
+        Show sample and line ticks.
+    figsize: tuple, optional
+        Pyplot figure size.
+    cmap: str, optional
+        Pyplot colormap keyword.
+    twist: float, optional
+        Camera poiting twist angle (degree).
+    n: int, optional
+        Number of pixel for the grid interpolation.
+    interp: str, optional
+        Interpolation method (see :py:func:`scipy.griddata` for details).
+    grid: str, optional
+        Color grid. Set ``None`` to remove the grid.
+    lat_min: float, optional
+        Absolute value of the minimum latitude cut-off.
+
+    """
+    img, _, extent, pix, cnt, n_pole = polar_cube(c, index, n=n_interp, interp=interp)
+
+    if ax is None:
+        _, ax = plt.subplots(1, 1, figsize=figsize)
+
+    if show_img:
+        ax.imshow(img, cmap=cmap, extent=extent)
+
+    if show_pixels:
+        ax.scatter(*pix, s=25, facecolors='none', edgecolors=show_pixels)
+
+    if show_contour:
+        ax.plot(*cnt, '-', color=show_contour)
+
+    if title is None:
+        title = _title(c, index)
+
+    if grid is not None:
+        kwargs = {
+            'color': grid,
+            'linewidth': .75,
+        }
+
+        r_max = 90 - lat_min
+        r0 = 10
+        r1 = np.sqrt(2) * r_max
+
+        for t in np.arange(0, 360, 30):
+            cth, sth = np.cos(np.radians(t)), np.sin(np.radians(t))
+            ax.plot([(0 if t % 90 == 0 else r0) * cth, r1 * cth],
+                    [(0 if t % 90 == 0 else r0) * sth, r1 * sth],
+                    **kwargs)
+
+        for r in np.arange(r0, r1 + r0, r0):
+            ax.plot(*_circle(r), '-', **kwargs)
+
+        ns = 'N' if n_pole else 'S'
+
+        def _fmt_lat(lat):
+            t_45 = (90 - lat) / np.sqrt(2)
+            return -t_45, -t_45, f'\n\n{lat}°{ns}'
+
+        for lat in np.arange(lat_min - r0, 90, r0):
+            ax.text(*_fmt_lat(lat), color=kwargs['color'], rotation=45,
+                    ha='center', va='center')
+
+        t_30 = r_max / np.sqrt(3)
+
+        ax_tr = ax.twinx().twiny()
+
+        ax.set_xticks([-t_30, 0, t_30])
+        ax.set_yticks([t_30, 0, -t_30])
+
+        ax_tr.set_xticks([-t_30, 0, t_30])
+        ax_tr.set_yticks([t_30, 0, -t_30])
+
+        if n_pole:
+            ax.set_xticklabels(['30°W', '0°', '30°E'])
+            ax_tr.set_xticklabels(['150°W', '180°', '150°E'])
+        else:
+            ax.set_xticklabels(['150°W', '180°', '150°E'])
+            ax_tr.set_xticklabels(['30°W', '0°', '30°E'])
+
+        ax.set_yticklabels(['60°W', '90°W', '120°W'])
+        ax_tr.set_yticklabels(['60°E', '90°E', '120°E'])
+
+        ax.set_xlim(-r_max, r_max)
+        ax.set_ylim(-r_max, r_max)
+
+        ax_tr.set_xlim(-r_max, r_max)
+        ax_tr.set_ylim(-r_max, r_max)
+
+        if n_pole:
+            ax_tr.invert_yaxis()
+
+    else:
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        ax.set_xlim(extent[:2])
+        ax.set_ylim(extent[2:])
+
+    if title:
+        ax.set_title(title)
+
+    # Reverse y-axis only for the north pole
+    if n_pole:
+        ax.invert_yaxis()
+
     return ax

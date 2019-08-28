@@ -10,6 +10,6 @@ __all__ = [
     ortho_proj,
     ortho_cube,
     equi_cube,
-    polar_cube
+    polar_cube,
     sky_cube,
 ]
