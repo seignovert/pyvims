@@ -171,7 +171,6 @@ def sky_interp(pixels, data, contour, n=512, method='cubic'):
         Interpolation method
 
     """
-
     # Plane resolution
     res = np.min(np.max(contour, axis=1) - np.min(contour, axis=1)) / n
 

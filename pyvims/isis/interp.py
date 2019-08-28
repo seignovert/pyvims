@@ -94,6 +94,12 @@ def _interp_1d(pts, data, grid, method='cubic', is_contour=True):
             data[0, 0],      # Top-Left corner
         ])
 
+    # If some data are mask, they are removed before the interpolation.
+    if isinstance(pts, np.ma.core.MaskedArray):
+        m = np.ma.getmask(pts[:, 0])
+        pts = pts[~m, :]
+        values = values[~m]
+
     return griddata(pts, values, grid, method=method)
 
 
@@ -128,11 +134,11 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
         If the data provided are 3D but without 3 backplanes (R, G, B).
 
     """
-    pts = np.reshape(xy, (2, int(np.size(xy) / 2))).T
+    pts = np.ma.reshape(xy, (2, int(np.size(xy) / 2))).T
     is_contour = isinstance(contour, (list, tuple, np.ndarray))
 
     if is_contour:
-        pts = np.vstack([pts, np.transpose(contour)])
+        pts = np.ma.vstack([pts, np.transpose(contour)])
 
     x0, y0 = np.min(pts, axis=0)
     x1, y1 = np.max(pts, axis=0)
