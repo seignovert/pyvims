@@ -76,9 +76,52 @@ def mask(grid, contour):
     return ~mask
 
 
+def _grid(pts, res):
+    """Create grid based on points.
+
+    Parameters
+    ----------
+    pts: list
+        List of 2D points used for the grid.
+    res: float
+        Grid resolution.
+
+    Returns
+    -------
+    np.array
+        Meshgrid based on points.
+
+    """
+    (x0, y0), (x1, y1) = np.min(pts, axis=0), np.max(pts, axis=0)
+
+    x = _linspace(x0, x1, res)
+    y = _linspace(y0, y1, res)
+    xx, yy = np.meshgrid(x, y)
+
+    return (xx, yy), _extent(x, y)
+
+
+def _flat(arr, mask=False):
+    """Flatten array on the first column."""
+    if np.ndim(arr) == 2:
+        farr = np.asarray(arr).flatten()
+
+    elif np.ndim(arr) == 3:
+        s = np.shape(arr)
+        farr = np.ma.reshape(arr, (s[0], int(np.size(arr) / s[0])))
+
+    else:
+        raise ValueError(f'Array dimension invalid: {np.ndmin(arr)}')
+
+    if isinstance(mask, (list, tuple, np.ndarray)):
+        return np.ma.array(farr, mask=mask)
+
+    return farr
+
+
 def _interp_1d(pts, data, grid, method='cubic', is_contour=True):
     """1D data grid interpolation."""
-    values = np.array(data).flatten()
+    values = _flat(data)
 
     if is_contour:
         values = np.hstack([
@@ -134,19 +177,13 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
         If the data provided are 3D but without 3 backplanes (R, G, B).
 
     """
-    pts = np.ma.reshape(xy, (2, int(np.size(xy) / 2))).T
+    pts = _flat(xy).T
     is_contour = isinstance(contour, (list, tuple, np.ndarray))
 
     if is_contour:
         pts = np.ma.vstack([pts, np.transpose(contour)])
 
-    x0, y0 = np.min(pts, axis=0)
-    x1, y1 = np.max(pts, axis=0)
-
-    x = _linspace(x0, x1, res)
-    y = _linspace(y0, y1, res)
-    xx, yy = np.meshgrid(x, y)
-    grid = (xx, yy)
+    grid, extent = _grid(pts, res)
 
     kwargs = {'method': method, 'is_contour': is_contour}
 
@@ -171,4 +208,5 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
         else:
             z = np.ma.array(z, mask=m)
 
-    return z, grid, _extent(x, y)
+    return z, grid, extent
+
