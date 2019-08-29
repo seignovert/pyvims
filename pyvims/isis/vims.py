@@ -9,6 +9,7 @@ from requests import HTTPError
 
 from .camera import VIMSCamera
 from .errors import VIMSError
+from .flyby import FLYBYS
 from .img import rgb, save_img
 from .isis import ISISCube
 from .plot import plot_cube
@@ -125,6 +126,7 @@ class VIMS:
             f'Exposure: {self.expo} sec',
             f'Duration: {self.duration}',
             f'Main target: {self.target_name}',
+            f'Flyby: {self.flyby}',
         ]))
 
     def __getitem__(self, val):
@@ -1317,3 +1319,8 @@ class VIMS:
             fname = f'{self}_{suffix}.jpg'
 
         save_img(fname, self[index], ir_hr=self._is_ir_hr)
+
+    @property
+    def flyby(self):
+        """Cube flyby."""
+        return FLYBYS@self.time
