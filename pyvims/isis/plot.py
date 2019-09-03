@@ -734,7 +734,15 @@ def plot_polar(c, index, ax=None, title=None,
         _, ax = plt.subplots(1, 1, figsize=figsize)
 
     if show_img:
-        ax.imshow(img, cmap=cmap, extent=extent)
+        opts = {}
+        if 'alpha' in kwargs:
+            opts['alpha'] = kwargs['alpha']
+        if 'vmin' in kwargs:
+            opts['vmin'] = kwargs['vmin']
+        if 'vmax' in kwargs:
+            opts['vmax'] = kwargs['vmax']
+
+        ax.imshow(img, cmap=cmap, extent=extent, **opts)
 
     if show_pixels:
         ax.scatter(*pix, s=25, facecolors='none', edgecolors=show_pixels)
