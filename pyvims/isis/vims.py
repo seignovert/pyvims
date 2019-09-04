@@ -334,12 +334,12 @@ class VIMS:
 
     @property
     def wvlns(self):
-        """Cube central wavelengths (um)."""
+        """Cube central wavelengths (µm)."""
         return self.isis.wvlns
 
     @property
     def w(self):
-        """Cube central wavelengths (um) shortcut."""
+        """Cube central wavelengths (µm) shortcut."""
         return self.wvlns
 
     @property
@@ -394,7 +394,7 @@ class VIMS:
     @property
     def wlabel(self):
         """Cube wavelength label."""
-        return 'Wavelength (um)'
+        return 'Wavelength (µm)'
 
     @property
     def ilabel(self):
@@ -1370,7 +1370,9 @@ class VIMS:
     @property
     def is_specular(self):
         """Calculate if the specular point is within the pixel."""
-        return (self.ground) & (self.specular_dist < self.res)
+        return (self.ground) & (self.specular_dist < self.ground_res) \
+            & (np.abs(self.specular_angle - self.inc) < 5) \
+            & (np.abs(self.specular_angle - self.eme) < 5)
 
     @property
     def specular_pixel(self):
@@ -1382,3 +1384,14 @@ class VIMS:
         """Number of specular pixels."""
         return np.nansum(self.is_specular)
 
+    @property
+    def specular_sl(self):
+        """List specular pixels (S, L) points coordinates tuple(s)."""
+        nb_spec = self.nb_specular
+        if nb_spec == 0:
+            return None
+
+        if nb_spec == 1:
+            return int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])
+
+        return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]

@@ -100,6 +100,12 @@ def plot_cube(c, *args, **kwargs):
         if 'all' in args:
             return plot_all(c, args[0], **kwargs)
 
+        if 'specular' == args[0]:
+            return plot_spectra(c, *c.specular_sl, **kwargs)
+
+        if 'specular' in args:
+            return plot_specular(c, args[0], **kwargs)
+
         return plot_img(c, args[0], **kwargs)
 
     if isinstance(args[0], tuple):
@@ -131,7 +137,8 @@ def plot_cube(c, *args, **kwargs):
 
 def plot_img(c, index, ax=None, title=None,
              ticks=True, labels=True, figsize=(8, 8),
-             cmap='gray', interp='bicubic', ir_hr=False,
+             cmap='gray', interp='none', ir_hr=False,
+             show_specular=False, show_legend=None,
              **kwargs):
     """Plot VIMS cube image.
 
@@ -157,12 +164,22 @@ def plot_img(c, index, ax=None, title=None,
         Interpolation choice (see :py:func:`pyplot.imshow` for details).
     ir_hr: bool, optional
         Infrared high resolution aspect ratio (before projection).
+    show_specular: bool, optional
+        Show specular pixel location.
+    show_legend: bool, optional
+        Show specular pixel legend.
 
     """
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
 
     ax.imshow(c[index], cmap=cmap, extent=c.extent, interpolation=interp)
+
+    if show_specular:
+        edgecolors = 'r' if not isinstance(show_specular, str) else show_specular
+        ax.scatter(*c.specular_pixel, facecolors='none', edgecolors=edgecolors,
+                   label=f'Specular: {c.specular_sl}')
+        show_legend = True if show_legend is None else show_legend
 
     if title is None:
         if isinstance(index, int):
@@ -190,6 +207,9 @@ def plot_img(c, index, ax=None, title=None,
     if labels:
         ax.set_xlabel(c.slabel)
         ax.set_ylabel(c.llabel)
+
+    if show_legend:
+        ax.legend()
 
     return ax
 
@@ -279,6 +299,9 @@ def _extract(n, key, kwargs, default=None):
         values = kwargs[key]
         del kwargs[key]
 
+        if n == 0:
+            return values
+
         if isinstance(values, (int, float)):
             values = np.arange(0, n * values, values)
 
@@ -289,10 +312,11 @@ def _extract(n, key, kwargs, default=None):
             if len(values) != n:
                 raise VIMSError('`coordinates` and `offset` must have '
                                 f'the same length ({n} vs. {len(values)}).')
+
         else:
-            raise VIMSError
+            raise TypeError(f'Unknown key `{key}` value type `{type(values)}` to extract.')
     else:
-        values = n * [default]
+        values = n * [default] if n > 0 else default
 
     return values
 
@@ -312,14 +336,12 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
     offsets = _extract(n, 'offset', kwargs, default=0)
     colors = _extract(n, 'color', kwargs)
     labels = _extract(n, 'label', kwargs)
+    ax = _extract(0, 'ax', kwargs, default=None)
+    title = _extract(0, 'title', kwargs, default=f'{c}')
 
-    ax = None
     for (S, L), offset, color, label in zip(coordinates, offsets, colors, labels):
         ax = plot_spectrum(c, S, L, offset=offset, color=color, label=label,
-                           title=False, ax=ax, **kwargs)
-
-    if 'title' not in kwargs.keys():
-        title = f'{c}'
+                           title=title, ax=ax, **kwargs)
 
     if title:
         ax.set_title(title)
@@ -852,3 +874,27 @@ def plot_all(c, index, **kwargs):
     c.plot(index, 'ortho', ax=ax2, title='Orthogrpahic projection')
     c.plot(index, 'polar', ax=ax3, title='Polar projection')
     c.plot(index, 'equi', ax=ax4, title='Equirectangular')
+
+
+def plot_specular(c, index, **kwargs):
+    """Plot VIMS cube image.
+
+    Parameters
+    ----------
+    c: pyvims.VIMS
+        Cube to plot.
+    index: int or float
+        VIMS band or wavelength to plot.
+
+    """
+    figsize = _extract(0, 'figsize', kwargs, (12, 3))
+    legend = _extract(0, 'legend', kwargs, True)
+
+    fig = plt.figure(figsize=figsize)
+    grid = plt.GridSpec(1, 3, wspace=0.2, hspace=0.3)
+
+    ax0 = fig.add_subplot(grid[0, 0])
+    ax1 = fig.add_subplot(grid[0, 1:])
+
+    plot_img(c, index, show_specular=True, ax=ax0, show_legend=False)
+    plot_spectra(c, *c.specular_sl, ax=ax1, legend=legend, title=False)
