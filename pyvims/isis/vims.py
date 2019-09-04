@@ -523,13 +523,18 @@ class VIMS:
 
     @property
     def _s(self):
-        """Camera samples array."""
+        """Image samples array."""
         return np.array([np.arange(1, self.NS + 1)])
 
     @property
     def _l(self):
-        """Camera lines array."""
+        """Image lines array."""
         return np.transpose([np.arange(1, self.NL + 1)])
+
+    @property
+    def _sl(self):
+        """Image samples and lines grid."""
+        return np.array(np.meshgrid(self._s, self._l))
 
     @property
     def _et_ir(self):
@@ -1361,3 +1366,19 @@ class VIMS:
         return hav_dist(self.lon, self.lat,
                         self.specular_lon, self.specular_lat,
                         self.target_radius)
+
+    @property
+    def is_specular(self):
+        """Calculate if the specular point is within the pixel."""
+        return (self.ground) & (self.specular_dist < self.res)
+
+    @property
+    def specular_pixel(self):
+        """List specular pixels [S, L] values."""
+        return self._sl[:, self.is_specular]
+
+    @property
+    def nb_specular(self):
+        """Number of specular pixels."""
+        return np.nansum(self.is_specular)
+
