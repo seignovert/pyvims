@@ -1335,10 +1335,9 @@ class VIMS:
     def _specular_pts(self):
         """Specular points location and angle."""
         if self.__spec is None:
-            sc = self._sc_position(self.et)
-            sun = self._sun_position(self.et)
-            radius = self.target_radius
-            self.__spec = specular_pts(sc, sun, radius)
+            self.__spec = specular_pts(self._sc_position(self.et),
+                                       self._sun_position(self.et),
+                                       self.target_radius)
         return self.__spec
 
     @property

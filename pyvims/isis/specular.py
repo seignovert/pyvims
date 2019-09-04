@@ -134,6 +134,6 @@ def specular_pts(sc, sun, radius):
     _sc = np.reshape(sc, (3, npt)).T
     _sun = np.reshape(sun, (3, npt)).T
 
-    return np.transpose(np.reshape([
+    return np.reshape(np.transpose([
         specular_location(_sc[i], _sun[i], radius) for i in range(npt)
-    ], (*np.shape(sc)[1:], 3)))
+    ]), (3, *np.shape(sc)[1:]))
