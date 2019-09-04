@@ -212,3 +212,48 @@ def angle(v1, v2):
     """Angular separation between two vectors."""
     dot = vdot(hat(v1), hat(v2))
     return np.degrees(np.arccos(dot))
+
+
+def hav(theta):
+    """Trigonometric half versine function.
+
+    Parameters
+    ----------
+    theta: float or np.array
+        Angle in radians
+
+    Returns
+    -------
+    float or np.array
+        Half versine value.
+
+    """
+    return .5 * (1 - np.cos(theta))
+
+
+def hav_dist(lon_1, lat_1, lon_2, lat_2, r=1):
+    """Calculate distance between 2 points on a spehere.
+
+    Parameters
+    ----------
+    lon_1: float or np.array
+        Point 1 west longitude (degree).
+    lat_1: float or np.array
+        Point 1 north latitude (degree).
+    lon_2: float or np.array
+        Point 2 west longitude (degree).
+    lat_2: float or np.array
+        Point 2 north latitude (degree).
+    r: float, optional
+        Planet radius.
+
+    Returns
+    -------
+    float or np.array
+        Haversine distance between the 2 points.
+
+    """
+    phi_1, lambda_1, phi_2, lambda_2 = np.radians([lon_1, lat_1, lon_2, lat_2])
+    return 2 * r * np.arcsin(np.sqrt(
+        hav(phi_2 - phi_1) + np.cos(phi_1) * np.cos(phi_2) * hav(lambda_2 - lambda_1)
+    ))

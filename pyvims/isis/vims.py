@@ -18,8 +18,8 @@ from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .specular import specular_pts
 from .target import intersect
 from .time import hex2double
-from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
 from .vars import VIMS_DATA_PORTAL
+from .vectors import angle, deg180, hat, lonlat, norm, radec, hav_dist, v_max_dist
 from .wget import wget
 
 
@@ -1355,3 +1355,10 @@ class VIMS:
     def specular_angle(self):
         """Specular point north latitude."""
         return self._specular_pts[2]
+
+    @property
+    def specular_dist(self):
+        """Haversine distance between the pixel and the specular reflection."""
+        return hav_dist(self.lon, self.lat,
+                        self.specular_lon, self.specular_lat,
+                        self.target_radius)
