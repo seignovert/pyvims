@@ -15,6 +15,7 @@ from .isis import ISISCube
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
+from .specular import specular_pts
 from .target import intersect
 from .time import hex2double
 from .vectors import angle, deg180, hat, lonlat, norm, radec, v_max_dist
@@ -190,6 +191,7 @@ class VIMS:
         self.__alt = None
         self.__ill = None
         self.__cxyz = None
+        self.__spec = None
 
     @property
     def filename(self):
@@ -589,6 +591,7 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__spec = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -659,6 +662,7 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__spec = None
         return self.__pixels
 
     @property
@@ -670,6 +674,7 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__spec = None
         return self.__sky
 
     @property
@@ -788,6 +793,7 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__spec = None
         return self.__xyz
 
     @property
@@ -1324,3 +1330,28 @@ class VIMS:
     def flyby(self):
         """Cube flyby."""
         return FLYBYS@self.time
+
+    @property
+    def _specular_pts(self):
+        """Specular points location and angle."""
+        if self.__spec is None:
+            sc = self._sc_position(self.et)
+            sun = self._sun_position(self.et)
+            radius = self.target_radius
+            self.__spec = specular_pts(sc, sun, radius)
+        return self.__spec
+
+    @property
+    def specular_lon(self):
+        """Specular point west longitude."""
+        return self._specular_pts[0]
+
+    @property
+    def specular_lat(self):
+        """Specular point north latitude."""
+        return self._specular_pts[1]
+
+    @property
+    def specular_angle(self):
+        """Specular point north latitude."""
+        return self._specular_pts[2]
