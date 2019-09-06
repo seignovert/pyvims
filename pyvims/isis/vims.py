@@ -138,7 +138,7 @@ class VIMS:
 
         if isinstance(val, tuple):
             if len(val) == 2:
-                return self._spec(*val)
+                return self._spectrum(*val)
 
             if len(val) == 3:
                 return self._rgb(*val)
@@ -1270,7 +1270,7 @@ class VIMS:
         """
         return rgb(self._img(r), self._img(g), self._img(b))
 
-    def _spec(self, S, L):
+    def _spectrum(self, S, L):
         """Get spectrum data.
 
         Parameters
