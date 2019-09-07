@@ -1,4 +1,4 @@
-"""Polar projection module."""
+"""Polar equidistante projection module."""
 
 import numpy as np
 
@@ -99,7 +99,7 @@ def polar_interp(xy, data, contour, n=512, method='cubic'):
 
 
 def polar_cube(c, index, n=512, interp='cubic'):
-    """VIMS cube orthographicly projected on the median FOV.
+    """VIMS cube polar projected.
 
     Parameters
     ----------
