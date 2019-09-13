@@ -181,8 +181,41 @@ class ISISCube:
             data = f.read(self._nbytes)
 
         data = np.frombuffer(data, dtype=self.dtype) * self._mult + self._base
+        data[self._is_null(data)] = np.nan
         return np.reshape(data, self.shape)
 
+    @property
+    def _underflow(self):
+        """Data type underflow value."""
+        return np.finfo(self.dtype).min if self.dtype.char == 'f' \
+            else np.iinfo(self.dtype).min
+
+    @property
+    def _overflow(self):
+        """Data type overflow value."""
+        return np.finfo(self.dtype).max if self.dtype.char == 'f' \
+            else np.iinfo(self.dtype).max
+
+    def _is_null(self, data, tol=1e-6):
+        """Find NULL values.
+
+        Find the values lower than underflow or higher than overflow.
+
+        Parameters
+        ----------
+        data: np.array
+            Input array to test.
+        tol: float
+            Relative tolerance factor
+
+        Returns
+        -------
+        np.array
+            Location of the null values.
+
+        """
+        return (np.abs(data / self._underflow) >= tol) | \
+            (np.abs(data / self._overflow) >= tol)
     @property
     def _bands(self):
         """Cube band bin header."""
