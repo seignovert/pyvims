@@ -182,7 +182,7 @@ class ISISCube:
 
         data = np.frombuffer(data, dtype=self.dtype) * self._mult + self._base
         data[self._is_null(data)] = np.nan
-        return np.reshape(data, self.shape)
+        return self._reshape(data)
 
     @property
     def _underflow(self):
@@ -216,6 +216,34 @@ class ISISCube:
         """
         return (np.abs(data / self._underflow) >= tol) | \
             (np.abs(data / self._overflow) >= tol)
+
+    @property
+    def _TL(self):
+        """Number of tiles in the line direction."""
+        return self._core['TileLines']
+
+    @property
+    def _TS(self):
+        """Number of tiles in the sample direction."""
+        return self._core['TileSamples']
+
+    def _reshape(self, data):
+        """Reshape data based on tile size."""
+        if self._TS == self.NS and self._TL == self.NL:
+            return np.reshape(data, self.shape)
+
+        size = np.size(data)
+        shape = (size // (self._TL * self._TS), self._TL, self._TS)
+        tiled_data = np.reshape(data, shape)
+
+        # Stack in the samples direction
+        shape = (size // (self._TL * self.NS), self.NS, self._TL)
+        samples_stacked = np.moveaxis(
+            np.moveaxis(tiled_data, 1, 2).reshape(shape), 1, 2)
+
+        # Stack in the lines direction
+        return np.reshape(samples_stacked, self.shape)
+
     @property
     def _bands(self):
         """Cube band bin header."""
