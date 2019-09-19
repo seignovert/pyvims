@@ -111,7 +111,7 @@ class VIMSCameraAbstract:
 
     @property
     def cgrid(self):
-        """Camera grid contour.
+        """Camera grid FOV contour.
 
         Note
         ----
@@ -138,6 +138,64 @@ class VIMSCameraAbstract:
         ])
 
     @property
+    def corner_grid(self):
+        """Camera grid pixel corners.
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        x, y = self._x, self._y
+
+        a, b = .5 / np.array(self.scale)
+
+        tl = np.meshgrid(x - a, y + b)
+        tr = np.meshgrid(x + a, y + b)
+        bl = np.meshgrid(x - a, y - b)
+        br = np.meshgrid(x + a, y - b)
+
+        return np.moveaxis([tl, tr, bl, br], 0, 3)
+
+    @property
+    def edge_grid(self):
+        """Camera grid pixel edges."""
+        x, y = self._x, self._y
+
+        a, b = .5 / np.array(self.scale)
+
+        l = np.meshgrid(x - a, y)
+        r = np.meshgrid(x + a, y)
+        t = np.meshgrid(x, y + b)
+        b = np.meshgrid(x, y - b)
+
+        return np.moveaxis([l, r, t, b], 0, 3)
+
+    @property
+    def fgrid(self):
+        """Camera grid pixel footprint.
+
+        Note
+        ----
+        The corners pixels are set on circle or an ellipse
+        based on the shape of the pixel (:py:attr:`scale`).
+
+        """
+        x, y = self._x, self._y
+
+        a, b = .5 / np.array(self.scale) / np.sqrt(2)
+
+        tl = np.meshgrid(x - a, y + b)
+        tr = np.meshgrid(x + a, y + b)
+        bl = np.meshgrid(x - a, y - b)
+        br = np.meshgrid(x + a, y - b)
+
+        l, r, t, b = np.moveaxis(self.edge_grid, 3, 0)
+
+        return np.moveaxis([tl, t, tr, r, br, b, bl, l, tl], 0, 3)
+
+    @property
     def extent(self):
         """Camera grid extent."""
         return [self._x[0] - .5 / self.scale_x,
@@ -161,12 +219,19 @@ class VIMSCameraAbstract:
             XYZ normalized pixel vector in Camera frame.
 
         """
+        shape = (3, *np.shape(x))
+        if np.ndim(x) == 1:
+            x, y = [x], [y]
+        elif np.ndim(x) == 3:
+            s = (2, 1, np.size(x) // 2)
+            x, y = np.reshape(x, s), np.reshape(y, s)
+
         phi, theta = (np.array([x, y]) - self.BORESITE) * self.PIXEL_SIZE
-        return np.array([
+        return np.reshape([
             np.cos(theta) * np.sin(phi),
             np.sin(theta),
             np.cos(theta) * np.cos(phi),
-        ])
+        ], shape)
 
     @property
     def pixels(self):
@@ -174,7 +239,7 @@ class VIMSCameraAbstract:
 
         Return
         ------
-        array(3, NS, NL)
+        array(3, NL, NS)
             Pixel boresights in Camera frame.
         """
         if self.__pixels is None:
@@ -190,8 +255,48 @@ class VIMSCameraAbstract:
         array(3, N)
             Pixel contours boresights in Camera frame.
         """
-        x, y = self.cgrid
-        return self.xy2ang([x], [y])[:, 0, :]
+        return self.xy2ang(*self.cgrid)
+
+    @property
+    def corner_pixels(self):
+        """Camera corner pixels orientation in J2000 frame.
+
+        Return
+        ------
+        array(3, NL, NS, 4)
+            Pixel corners boresights in Camera frame.
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        return self.xy2ang(*self.corner_grid)
+
+    @property
+    def edge_pixels(self):
+        """Camera edge pixels orientation in J2000 frame.
+
+        Return
+        ------
+        array(3, NL, NS, 4)
+            Pixel edges boresights in Camera frame.
+
+        """
+        return self.xy2ang(*self.edge_grid)
+
+    @property
+    def fpixels(self):
+        """Camera footprint pixels orientation in J2000 frame.
+
+        Return
+        ------
+        array(3, NL, NS, 9)
+            Pixel footprints boresights in Camera frame.
+
+        """
+        return self.xy2ang(*self.fgrid)
 
     @property
     def pix_res_x(self):
