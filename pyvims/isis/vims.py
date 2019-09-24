@@ -192,6 +192,7 @@ class VIMS:
         self.__ill = None
         self.__cxyz = None
         self.__spec = None
+        self.__corner_xyz = None
 
     @property
     def filename(self):
@@ -1395,3 +1396,65 @@ class VIMS:
             return int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])
 
         return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]
+
+    @property
+    def corner_et(self):
+        """Corner ephemeris time.
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        return np.array(4 * [self.et]).flatten()
+
+    @property
+    def corner_pixels(self):
+        """Camera corner pixel pointing direction in J2000 frame.
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.corner_et))
+        return q_rot_t(q, np.reshape(self.camera.corner_pixels, (3, 4 * self.NP)))
+
+    @property
+    def _corner_xyz(self):
+        """Camera pixel corners intersect with main traget frame (ref: J2000).
+
+        Intersection between the line-of-sight and the main target body.
+
+        Note
+        ----
+        For now the target is considered as a sphere (not an ellipsoid)
+        to provide planecentric coordinates.
+
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        if self.__corner_xyz is None:
+            et = self.corner_et
+            v = q_rot(self._body_rotation(et), self.corner_pixels)
+            sc = self._sc_position(et)
+
+            self.__corner_xyz = intersect(v, sc, self.target_radius)
+        return self.__corner_xyz
+
+    @property
+    def corner_lonlat(self):
+        """Planetocentric geographic corners coordinates in main target frame."""
+        shape = (2, self.NL, self.NS, 4)
+        return np.reshape(lonlat(self._corner_xyz), shape)
+
+    @property
+    def corner_alt(self):
+        """Planetocentric corners altitude from the main target body center."""
+        dist = norm(self._corner_xyz)
+        return np.reshape(np.max([
+            np.zeros(np.shape(dist)), dist - self.target_radius
+        ], axis=0), (self.NL, self.NS, 4))
