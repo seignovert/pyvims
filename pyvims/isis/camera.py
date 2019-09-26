@@ -141,6 +141,12 @@ class VIMSCameraAbstract:
     def corner_grid(self):
         """Camera grid pixel corners.
 
+        Corners order:
+            - Top Left
+            - Top Right
+            - Bottom Right
+            - Bottom Left
+
         Note
         ----
         Corner are defined as diagonal points
@@ -151,12 +157,12 @@ class VIMSCameraAbstract:
 
         a, b = .5 / np.array(self.scale)
 
-        tl = np.meshgrid(x - a, y + b)
-        tr = np.meshgrid(x + a, y + b)
-        bl = np.meshgrid(x - a, y - b)
-        br = np.meshgrid(x + a, y - b)
+        tl = np.meshgrid(x - a, y - b)
+        tr = np.meshgrid(x + a, y - b)
+        br = np.meshgrid(x + a, y + b)
+        bl = np.meshgrid(x - a, y + b)
 
-        return np.moveaxis([tl, tr, bl, br], 0, 3)
+        return np.moveaxis([tl, tr, br, bl], 0, 3)
 
     @property
     def edge_grid(self):

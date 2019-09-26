@@ -1413,6 +1413,12 @@ class VIMS:
     def corner_pixels(self):
         """Camera corner pixel pointing direction in J2000 frame.
 
+        Corners order:
+            - Top Left
+            - Top Right
+            - Bottom Right
+            - Bottom Left
+
         Note
         ----
         Corner are defined as diagonal points
