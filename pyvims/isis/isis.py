@@ -309,7 +309,7 @@ class ISISCube:
                     if '$' in k:
                         kernels.append(k)
 
-        return kernels
+        return sorted(kernels)
 
     @property
     def target_name(self):
