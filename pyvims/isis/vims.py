@@ -955,24 +955,24 @@ class VIMS:
         return np.ma.array(self.phase, mask=self.limb)
 
     @property
-    def _dist_sc(self):
+    def dist_sc(self):
         """Intersect point distance to the spacecraft."""
         return norm(self._xyz - self._sc_position(self.et))
 
     @property
     def res_s(self):
         """Sample pixel resolution at the intersect point."""
-        return self._dist_sc * self.camera.pix_res_x
+        return self.dist_sc * self.camera.pix_res_x
 
     @property
     def res_l(self):
         """Line pixel resolution at the intersect point."""
-        return self._dist_sc * self.camera.pix_res_y
+        return self.dist_sc * self.camera.pix_res_y
 
     @property
     def res(self):
         """Pixels mean resolution at the intersect point."""
-        return self._dist_sc * self.camera.pix_res
+        return self.dist_sc * self.camera.pix_res
 
     @property
     def pix_res(self):
