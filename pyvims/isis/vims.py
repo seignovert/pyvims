@@ -1464,3 +1464,8 @@ class VIMS:
         return np.reshape(np.max([
             np.zeros(np.shape(dist)), dist - self.target_radius
         ], axis=0), (self.NL, self.NS, 4))
+
+    @property
+    def corner_limb(self):
+        """Is pixel corner is at the limb."""
+        return self.corner_alt > 1e-6
