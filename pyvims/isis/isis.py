@@ -328,3 +328,7 @@ class ISISCube:
     def target_radius(self):
         """Main target mean radius (km)."""
         return np.power(np.prod(self.target_radii), 1/3)
+
+    def dumps_header(self):
+        """Dumps cube header."""
+        return pvl.dumps(self.header).decode()
