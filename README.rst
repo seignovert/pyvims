@@ -22,7 +22,7 @@ PyVIMS
 .. |Docker| image:: https://badgen.net/badge/docker|seignovert/pyvims/blue?icon=docker
         :target: https://hub.docker.com/r/seignovert/pyvims
 .. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
-        :target: https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb
+        :target: https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=playground.ipynb
 
 
 Python package to manipulate the Cassini VIMS data.
@@ -103,7 +103,7 @@ To use, simply do:
 For more details, take a look to the
 `static Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/dev/notebooks/pyvims.ipynb>`_
 where more examples of usage are provided. You can also try this
-`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb>`_.
+`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=playground.ipynb>`_.
 
 
 Disclaimer
