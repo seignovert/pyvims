@@ -1,44 +1,28 @@
 FROM python:3.6-slim
 
-# Install dev libs
+# Install dev tools
 RUN apt-get update && apt-get install -y \
-    g++ \
-    git \
-    # GDAL
-    libgdal-dev \
-    libgdal20 \
-    # OpenCV
-    libglib2.0-0 \
-    libsm6 \
-    libxrender1 \
-    libxext6 \
-    # Python Basemap
-    libgeos-dev \
-    libgeos-3.7.1 \
-    libgeos-c1v5
+    git
 
-# Install GDAL for Python
+# Copy pyvims dev branch
+RUN git clone -b dev https://github.com/seignovert/pyvims.git /pyvims
+
+WORKDIR /pyvims
+
+# Install pyvims library
 RUN pip install --no-cache --upgrade pip \
-    && pip install --no-cache \
-    numpy \
-    matplotlib \
-    notebook \
-    Pillow \
-    wget \
-    && pip install --no-cache \
-    gdal==$(gdal-config --version) \
-    git+https://github.com/matplotlib/basemap.git \
-    pyvims
+    && pip install --no-cache -rrequirements.txt notebook \
+    && python setup.py install
+
+WORKDIR /
 
 # Clean up
 RUN apt-get update -y \
     && apt-get remove -y --purge \
-    g++ \
     git \
-    libgdal-dev \
-    libgeos-dev \
     && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /pyvims
 
 # Check build success
 RUN python -c "from pyvims import VIMS"
@@ -49,12 +33,18 @@ RUN adduser --disabled-password \
     --uid 1000 \
     nbuser
 
-WORKDIR /home/nbuser
 USER nbuser
 
-COPY --chown=nbuser:nbuser playground.ipynb .
-COPY --chown=nbuser:nbuser pyvims.ipynb .
-RUN mkdir -p ~/data ~/kernels
+ENV HOME /home/nbuser
+
+WORKDIR $HOME
+
+# Copy notebooks
+COPY --chown=nbuser:nbuser notebooks/ $HOME/.
+
+# Set VIMS_DATA env variable
+ENV VIMS_DATA $HOME/data
+RUN mkdir -p $VIMS_DATA
 
 EXPOSE 8888
-CMD jupyter notebook ~/playground.ipynb --ip 0.0.0.0
+CMD jupyter notebook $HOME/playground.ipynb --ip 0.0.0.0
