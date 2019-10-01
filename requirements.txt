@@ -1,13 +1,6 @@
 numpy
 matplotlib
 scipy
-opencv-python>3.3
-piexif
-geojson
-spiceypy
-GDAL
-lxml
-shapely
-pvl
-planetaryimage
 tqdm
+requests
+pvl
