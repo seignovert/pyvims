@@ -592,7 +592,7 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.clabel(lalt, fmt=_fmt_alt, inline=True, use_clabeltext=True)
 
         # Planet cercle
-        ax.contour(alt, [0], **kwargs)
+        ax.contour(alt, [.1], **kwargs)
 
         # Polar reticule for large FOV
         r = c.target_radius
