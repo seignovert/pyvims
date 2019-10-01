@@ -662,8 +662,13 @@ def plot_equi(c, index, ax=None, title=None,
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
 
+
     if show_img:
-        ax.imshow(img, cmap=cmap, extent=extent)
+        opts = {}
+        if 'alpha' in kwargs:
+            opts['alpha'] = kwargs['alpha']
+
+        ax.imshow(img, cmap=cmap, extent=extent, **opts)
 
     if show_pixels:
         ax.scatter(glon, glat, s=25, facecolors='none', edgecolors=show_pixels)
