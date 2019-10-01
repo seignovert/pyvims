@@ -21,22 +21,12 @@ requirements:
     - numpy
     - matplotlib
     - scipy
-    - gdal
-    - basemap
-    - shapely
-    - opencv >3.3
-    - piexif
-    - geojson
-    - spiceypy
-    - lxml
+    - tqdm
+    - requests
     - pvl
-    - planetaryimage
 
 test:
   imports:
-    - osgeo
-    - shapely
-    - mpl_toolkits
     - pyvims
 
 about:
