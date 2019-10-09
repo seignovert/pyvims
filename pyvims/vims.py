@@ -12,6 +12,7 @@ from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
 from .isis import ISISCube
+from .pixel import VIMSPixel
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
@@ -138,7 +139,7 @@ class VIMS:
 
         if isinstance(val, tuple):
             if len(val) == 2:
-                return self._spectrum(*val)
+                return VIMSPixel(self, *val)
 
             if len(val) == 3:
                 return self._rgb(*val)
@@ -1270,43 +1271,6 @@ class VIMS:
 
         """
         return rgb(self._img(r), self._img(g), self._img(b))
-
-    def _spectrum(self, S, L):
-        """Get spectrum data.
-
-        Parameters
-        ----------
-        S: int
-            Sample position (``1`` to ``NS``).
-        L: int
-            Line position (``1`` to ``NL``).
-
-        Returns
-        -------
-        np.array
-            Sprectrum at (S, L).
-
-        Raises
-        ------
-        VIMSError
-            If the sample or line provided are outside the image range.
-
-        """
-        if not isinstance(S, int):
-            raise VIMSError(f'Sample `{S}` must be an integer')
-
-        if not isinstance(L, int):
-            raise VIMSError(f'Line `{L}` must be an integer')
-
-        if not (1 <= L <= self.NL):
-            raise VIMSError(
-                f'Line `{L}` invalid. Must be between 1 and {self.NL}')
-
-        if not (1 <= S <= self.NS):
-            raise VIMSError(
-                f'Sample `{S}` invalid. Must be between 1 and {self.NS}')
-
-        return self.data[:, L - 1, S - 1]
 
     def save(self, index, fname=None):
         """Save image plane.

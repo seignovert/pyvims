@@ -262,7 +262,7 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
     if label is None:
         label = f'S={S}, L={L}'
 
-    ax.plot(x, c[S, L] + offset, label=label, color=color)
+    ax.plot(x, c[S, L].spectrum + offset, label=label, color=color)
 
     if title is None:
         title = f'{c} at S={S}, L={L}'
