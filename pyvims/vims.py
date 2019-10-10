@@ -1357,7 +1357,7 @@ class VIMS:
             return None
 
         if nb_spec == 1:
-            return int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])
+            return [tuple([int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])])]
 
         return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]
 
