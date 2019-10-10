@@ -114,7 +114,7 @@ def test_limb_pixel_properties(limb_pixel):
     assert limb_pixel.ra == approx(21.80, abs=1e-2)
     assert limb_pixel.dec == approx(-37.31, abs=1e-2)
 
-    assert limb_pixel.lon == approx(-108.99, abs=1e-2)
+    assert limb_pixel.lon == approx(251.01, abs=1e-2)
     assert limb_pixel.lat == approx(41.17, abs=1e-2)
     assert limb_pixel.alt == approx(1893.58, abs=1e-2)
     assert limb_pixel.limb

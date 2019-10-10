@@ -64,7 +64,7 @@ def deg360(ang):
 
 
 def lonlat(xyz):
-    """Convert cartesian coordinates into geographic cordinates.
+    """Convert cartesian coordinates into geographic coordinates.
 
     Parameters
     ----------
@@ -74,24 +74,24 @@ def lonlat(xyz):
     Return
     ------
     (float, float)
-        Longitude West and Latitude North (deg).
+        Longitude West (0 to 360) and Latitude North (deg).
 
     Examples
     --------
     >>> lonlat([1, 0, 0])
     (0, 0)
     >>> lonlat([0, 1, 0])
-    (-90, 0)
+    (270, 0)
     >>> lonlat([1, 1, 0])
-    (-45, 0)
+    (315, 0)
     >>> lonlat([1, 0, 1])
     (0, 45)
 
     """
     x, y, z = xyz
-    lon = -np.arctan2(y, x)
-    lat = np.arcsin(z / norm(xyz))
-    return np.degrees([deg180(lon), lat])
+    lon_w = deg360(np.degrees(-np.arctan2(y, x)))
+    lat = np.degrees(np.arcsin(z / norm(xyz)))
+    return np.array([lon_w, lat])
 
 
 def radec(j2000):
@@ -119,8 +119,8 @@ def radec(j2000):
     (0, 90)
 
     """
-    lon, lat = lonlat(j2000)
-    return np.array([deg360(-lon), lat])
+    lon_w, lat = lonlat(j2000)
+    return np.array([deg360(-lon_w), lat])
 
 
 def norm(v):
