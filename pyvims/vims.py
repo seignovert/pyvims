@@ -1394,7 +1394,7 @@ class VIMS:
 
     @property
     def _corner_xyz(self):
-        """Camera pixel corners intersect with main traget frame (ref: J2000).
+        """Camera pixel corners intersect with main target frame (ref: J2000).
 
         Intersection between the line-of-sight and the main target body.
 

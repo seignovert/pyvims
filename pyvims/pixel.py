@@ -51,6 +51,7 @@ class VIMSPixel:
 
     @property
     def s(self):
+        """Pixel sample position."""
         return self.__s
 
     @s.setter
@@ -66,7 +67,7 @@ class VIMSPixel:
         if not isinstance(sample, int):
             raise VIMSError(f'Sample `{sample}` must be an integer.')
 
-        if not (1 <= sample <= self._cube.NS):
+        if not 1 <= sample <= self._cube.NS:
             raise VIMSError(
                 f'Sample `{sample}` invalid. Must be between 1 and {self._cube.NS}')
 
@@ -79,6 +80,7 @@ class VIMSPixel:
 
     @property
     def l(self):
+        """Pixel lines position."""
         return self.__l
 
     @l.setter
@@ -94,7 +96,7 @@ class VIMSPixel:
         if not isinstance(line, int):
             raise VIMSError(f'Line `{line}` must be an integer.')
 
-        if not (1 <= line <= self._cube.NL):
+        if not 1 <= line <= self._cube.NL:
             raise VIMSError(
                 f'Line `{line}` invalid. Must be between 1 and {self._cube.NL}')
 
@@ -117,7 +119,7 @@ class VIMSPixel:
         Returns
         -------
         np.array
-            Sprectrum at (S, L).
+            Spectrum at (S, L).
 
         """
         return self._cube.data[:, self.j, self.i]
@@ -229,7 +231,7 @@ class VIMSPixel:
 
     @property
     def specular_lon(self):
-        """Specular point west loongitude location."""
+        """Specular point west longitude location."""
         return self._cube.specular_lon[self.j, self.i] if self.ground else None
 
     @property

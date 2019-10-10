@@ -12,9 +12,9 @@ from ..vars import ROOT_DATA
 
 filename = 'titan_npole_lakes_radar_iss_stereo_60.png'
 lat_min = 60
-thresold = 128
+threshold = 128
 n_pole = True
-lakes = im.imread(os.path.join(ROOT_DATA, filename)) < thresold
+lakes = im.imread(os.path.join(ROOT_DATA, filename)) < threshold
 
 center, scale = stereo_scale(lakes, lat_min, n_pole=n_pole)
 

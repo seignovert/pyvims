@@ -36,27 +36,27 @@ def test_pixel_err(cube):
     """Test VIMS pixel errors."""
     # Invalid sample value
     with raises(VIMSError):
-        cube[0, 1]
+        _ = cube[0, 1]
 
     with raises(VIMSError):
-        cube[100, 1]
+        _ = cube[100, 1]
 
     with raises(VIMSError):
-        cube[1.1, 1]
+        _ = cube[1.1, 1]
 
     # Invalid line value
     with raises(VIMSError):
-        cube[1, 0]
+        _ = cube[1, 0]
 
     with raises(VIMSError):
-        cube[1, 100]
+        _ = cube[1, 100]
 
     with raises(VIMSError):
-        cube[1, 1.1]
+        _ = cube[1, 1.1]
 
 
 def test_pixel_properties(pixel):
-    """Test VIMS pixel propertites (ground and specular)."""
+    """Test VIMS pixel properties (ground and specular)."""
     assert str(pixel) == f'1731456416_1-S6_L32'
     assert pixel.s == 6
     assert pixel.l == 32
@@ -101,7 +101,7 @@ def test_pixel_properties(pixel):
 
 
 def test_limb_pixel_properties(limb_pixel):
-    """Test VIMS limb pixel propertites (not specular)."""
+    """Test VIMS limb pixel properties (not specular)."""
     assert str(limb_pixel) == f'1731456416_1-S1_L1'
     assert limb_pixel.s == 1
     assert limb_pixel.l == 1
@@ -139,24 +139,24 @@ def test_limb_pixel_properties(limb_pixel):
 
 
 def test_pixel_properties_err(pixel):
-    """Test VIMS pixel propertites erros."""
+    """Test VIMS pixel properties errors."""
     # Band invalid
     with raises(VIMSError):
-        pixel[1]
+        _ = pixel[1]
 
     with raises(VIMSError):
-        pixel[353]
+        _ = pixel[353]
 
     # Wavelength invalid
     with raises(VIMSError):
-        pixel@.5
+        _ = pixel@.5
 
     with raises(VIMSError):
-        pixel@6.
+        _ = pixel@6.
 
     # Invalid index
     with raises(VIMSError):
-        pixel@(1, 2, 3)
+        _ = pixel@(1, 2, 3)
 
 
 def test_pixel_plot(pixel):
