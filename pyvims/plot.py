@@ -881,7 +881,7 @@ def plot_all(c, index, **kwargs):
     c.plot(index, 'equi', ax=ax4, title='Equirectangular')
 
 
-def plot_specular(c, index, **kwargs):
+def plot_specular(c, index, title=False, **kwargs):
     """Plot VIMS cube image.
 
     Parameters
@@ -901,5 +901,5 @@ def plot_specular(c, index, **kwargs):
     ax0 = fig.add_subplot(grid[0, 0])
     ax1 = fig.add_subplot(grid[0, 1:])
 
-    plot_img(c, index, show_specular=True, ax=ax0, show_legend=False)
+    plot_img(c, index, show_specular=True, ax=ax0, show_legend=False, title=title)
     plot_spectra(c, *c.specular_sl, ax=ax1, legend=legend, title=False)
