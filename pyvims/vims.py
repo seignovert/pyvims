@@ -62,6 +62,9 @@ def _parse(val):
         if val.lower() == 'surface 3':
             return _parse(('339:351', '207:213', '165:169'))
 
+        if val.lower() == '5um':
+            return _parse('339:351')
+
         s = re.findall(r'^\d+$', val)
         if s:
             return int(s[0])

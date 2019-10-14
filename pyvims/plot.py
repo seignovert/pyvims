@@ -55,6 +55,8 @@ def _title(c, index):
         return f'{c} at {index:.2f} µm'
 
     if isinstance(index, str):
+        if 'um' in index:
+            return f'{c} | {index.replace("um", " µm")}'
         return f'{c} | {index.title()}'
 
     if isinstance(index, tuple):
