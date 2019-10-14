@@ -98,7 +98,7 @@ class VIMS:
         with ``root='.'``.
     download: bool, optional
         Enable download cube data from the VIMS data portal
-        if not localy present on the disk.
+        if not locally present on the disk.
 
     """
 
@@ -402,6 +402,11 @@ class VIMS:
     def ilabel(self):
         """Cube I/F label."""
         return 'I/F'
+
+    @property
+    def obs_id(self):
+        """Cube observation ID from Archive."""
+        return self.isis.header['Archive']['ObservationId']
 
     @property
     def start(self):
