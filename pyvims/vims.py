@@ -1139,7 +1139,7 @@ class VIMS:
         compare to the pixel center.
 
         """
-        return np.array(4 * [self.et]).flatten()
+        return np.moveaxis(4 * [self.et], 0, 2).flatten()
 
     @property
     def rpixels(self):
