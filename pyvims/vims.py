@@ -196,7 +196,11 @@ class VIMS:
         self.__ill = None
         self.__cxyz = None
         self.__rxyz = None
+        self.__rlonlat = None
+        self.__rlimb = None
         self.__fxyz = None
+        self.__flonlat = None
+        self.__flimb = None
         self.__spec = None
 
     @property
@@ -607,6 +611,13 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__cxyz = None
+            self.__rxyz = None
+            self.__rlonlat = None
+            self.__rlimb = None
+            self.__fxyz = None
+            self.__flonlat = None
+            self.__flimb = None
             self.__spec = None
         return self.__camera
 
@@ -678,6 +689,13 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__cxyz = None
+            self.__rxyz = None
+            self.__rlonlat = None
+            self.__rlimb = None
+            self.__fxyz = None
+            self.__flonlat = None
+            self.__flimb = None
             self.__spec = None
         return self.__pixels
 
@@ -690,6 +708,13 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__cxyz = None
+            self.__rxyz = None
+            self.__rlonlat = None
+            self.__rlimb = None
+            self.__fxyz = None
+            self.__flonlat = None
+            self.__flimb = None
             self.__spec = None
         return self.__sky
 
@@ -809,6 +834,13 @@ class VIMS:
             self.__lonlat = None
             self.__alt = None
             self.__ill = None
+            self.__cxyz = None
+            self.__rxyz = None
+            self.__rlonlat = None
+            self.__rlimb = None
+            self.__fxyz = None
+            self.__flonlat = None
+            self.__flimb = None
             self.__spec = None
         return self.__xyz
 
@@ -1182,13 +1214,17 @@ class VIMS:
             sc = self._sc_position(et)
 
             self.__rxyz = intersect(v, sc, self.target_radius)
+            self.__rlonlat = None
+            self.__rlimb = None
         return self.__rxyz
 
     @property
     def rlonlat(self):
         """Planetocentric geographic corners coordinates in main target frame."""
-        shape = (2, self.NL, self.NS, 4)
-        return np.reshape(lonlat(self._rxyz), shape)
+        if self.__rlonlat is None:
+            shape = (2, self.NL, self.NS, 4)
+            self.__rlonlat = np.reshape(lonlat(self._rxyz), shape)
+        return self.__rlonlat
 
     @property
     def ralt(self):
@@ -1200,8 +1236,15 @@ class VIMS:
 
     @property
     def rlimb(self):
-        """Is pixel corner is at the limb."""
-        return self.ralt > 1e-6
+        """Is all pixel corners are all at the limb."""
+        if self.__rlimb is None:
+            self.__rlimb = np.min(self.ralt > 1e-6, axis=2)
+        return self.__rlimb
+
+    @property
+    def rground(self):
+        """Is at least one pixel corner on the ground."""
+        return ~self.rlimb
 
     # ==========
     # FOOTPRINT
@@ -1269,8 +1312,10 @@ class VIMS:
     @property
     def flonlat(self):
         """Planetocentric geographic footprints coordinates in main target frame."""
-        shape = (2, self.NL, self.NS, 9)
-        return np.reshape(lonlat(self._fxyz), shape)
+        if self.__flonlat is None:
+            shape = (2, self.NL, self.NS, 9)
+            self.__flonlat = np.reshape(lonlat(self._fxyz), shape)
+        return self.__flonlat
 
     @property
     def falt(self):
@@ -1282,8 +1327,15 @@ class VIMS:
 
     @property
     def flimb(self):
-        """Is pixel footprint is at the limb."""
-        return self.falt > 1e-6
+        """Is all pixel footpoint points are all at the limb."""
+        if self.__flimb is None:
+            self.__flimb = np.min(self.falt > 1e-6, axis=2)
+        return self.__flimb
+
+    @property
+    def fground(self):
+        """Is at least one pixel footpoint point on the ground."""
+        return ~self.flimb
 
     # =====
     # PLOT
