@@ -618,7 +618,7 @@ class VIMS:
         to 1. And additional rotation (labeled
         ``ConstantRotation`` in the header) is required to
         get the actual instrument pointing (see
-        :py:func:`_inst_rot`).
+        :py:func:`_q_inst`).
 
         Note
         ----
@@ -656,15 +656,15 @@ class VIMS:
         return hat(p)
 
     @property
-    def _inst_rot(self):
+    def _q_inst(self):
         """Instrument rotation matrix from the spacecraft frame."""
-        return np.reshape(
-            self.isis.tables['InstrumentPointing']['ConstantRotation'], (3, 3))
+        return m2q(np.reshape(
+            self.isis.tables['InstrumentPointing']['ConstantRotation'], (3, 3)))
 
     @property
     def _inst_q(self):
         """Instrument boresight pointing."""
-        q = q_mult(m2q(self._inst_rot), self._flat(self._cassini_pointing(self.et)))
+        q = q_mult(self._q_inst, self._flat(self._cassini_pointing(self.et)))
         return self._grid(q)
 
     @property
@@ -1074,7 +1074,7 @@ class VIMS:
     @property
     def cpixels(self):
         """Camera contour pixel pointing direction in J2000 frame."""
-        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.cet))
+        q = q_mult(self._q_inst, self._cassini_pointing(self.cet))
         return q_rot_t(q, self.camera.cpixels)
 
     @property
@@ -1157,7 +1157,7 @@ class VIMS:
         compare to the pixel center.
 
         """
-        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.ret))
+        q = q_mult(self._q_inst, self._cassini_pointing(self.ret))
         return q_rot_t(q, np.reshape(self.camera.rpixels, (3, 4 * self.NP)))
 
     @property
