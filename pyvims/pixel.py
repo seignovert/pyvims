@@ -145,6 +145,11 @@ class VIMSPixel:
         return self._cube.sky[1, self.j, self.i]
 
     @property
+    def lonlat(self):
+        """Pixel West longitude and latitude (deg)."""
+        return self._cube.lonlat[:, self.j, self.i]
+
+    @property
     def lon(self):
         """Pixel West longitude (deg)."""
         return self._cube.lon[self.j, self.i]
