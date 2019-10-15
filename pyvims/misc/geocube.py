@@ -19,25 +19,25 @@ def _header(cube):
     """
     return f"""
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;                                                                         ;
-;  CASSINI/VIMS GEOCUBE                                                   ;
-;    couche n°0 : Pixel central longitude projected on the surface (degE) ;
-;           n°1 : Pixel central latitude projected on the surface (degN)  ;
-;           n°2 : Incidence angle (sun/surface normal)                    ;
-;           n°3 : Emergence angle (cassini/surface normal)                ;
-;           n°4 : Phase angle (cassini/surface/sun)                       ;
-;           n°5-8 : 4 corners longitudes projeted on the surface (degE)   ;
-;           n°9-12 : 4 corners latitudes projeted on the surface (degN)   ;
-;           n°13 : Distance cassini/surface (km)                          ;
-;           n°14 : Spatiale resolution in sample direction (km/pixel)                         ;
-;           n°15 : Altitude limb/surface (km)                             ;
-;           n°16 : Limb pixel projected longitude (degE)                  ;
-;           n°17 : Limb pixel projected latitude (degN)                   ;
-;           n°18 : Limb pixel illumination angle                          ;
-;           n°19 : Limb pixel emission angle                              ;
-;           n°20 : Limb pixel phase angle                                 ;
-;           n°21 : EMPTY                                                  ;
-;                                                                         ;
+;                                                                        ;
+;  CASSINI/VIMS GEOCUBE                                                  ;
+;    layer n°0 : Pixel central longitude projected on the surface (degE) ;
+;          n°1 : Pixel central latitude projected on the surface (degN)  ;
+;          n°2 : Incidence angle (sun/surface normal)                    ;
+;          n°3 : Emergence angle (cassini/surface normal)                ;
+;          n°4 : Phase angle (cassini/surface/sun)                       ;
+;          n°5-8 : 4 corners longitudes projected on the surface (degE)  ;
+;          n°9-12 : 4 corners latitudes projected on the surface (degN)  ;
+;          n°13 : Distance cassini/surface (km)                          ;
+;          n°14 : Spatial resolution in sample direction (km/pixel)      ;
+;          n°15 : Altitude limb/surface (km)                             ;
+;          n°16 : Limb pixel projected longitude (degE)                  ;
+;          n°17 : Limb pixel projected latitude (degN)                   ;
+;          n°18 : Limb pixel illumination angle                          ;
+;          n°19 : Limb pixel emission angle                              ;
+;          n°20 : Limb pixel phase angle                                 ;
+;          n°21 : EMPTY                                                  ;
+;                                                                        ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -104,7 +104,7 @@ band names = {{
  n12: Latitude of the bottom-right pixel corner projected on the surface (degN),
  n13: Latitude of the bottom-left pixel corner projected on the surface (degN),
  n14: Distance cassini/surface (km),
- n15: Spatiale resolution in sample direction (km/pixel),
+ n15: Spatial resolution in sample direction (km/pixel),
  n16: Altitude limb/surface (km),
  n17: Limb pixel projected longitude (degE),
  n18: Limb pixel projected latitude (degN),
@@ -156,8 +156,8 @@ def create_nav(cube, root=None):
 
     limb = cube.limb
     ground = cube.ground
-    corners = cube.corner_lonlat
-    climb = cube.corner_limb
+    corners = cube.rlonlat
+    rlimb = cube.rlimb
 
     with open(nav_file, 'wb') as f:
         f.write(_header(cube))
@@ -167,9 +167,9 @@ def create_nav(cube, root=None):
         f.write(_mask(cube.eme, limb))
         f.write(_mask(cube.phase, limb))
         for i in range(4):
-            f.write(_mask(deg180(-corners[0, :, :, i]), climb[:, :, i]))
+            f.write(_mask(deg180(-corners[0, :, :, i]), rlimb[:, :, i]))
         for i in range(4):
-            f.write(_mask(corners[1, :, :, i], climb[:, :, i]))
+            f.write(_mask(corners[1, :, :, i], rlimb[:, :, i]))
         f.write(_mask(cube.dist_sc, limb))
         f.write(_mask(cube.res_s, limb))
         f.write(_mask(cube.alt, ground))

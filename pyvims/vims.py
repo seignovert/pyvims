@@ -196,7 +196,7 @@ class VIMS:
         self.__ill = None
         self.__cxyz = None
         self.__spec = None
-        self.__corner_xyz = None
+        self.__rxyz = None
 
     @property
     def filename(self):
@@ -1053,6 +1053,9 @@ class VIMS:
         """Orthographic projection of the pixels on the ground."""
         return ortho_proj(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
 
+    # ============
+    # FOV CONTOUR
+    # ============
     @property
     def cet(self):
         """Contour ephemeris time."""
@@ -1123,6 +1126,85 @@ class VIMS:
         """Orthographic projection of the contour pixels on the ground."""
         return ortho_proj(*self.clonlat, *self.sc, self.target_radius)
 
+    # ========
+    # CORNERS
+    # ========
+    @property
+    def ret(self):
+        """Corner ephemeris time.
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        return np.array(4 * [self.et]).flatten()
+
+    @property
+    def rpixels(self):
+        """Camera corner pixel pointing direction in J2000 frame.
+
+        Corners order:
+            - Top Left
+            - Top Right
+            - Bottom Right
+            - Bottom Left
+
+        Note
+        ----
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.ret))
+        return q_rot_t(q, np.reshape(self.camera.rpixels, (3, 4 * self.NP)))
+
+    @property
+    def _rxyz(self):
+        """Camera pixel corners intersect with main target frame (ref: J2000).
+
+        Intersection between the line-of-sight and the main target body.
+
+        Note
+        ----
+        For now the target is considered as a sphere (not an ellipsoid)
+        to provide planecentric coordinates.
+
+        Corner are defined as diagonal points
+        compare to the pixel center.
+
+        """
+        if self.__rxyz is None:
+            et = self.ret
+            v = q_rot(self._body_rotation(et), self.rpixels)
+            sc = self._sc_position(et)
+
+            self.__rxyz = intersect(v, sc, self.target_radius)
+        return self.__rxyz
+
+    @property
+    def rlonlat(self):
+        """Planetocentric geographic corners coordinates in main target frame."""
+        shape = (2, self.NL, self.NS, 4)
+        return np.reshape(lonlat(self._rxyz), shape)
+
+    @property
+    def ralt(self):
+        """Planetocentric corners altitude from the main target body center."""
+        dist = norm(self._rxyz)
+        return np.reshape(np.max([
+            np.zeros(np.shape(dist)), dist - self.target_radius
+        ], axis=0), (self.NL, self.NS, 4))
+
+    @property
+    def rlimb(self):
+        """Is pixel corner is at the limb."""
+        return self.ralt > 1e-6
+
+    # =====
+    # PLOT
+    # =====
     def plot(self, *args, **kwargs):
         """Generic cube plot function."""
         return plot_cube(self, *args, ir_hr=self._is_ir_hr, **kwargs)
@@ -1369,76 +1451,3 @@ class VIMS:
             return [tuple([int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])])]
 
         return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]
-
-    @property
-    def corner_et(self):
-        """Corner ephemeris time.
-
-        Note
-        ----
-        Corner are defined as diagonal points
-        compare to the pixel center.
-
-        """
-        return np.array(4 * [self.et]).flatten()
-
-    @property
-    def corner_pixels(self):
-        """Camera corner pixel pointing direction in J2000 frame.
-
-        Corners order:
-            - Top Left
-            - Top Right
-            - Bottom Right
-            - Bottom Left
-
-        Note
-        ----
-        Corner are defined as diagonal points
-        compare to the pixel center.
-
-        """
-        q = q_mult(m2q(self._inst_rot), self._cassini_pointing(self.corner_et))
-        return q_rot_t(q, np.reshape(self.camera.corner_pixels, (3, 4 * self.NP)))
-
-    @property
-    def _corner_xyz(self):
-        """Camera pixel corners intersect with main target frame (ref: J2000).
-
-        Intersection between the line-of-sight and the main target body.
-
-        Note
-        ----
-        For now the target is considered as a sphere (not an ellipsoid)
-        to provide planecentric coordinates.
-
-        Corner are defined as diagonal points
-        compare to the pixel center.
-
-        """
-        if self.__corner_xyz is None:
-            et = self.corner_et
-            v = q_rot(self._body_rotation(et), self.corner_pixels)
-            sc = self._sc_position(et)
-
-            self.__corner_xyz = intersect(v, sc, self.target_radius)
-        return self.__corner_xyz
-
-    @property
-    def corner_lonlat(self):
-        """Planetocentric geographic corners coordinates in main target frame."""
-        shape = (2, self.NL, self.NS, 4)
-        return np.reshape(lonlat(self._corner_xyz), shape)
-
-    @property
-    def corner_alt(self):
-        """Planetocentric corners altitude from the main target body center."""
-        dist = norm(self._corner_xyz)
-        return np.reshape(np.max([
-            np.zeros(np.shape(dist)), dist - self.target_radius
-        ], axis=0), (self.NL, self.NS, 4))
-
-    @property
-    def corner_limb(self):
-        """Is pixel corner is at the limb."""
-        return self.corner_alt > 1e-6

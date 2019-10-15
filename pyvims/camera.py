@@ -82,9 +82,9 @@ class VIMSCameraAbstract:
         if scale == 1:
             start = offset
         elif scale == 2:
-            start = offset + (swath//2)/2 - 1/4
+            start = offset + (swath // 2) / 2 - 1 / 4
         elif scale == 3:
-            start = offset + swath/3 - 1/3
+            start = offset + swath / 3 - 1 / 3
         else:
             raise VIMSCameraError(f'Scale value must be 1, 2, or 3.')
 
@@ -138,7 +138,7 @@ class VIMSCameraAbstract:
         ])
 
     @property
-    def corner_grid(self):
+    def rgrid(self):
         """Camera grid pixel corners.
 
         Corners order:
@@ -264,7 +264,7 @@ class VIMSCameraAbstract:
         return self.xy2ang(*self.cgrid)
 
     @property
-    def corner_pixels(self):
+    def rpixels(self):
         """Camera corner pixels orientation in J2000 frame.
 
         Return
