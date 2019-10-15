@@ -1355,7 +1355,8 @@ class VIMS:
     @property
     def nb_specular(self):
         """Number of specular pixels."""
-        return np.nansum(self.is_specular)
+        return int(np.nansum(np.ma.array(self.is_specular, mask=self.limb,
+                                         fill_value=False, dtype=bool).filled()))
 
     @property
     def specular_sl(self):
