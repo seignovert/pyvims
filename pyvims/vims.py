@@ -195,8 +195,9 @@ class VIMS:
         self.__alt = None
         self.__ill = None
         self.__cxyz = None
-        self.__spec = None
         self.__rxyz = None
+        self.__fxyz = None
+        self.__spec = None
 
     @property
     def filename(self):
@@ -1202,6 +1203,88 @@ class VIMS:
         """Is pixel corner is at the limb."""
         return self.ralt > 1e-6
 
+    # ==========
+    # FOOTPRINT
+    # ==========
+    @property
+    def fet(self):
+        """Footprint ephemeris time.
+
+        Note
+        ----
+        Footprint are set on circle or an ellipse
+        based on the shape of the pixel.
+
+        """
+        return np.moveaxis(9 * [self.et], 0, 2).flatten()
+
+    @property
+    def fpixels(self):
+        """Camera footprint pixel pointing direction in J2000 frame.
+
+        Footprint order:
+            - Top Left
+            - Top
+            - Top Right
+            - Right
+            - Bottom Right
+            - Bottom
+            - Bottom Left
+            - Left
+            - Top Left
+
+        Note
+        ----
+        Footprint are set on circle or an ellipse
+        based on the shape of the pixel.
+
+        """
+        q = q_mult(self._q_inst, self._cassini_pointing(self.fet))
+        pixels = np.reshape(self.camera.fpixels, (3, 9 * self.NP))
+        return q_rot_t(q, pixels)
+
+    @property
+    def _fxyz(self):
+        """Camera pixel footprints intersect with main target frame (ref: J2000).
+
+        Intersection between the line-of-sight and the main target body.
+
+        Note
+        ----
+        For now the target is considered as a sphere (not an ellipsoid)
+        to provide planecentric coordinates.
+
+        Footprint are set on circle or an ellipse
+        based on the shape of the pixel.
+
+        """
+        if self.__fxyz is None:
+            et = self.fet
+            v = q_rot(self._body_rotation(et), self.fpixels)
+            sc = self._sc_position(et)
+
+            self.__fxyz = intersect(v, sc, self.target_radius)
+        return self.__fxyz
+
+    @property
+    def flonlat(self):
+        """Planetocentric geographic footprints coordinates in main target frame."""
+        shape = (2, self.NL, self.NS, 9)
+        return np.reshape(lonlat(self._fxyz), shape)
+
+    @property
+    def falt(self):
+        """Planetocentric footprints altitude from the main target body center."""
+        dist = norm(self._fxyz)
+        return np.reshape(np.max([
+            np.zeros(np.shape(dist)), dist - self.target_radius
+        ], axis=0), (self.NL, self.NS, 9))
+
+    @property
+    def flimb(self):
+        """Is pixel footprint is at the limb."""
+        return self.falt > 1e-6
+
     # =====
     # PLOT
     # =====
@@ -1448,6 +1531,9 @@ class VIMS:
             return None
 
         if nb_spec == 1:
-            return [tuple([int(self.specular_pixel[0, 0]), int(self.specular_pixel[1, 0])])]
+            return [tuple([
+                int(self.specular_pixel[0, 0]),
+                int(self.specular_pixel[1, 0]),
+            ])]
 
         return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]

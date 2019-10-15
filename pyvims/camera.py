@@ -122,19 +122,19 @@ class VIMSCameraAbstract:
         x, y = self._x, self._y
         xl, xr, yt, yb = x[0], x[-1], y[0], y[-1]
 
-        a, b = .5 / np.array(self.scale)
-        xc, yc = a / np.sqrt(2), b / np.sqrt(2)
+        ex, ey = .5 / np.array(self.scale)         # Edges
+        dx, dy = ex / np.sqrt(2), ey / np.sqrt(2)  # Ellipse corners
 
         return np.hstack([
-            [[xl - xc], [yt - yc]],              # Top-Left corner
-            [x, self.swath_x * [yt - b]],        # Top edge
-            [[xr + xc], [yt - yc]],              # Top-Right corner
-            [self.swath_y * [xr + a], y],        # Right edge
-            [[xr + xc], [yb + yc]],              # Bottom-Right corner
-            [x[::-1], self.swath_x * [yb + b]],  # Bottom edge
-            [[xl - xc], [yb + yc]],              # Bottom-Left corner
-            [self.swath_y * [xl - a], y[::-1]],  # Left edge
-            [[xl - xc], [yt - yc]],              # Top-Left corner
+            [[xl - dx], [yt - dy]],               # Top-Left corner
+            [x, self.swath_x * [yt - ey]],        # Top edge
+            [[xr + dx], [yt - dy]],               # Top-Right corner
+            [self.swath_y * [xr + ex], y],        # Right edge
+            [[xr + dx], [yb + dy]],               # Bottom-Right corner
+            [x[::-1], self.swath_x * [yb + ey]],  # Bottom edge
+            [[xl - dx], [yb + dy]],               # Bottom-Left corner
+            [self.swath_y * [xl - ex], y[::-1]],  # Left edge
+            [[xl - dx], [yt - dy]],               # Top-Left corner
         ])
 
     @property
@@ -155,32 +155,29 @@ class VIMSCameraAbstract:
         """
         x, y = self._x, self._y
 
-        a, b = .5 / np.array(self.scale)
+        cx, cy = .5 / np.array(self.scale)  # Rectangle corners
 
-        tl = np.meshgrid(x - a, y - b)
-        tr = np.meshgrid(x + a, y - b)
-        br = np.meshgrid(x + a, y + b)
-        bl = np.meshgrid(x - a, y + b)
+        tl = np.meshgrid(x - cx, y - cy)
+        tr = np.meshgrid(x + cx, y - cy)
+        br = np.meshgrid(x + cx, y + cy)
+        bl = np.meshgrid(x - cx, y + cy)
 
         return np.moveaxis([tl, tr, br, bl], 0, 3)
 
     @property
-    def edge_grid(self):
-        """Camera grid pixel edges."""
-        x, y = self._x, self._y
-
-        a, b = .5 / np.array(self.scale)
-
-        l = np.meshgrid(x - a, y)
-        r = np.meshgrid(x + a, y)
-        t = np.meshgrid(x, y + b)
-        b = np.meshgrid(x, y - b)
-
-        return np.moveaxis([l, r, t, b], 0, 3)
-
-    @property
     def fgrid(self):
         """Camera grid pixel footprint.
+
+        Footprint order:
+            - Top Left
+            - Top
+            - Top Right
+            - Right
+            - Bottom Right
+            - Bottom
+            - Bottom Left
+            - Left
+            - Top Left
 
         Note
         ----
@@ -190,14 +187,18 @@ class VIMSCameraAbstract:
         """
         x, y = self._x, self._y
 
-        a, b = .5 / np.array(self.scale) / np.sqrt(2)
+        ex, ey = .5 / np.array(self.scale)         # Edges
+        dx, dy = ex / np.sqrt(2), ey / np.sqrt(2)  # Ellipse corners
 
-        tl = np.meshgrid(x - a, y + b)
-        tr = np.meshgrid(x + a, y + b)
-        bl = np.meshgrid(x - a, y - b)
-        br = np.meshgrid(x + a, y - b)
+        l = np.meshgrid(x - ex, y)
+        r = np.meshgrid(x + ex, y)
+        t = np.meshgrid(x, y + ey)
+        b = np.meshgrid(x, y - ey)
 
-        l, r, t, b = np.moveaxis(self.edge_grid, 3, 0)
+        tl = np.meshgrid(x - dx, y + dy)
+        tr = np.meshgrid(x + dx, y + dy)
+        bl = np.meshgrid(x - dx, y - dy)
+        br = np.meshgrid(x + dx, y - dy)
 
         return np.moveaxis([tl, t, tr, r, br, b, bl, l, tl], 0, 3)
 
@@ -278,19 +279,7 @@ class VIMSCameraAbstract:
         compare to the pixel center.
 
         """
-        return self.xy2ang(*self.corner_grid)
-
-    @property
-    def edge_pixels(self):
-        """Camera edge pixels orientation in J2000 frame.
-
-        Return
-        ------
-        array(3, NL, NS, 4)
-            Pixel edges boresights in Camera frame.
-
-        """
-        return self.xy2ang(*self.edge_grid)
+        return self.xy2ang(*self.rgrid)
 
     @property
     def fpixels(self):
