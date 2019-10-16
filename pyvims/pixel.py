@@ -1,6 +1,7 @@
 """VIMS pixel module."""
 
 from .coordinates import salt, slat, slon
+from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
 
 
@@ -253,6 +254,16 @@ class VIMSPixel:
     def specular_dist(self):
         """Haversine distance between the pixel and the specular reflection."""
         return self._cube.specular_dist[self.j, self.i] if self.ground else None
+
+    @property
+    def corners(self):
+        """VIMS pixel corners."""
+        return VIMSPixelCorners(self)
+
+    @property
+    def footprint(self):
+        """VIMS pixel footprint."""
+        return VIMSPixelFootpint(self)
 
     def plot(self, **kwargs):
         """Plot spectrum."""
