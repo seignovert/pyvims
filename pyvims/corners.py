@@ -6,11 +6,6 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 
-CODES = {
-    'corners': [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY],
-    'footprint': [Path.MOVETO] + [Path.LINETO] * 7 + [Path.CLOSEPOLY],
-}
-
 class VIMSPixelCorners:
     """VIMS corners object.
 
@@ -20,6 +15,7 @@ class VIMSPixelCorners:
         Parent VIMS cube pixel.
 
     """
+    CODES = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
 
     def __init__(self, pixel):
         self._pix = pixel
@@ -80,10 +76,14 @@ class VIMSPixelCorners:
         return self.lonlat if self.ground else None
 
     @property
+    def vertices(self):
+        """Corners vertices."""
+        return np.vstack([self.lonlat.T, self.lonlat[:, 0]])
+
+    @property
     def path(self):
         """Ground corners matplotlib path."""
-        verts = np.vstack([self.lonlat.T, self.lonlat[:, 0]])
-        return Path(verts, CODES['corners']) if self.ground else None
+        return Path(self.vertices, self.CODES) if self.ground else None
 
     def poly(self, **kwargs):
         """Ground corners matplotlib polygon."""
@@ -100,6 +100,7 @@ class VIMSPixelFootpint(VIMSPixelCorners):
         Parent VIMS cube pixel.
 
     """
+    CODES = [Path.MOVETO] + [Path.LINETO] * 7 + [Path.CLOSEPOLY]
 
     def __init__(self, pixel):
         super().__init__(pixel)
@@ -123,6 +124,6 @@ class VIMSPixelFootpint(VIMSPixelCorners):
         return self._cube.fground[self.j, self.i]
 
     @property
-    def path(self):
-        """Ground corners matplotlib path."""
-        return Path(self.lonlat.T, CODES['footprint']) if self.ground else None
+    def vertices(self):
+        """Footprint vertices."""
+        return self.lonlat.T
