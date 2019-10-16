@@ -5,6 +5,8 @@ import numpy as np
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
+from .projections.lambert import xy as lambert
+
 
 class VIMSPixelCorners:
     """VIMS corners object.
@@ -15,6 +17,7 @@ class VIMSPixelCorners:
         Parent VIMS cube pixel.
 
     """
+
     CODES = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
 
     def __init__(self, pixel):
@@ -90,6 +93,61 @@ class VIMSPixelCorners:
         return PathPatch(self.path, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
+    def _lambert(self, lonlat):
+        """Lambert azimuthal equal-area projection in mean sub-spacecraft plane."""
+        return lambert(*lonlat, *self._cube.sc)
+
+    @property
+    def _lambert_path(self):
+        """Lambert projected ground corners matplotlib path."""
+        return Path(self._lambert(self.vertices.T).T, self.CODES) if self.ground else None
+
+    def contains(self, pts):
+        """Check if points are inside the pixel.
+
+        Parameters
+        ----------
+        pts: np.array
+            List of geographic point(s): ``(lon_w, lat)`` or ``[(lon_w, lat), …]``
+
+        Returns
+        -------
+        np.array
+            Return ``TRUE`` if the point is inside the pixel corners, and
+            ``FALSE`` overwise.
+
+        Note
+        ----
+        The points location are first projected on the sub-spacecraft
+        mean plane with a Lambert azimuthal equal-area projection to avoid
+        polar and meridian crossing error on polygon paths.
+
+        By default, if the pixel is fully at the limb (no corners touching
+        the ground), the intersection is not calculated and return a global
+        ``FALSE`` value.
+
+        """
+        if self.limb:
+            return False
+
+        if np.ndim(pts) == 1:
+            pts = [pts]
+
+        _lambert_pts = self._lambert(np.transpose(pts)).T
+        return self._lambert_path.contains_points(_lambert_pts)
+
+    def __contains__(self, item):
+        """Check the item is inside the pixel."""
+        if np.size(item) != 2 or np.ndim(item) == 0:
+            raise ValueError('Coordinate point must be a 2 dimension array: '
+                             '`(west_longitude, latitude)`')
+
+        if np.ndim(item) != 1:
+            raise ValueError('Only a single point can be tested. '
+                             'Use `.contains()` function for multiple points.')
+
+        return self.contains([item])
+
 
 class VIMSPixelFootpint(VIMSPixelCorners):
     """VIMS footprint object.
@@ -100,6 +158,7 @@ class VIMSPixelFootpint(VIMSPixelCorners):
         Parent VIMS cube pixel.
 
     """
+
     CODES = [Path.MOVETO] + [Path.LINETO] * 7 + [Path.CLOSEPOLY]
 
     def __init__(self, pixel):

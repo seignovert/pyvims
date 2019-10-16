@@ -50,6 +50,26 @@ class VIMSPixel:
     def __matmul__(self, val):
         return self[val]
 
+    def __contains__(self, item):
+        """Check the item is inside the pixel.
+
+        Parameters
+        -----------
+        item: (float, float)
+            Geographic point: ``(west_longitude, latitude)``
+
+        Note
+        ----
+        By default, the intersection is calculated based on the pixel
+        corners polygon projected on the ground (using a Lambert
+        azimuthal equal-area projection).
+
+        Intersection can be also calculated directly on the
+        :py:attr:`corners` and :py:attr:`footprint` attributes.
+
+        """
+        return item in self.corners
+
     @property
     def s(self):
         """Pixel sample position."""
