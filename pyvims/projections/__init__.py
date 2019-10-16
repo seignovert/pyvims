@@ -1,4 +1,12 @@
-"""VIMS projections module."""
+"""VIMS projections module.
+
+Mapping projection are based on :
+
+    * Snyder, J. (1987) “Map Projection - A Working Manual.”
+        U. S. Geological Survey Professional Paper 1395.
+        https://pubs.usgs.gov/pp/1395/report.pdf.
+
+"""
 
 from .equirectangular import equi_cube
 from .orthographic import ortho_proj, ortho_cube

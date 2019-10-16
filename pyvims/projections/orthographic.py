@@ -58,9 +58,9 @@ def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
     Parameters
     ----------
     x: float or np.array
-        Orthograpahic projected point on X-axis.
+        Orthographic projected point on X-axis.
     y: float or np.array
-        Orthograpahic projected point on Y-axis.
+        Orthographic projected point on Y-axis.
     lon_0: float or np.array
         Orthographic centered longitude (degrees).
     lat_0: float or np.array
@@ -91,7 +91,7 @@ def ortho_grid(x, y, lon_0=0, lat_0=0, r=1):
 
 
 def ortho_cube(c, index, n=512, interp='cubic'):
-    """VIMS cube orthographicly projected on the median FOV.
+    """VIMS cube orthographically projected on the median FOV.
 
     Parameters
     ----------
