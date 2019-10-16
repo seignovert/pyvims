@@ -905,6 +905,11 @@ class VIMS:
         return ~self.limb
 
     @property
+    def ground_lonlat(self):
+        """Planetocentric West longitude and latitude on the ground."""
+        return np.ma.array(self.lonlat, mask=[self.limb, self.limb])
+
+    @property
     def ground_lon(self):
         """Planetocentric West longitude on the ground."""
         return np.ma.array(self.lon, mask=self.limb)
