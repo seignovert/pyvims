@@ -22,6 +22,7 @@ class VIMSPixelCorners:
 
     def __init__(self, pixel):
         self._pix = pixel
+        self.__path = None
 
     def __str__(self):
         return f'{self._cube}-S{self.s}_L{self.l}-corners'
@@ -86,7 +87,9 @@ class VIMSPixelCorners:
     @property
     def path(self):
         """Ground corners matplotlib path."""
-        return Path(self.vertices, self.CODES) if self.ground else None
+        if self.__path is None and self.ground:
+            self.__path = Path(self.vertices, self.CODES)
+        return self.__path
 
     def poly(self, **kwargs):
         """Ground corners matplotlib polygon."""
