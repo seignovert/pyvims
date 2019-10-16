@@ -157,7 +157,6 @@ def create_nav(cube, root=None):
     limb = cube.limb
     ground = cube.ground
     corners = cube.rlonlat
-    rlimb = cube.rlimb
 
     with open(nav_file, 'wb') as f:
         f.write(_header(cube))
@@ -167,9 +166,9 @@ def create_nav(cube, root=None):
         f.write(_mask(cube.eme, limb))
         f.write(_mask(cube.phase, limb))
         for i in range(4):
-            f.write(_mask(deg180(-corners[0, :, :, i]), rlimb[:, :, i]))
+            f.write(_mask(deg180(-corners[0, :, :, i]), limb))
         for i in range(4):
-            f.write(_mask(corners[1, :, :, i], rlimb[:, :, i]))
+            f.write(_mask(corners[1, :, :, i], limb))
         f.write(_mask(cube.dist_sc, limb))
         f.write(_mask(cube.res_s, limb))
         f.write(_mask(cube.alt, ground))
