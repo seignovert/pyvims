@@ -10,6 +10,7 @@ from matplotlib.patches import PathPatch
 from requests import HTTPError
 
 from .camera import VIMSCamera
+from .contour import VIMSContour
 from .corners import cube_paths
 from .errors import VIMSError
 from .flyby import FLYBYS
@@ -1186,6 +1187,11 @@ class VIMS:
     def ground_cortho(self):
         """Orthographic projection of the contour pixels on the ground."""
         return ortho_proj(*self.clonlat, *self.sc, self.target_radius)
+
+    @property
+    def contour(self):
+        """VIMS FOV contour."""
+        return VIMSContour(self)
 
     # ========
     # CORNERS
