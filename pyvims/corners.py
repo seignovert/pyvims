@@ -6,6 +6,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 from .projections.lambert import xy as lambert
+from .vertices import path_cross_180, path_cross_360, path_pole_180, path_pole_360
 from .vectors import deg180, deg360
 
 
@@ -158,6 +159,78 @@ class VIMSPixelCorners:
                              'Use `.contains()` function for multiple points.')
 
         return self.contains([item])
+
+    @property
+    def is_npole(self):
+        """Check if the North Pole is inside the pixel."""
+        return (0, 90) in self
+
+    @property
+    def is_spole(self):
+        """Check if the South Pole is inside the pixel."""
+        return (0, -90) in self
+
+    @property
+    def is_180(self):
+        """Check if the pixel cross the change of date meridian (180°)."""
+        lon_e = deg180(-self.lonlat[0])
+        return lon_e.max() - lon_e.min() > 180
+
+    @property
+    def is_360(self):
+        """Check if the pixel cross the prime meridian (360°)."""
+        lon_w = deg360(self.lonlat[0])
+        return lon_w.max() - lon_w.min() > 180
+
+    @property
+    def path_180(self):
+        """Polygon path in [-180°, 180°] equirectangular projection."""
+        if self.limb:
+            return None
+
+        if self.is_npole:
+            verts, codes = path_pole_180(self.vertices_e, npole=True)
+
+        elif self.is_spole:
+            verts, codes = path_pole_180(self.vertices_e, npole=False)
+
+        elif self.is_180:
+            verts, codes = path_cross_180(self.vertices_e)
+
+        else:
+            verts, codes = self.vertices_e, self.CODES
+
+        return Path(verts, codes)
+
+    @property
+    def path_360(self):
+        """Polygon path in [0°, 360°] equirectangular projection."""
+        if self.limb:
+            return None
+
+        if self.is_npole:
+            verts, codes = path_pole_360(self.vertices, npole=True)
+
+        elif self.is_spole:
+            verts, codes = path_pole_360(self.vertices, npole=False)
+
+        elif self.is_360:
+            verts, codes = path_cross_360(self.vertices)
+
+        else:
+            return self.path
+
+        return Path(verts, codes)
+
+    def poly_180(self, **kwargs):
+        """Ground corners matplotlib polygon in [0, 360] equirectangular projection."""
+        return PathPatch(self.path_180, **kwargs) if self.ground else \
+            PathPatch([[0, 0], [0, 0]])
+
+    def poly_360(self, **kwargs):
+        """Ground corners matplotlib polygon in [0, 360] equirectangular projection."""
+        return PathPatch(self.path_360, **kwargs) if self.ground else \
+            PathPatch([[0, 0], [0, 0]])
 
 
 class VIMSPixelFootpint(VIMSPixelCorners):
