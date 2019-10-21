@@ -629,7 +629,7 @@ class VIMS:
             self.__flonlat = None
             self.__flimb = None
             self.__fpath_180 = None
-            self.__fpath_180 = None
+            self.__fpath_360 = None
             self.__spec = None
         return self.__camera
 
@@ -711,7 +711,7 @@ class VIMS:
             self.__flonlat = None
             self.__flimb = None
             self.__fpath_180 = None
-            self.__fpath_180 = None
+            self.__fpath_360 = None
             self.__spec = None
         return self.__pixels
 
@@ -734,7 +734,7 @@ class VIMS:
             self.__flonlat = None
             self.__flimb = None
             self.__fpath_180 = None
-            self.__fpath_180 = None
+            self.__fpath_360 = None
             self.__spec = None
         return self.__sky
 
@@ -770,7 +770,7 @@ class VIMS:
         Slerp method (see :py:func:`angles.q_interp`).
         But most of the time the drift of the pointing
         between the recorded ETs values is small enough
-        to use a linerar interpolation.
+        to use a linear interpolation.
 
         Parameters
         ----------
@@ -835,7 +835,7 @@ class VIMS:
 
     @property
     def _xyz(self):
-        """Camera pixels intersect with main traget frame (ref: J2000).
+        """Camera pixels intersect with main target frame (ref: J2000).
 
         Intersection between the line-of-sight and the main target
         body.
@@ -864,7 +864,7 @@ class VIMS:
             self.__flonlat = None
             self.__flimb = None
             self.__fpath_180 = None
-            self.__fpath_180 = None
+            self.__fpath_360 = None
             self.__spec = None
         return self.__xyz
 
