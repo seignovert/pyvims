@@ -6,6 +6,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 from .projections.lambert import xy as lambert
+from .vectors import deg180, deg360
 
 
 class VIMSPixelCorners:
@@ -83,6 +84,13 @@ class VIMSPixelCorners:
     def vertices(self):
         """Corners vertices."""
         return np.vstack([self.lonlat.T, self.lonlat[:, 0]])
+
+    @property
+    def vertices_e(self):
+        """Corners vertices in east longitude."""
+        lon_w, lat = self.vertices.T
+        lon_e = deg180(-lon_w)
+        return np.vstack([lon_e, lat]).T
 
     @property
     def path(self):
