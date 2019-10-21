@@ -1621,6 +1621,34 @@ class VIMS:
         """Cube flyby."""
         return FLYBYS@self.time
 
+    def dist_pt(self, lon_w, lat):
+        """Haversine distances between a geographic point and all the pixels."""
+        return np.ma.array(
+            hav_dist(lon_w, lat, self.lon, self.lat, self.target_radius),
+            mask=self.limb
+        )
+
+    def get_pixel(self, lon_w, lat):
+        """Get the pixel closest pixel to a specific geographic coordinate."""
+        if not self.in_contour(lon_w, lat):
+            return None
+
+        # Try to find the closest pixel
+        dist = self.dist_pt(lon_w, lat)
+        i, j = np.unravel_index(np.argmin(dist), dist.shape)
+        s, l = self._sl[:, i, j]
+        pixel = self[int(s), int(l)]
+
+        if (lon_w, lat) in pixel:
+            return pixel
+
+        # Loop over all the pixels. Exit on the first match.
+        for l in range(1, self.NL + 1):
+            for s in range(1, self.NS + 1):
+                if (lon_w, lat) in self[s, l]:
+                    return self[s, l]
+        return None
+
     @property
     def _specular_pts(self):
         """Specular points location and angle."""
@@ -1648,27 +1676,28 @@ class VIMS:
     @property
     def specular_dist(self):
         """Haversine distance between the pixel and the specular reflection."""
-        return hav_dist(self.lon, self.lat,
-                        self.specular_lon, self.specular_lat,
-                        self.target_radius)
+        return self.dist_pt(*self._specular_pts[:2])
 
     @property
     def is_specular(self):
         """Calculate if the specular point is within the pixel."""
-        return (self.ground) & (self.specular_dist < self.ground_res) \
-            & (np.abs(self.specular_angle - self.inc) < 5) \
-            & (np.abs(self.specular_angle - self.eme) < 5)
+        return np.ma.array(
+            (self.specular_dist < self.ground_res)
+            & (np.abs(self.specular_angle - self.inc) < 5)
+            & (np.abs(self.specular_angle - self.eme) < 5),
+            mask=self.limb,
+            dtype=bool,
+            fill_value=False)
 
     @property
     def specular_pixel(self):
         """List specular pixels [S, L] values."""
-        return self._sl[:, self.is_specular]
+        return self._sl[:, self.is_specular.filled()]
 
     @property
     def nb_specular(self):
         """Number of specular pixels."""
-        return int(np.nansum(np.ma.array(self.is_specular, mask=self.limb,
-                                         fill_value=False, dtype=bool).filled()))
+        return int(np.nansum(self.is_specular.filled()))
 
     @property
     def specular_sl(self):
