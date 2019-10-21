@@ -24,7 +24,7 @@ class VIMSPixelCorners:
 
     def __init__(self, pixel):
         self._pix = pixel
-        self.__path = None
+        self.__lpath = None
 
     def __str__(self):
         return f'{self._cube}-S{self.s}_L{self.l}-corners'
@@ -93,18 +93,6 @@ class VIMSPixelCorners:
         lon_e = deg180(-lon_w)
         return np.vstack([lon_e, lat]).T
 
-    @property
-    def path(self):
-        """Ground corners matplotlib path."""
-        if self.__path is None and self.ground:
-            self.__path = Path(self.vertices, self.CODES)
-        return self.__path
-
-    def patch(self, **kwargs):
-        """Ground corners matplotlib polygon patch."""
-        return PathPatch(self.path, **kwargs) if self.ground else \
-            PathPatch([[0, 0], [0, 0]])
-
     def _lambert(self, lonlat):
         """Lambert azimuthal equal-area projection in mean sub-spacecraft plane."""
         return lambert(*lonlat, *self._cube.sc)
@@ -112,7 +100,9 @@ class VIMSPixelCorners:
     @property
     def _lambert_path(self):
         """Lambert projected ground corners matplotlib path."""
-        return Path(self._lambert(self.vertices.T).T, self.CODES) if self.ground else None
+        if self.__lpath is None and self.ground:
+            self.__lpath = Path(self._lambert(self.vertices.T).T, self.CODES)
+        return self.__lpath
 
     def contains(self, pts):
         """Check if points are inside the pixel.
@@ -218,7 +208,7 @@ class VIMSPixelCorners:
             verts, codes = path_cross_360(self.vertices)
 
         else:
-            return self.path
+            verts, codes = self.vertices, self.CODES
 
         return Path(verts, codes)
 
@@ -231,6 +221,15 @@ class VIMSPixelCorners:
         """Ground corners matplotlib polygon in [0°, 360°[ equirectangular projection."""
         return PathPatch(self.path_360, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
+
+    @property
+    def path(self):
+        """Ground corners matplotlib path."""
+        return self.path_360
+
+    def patch(self, **kwargs):
+        """Ground corners matplotlib polygon patch."""
+        return self.patch_360(**kwargs)
 
 
 class VIMSPixelFootpint(VIMSPixelCorners):
