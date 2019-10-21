@@ -288,3 +288,7 @@ class VIMSPixel:
     def plot(self, **kwargs):
         """Plot spectrum."""
         self._cube.plot((self.s, self.l), **kwargs)
+
+    def patch(self, **kwargs):
+        """Ground corners matplotlib polygon patch."""
+        return self.corners.patch(**kwargs)
