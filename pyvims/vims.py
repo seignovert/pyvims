@@ -146,6 +146,8 @@ class VIMS:
 
         if isinstance(val, tuple):
             if len(val) == 2:
+                if isinstance(val[0], float) and isinstance(val[1], float):
+                    return self.get_pixel(*val)
                 return VIMSPixel(self, *val)
 
             if len(val) == 3:
@@ -155,7 +157,8 @@ class VIMS:
             f'Invalid format. Use:',
             'INT -> Band image',
             'FLOAT -> Wavelength image',
-            '[INT, INT] -> Sample, Line spectrum',
+            '[INT, INT] -> Sample, Line pixel',
+            '[FLOAT, FLOAT] -> West Longitude, Latitude pixel',
             '[INT, INT, INT] -> Bands RGB',
             '[FLOAT, FLOAT, FLOAT] -> Wavelengths RGB',
         ]))
