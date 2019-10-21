@@ -199,6 +199,7 @@ class VIMS:
         self.__alt = None
         self.__ill = None
         self.__cxyz = None
+        self.__contour = None
         self.__rxyz = None
         self.__rlonlat = None
         self.__rlimb = None
@@ -620,6 +621,7 @@ class VIMS:
             self.__alt = None
             self.__ill = None
             self.__cxyz = None
+            self.__contour = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
@@ -702,6 +704,7 @@ class VIMS:
             self.__alt = None
             self.__ill = None
             self.__cxyz = None
+            self.__contour = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
@@ -725,6 +728,7 @@ class VIMS:
             self.__alt = None
             self.__ill = None
             self.__cxyz = None
+            self.__contour = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
@@ -855,6 +859,7 @@ class VIMS:
             self.__alt = None
             self.__ill = None
             self.__cxyz = None
+            self.__contour = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
@@ -1191,7 +1196,13 @@ class VIMS:
     @property
     def contour(self):
         """VIMS FOV contour."""
-        return VIMSContour(self)
+        if self.__contour is None:
+            self.__contour = VIMSContour(self)
+        return self.__contour
+
+    def in_contour(self, lon_w, lat):
+        """Check if geographic point is in VIMS FOV contour."""
+        return (lon_w, lat) in self.contour
 
     # ========
     # CORNERS
