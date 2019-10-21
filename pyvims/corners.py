@@ -100,8 +100,8 @@ class VIMSPixelCorners:
             self.__path = Path(self.vertices, self.CODES)
         return self.__path
 
-    def poly(self, **kwargs):
-        """Ground corners matplotlib polygon."""
+    def patch(self, **kwargs):
+        """Ground corners matplotlib polygon patch."""
         return PathPatch(self.path, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
@@ -184,7 +184,7 @@ class VIMSPixelCorners:
 
     @property
     def path_180(self):
-        """Polygon path in [-180°, 180°] equirectangular projection."""
+        """Polygon path in ]-180°, 180°] equirectangular projection."""
         if self.limb:
             return None
 
@@ -204,7 +204,7 @@ class VIMSPixelCorners:
 
     @property
     def path_360(self):
-        """Polygon path in [0°, 360°] equirectangular projection."""
+        """Polygon path in [0°, 360°[ equirectangular projection."""
         if self.limb:
             return None
 
@@ -222,13 +222,13 @@ class VIMSPixelCorners:
 
         return Path(verts, codes)
 
-    def poly_180(self, **kwargs):
-        """Ground corners matplotlib polygon in [0, 360] equirectangular projection."""
+    def patch_180(self, **kwargs):
+        """Ground corners matplotlib polygon in ]-180°, 180°] equirectangular projection."""
         return PathPatch(self.path_180, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
-    def poly_360(self, **kwargs):
-        """Ground corners matplotlib polygon in [0, 360] equirectangular projection."""
+    def patch_360(self, **kwargs):
+        """Ground corners matplotlib polygon in [0°, 360°[ equirectangular projection."""
         return PathPatch(self.path_360, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
