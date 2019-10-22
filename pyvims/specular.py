@@ -29,7 +29,7 @@ def specular_angle(beta, dist, radius, debug=False):
     Raises
     ------
     ValueError
-        If not roots are found or not roots correpond
+        If not roots are found or not roots correspond
         to the expected geometry.
 
     '''
@@ -66,7 +66,7 @@ def specular_angle(beta, dist, radius, debug=False):
 
     if np.min(diff) > 1e-2:
         raise ValueError(f'No root match the expected geometry.\n'
-                         f' - Ouput betas: {np.degrees(betas)} deg.\n'
+                         f' - Output betas: {np.degrees(betas)} deg.\n'
                          f' - Expected: {np.degrees(beta)} deg')
 
     return alphas[np.argmin(diff)]
@@ -94,46 +94,10 @@ def specular_location(sc, sun, radius):
     try:
         alpha = specular_angle(beta, norm(sc), radius)
     except ValueError:
-        return np.array([np.nan, np.nan, False])
+        return np.array([np.nan, np.nan, None])
 
     c, s = np.cos(alpha / 2), np.sin(alpha / 2)
     n = hat(np.cross(sun, sc))
 
     v = q_rot([c, *(s * n)], sun)
     return np.array([*lonlat(v), np.degrees(alpha)])
-
-
-def specular_pts(sc, sun, radius):
-    """Vectorized version of specular location.
-
-    Parameters
-    ----------
-    sc: [[float, …], [float, …], [float, …]]
-        Sub-spacecraft vector.
-    sun: [[float, …], [float, …], [float, …]]
-        Sub-solar vector.
-    radius: float
-        Planet radius (same units as :py:attr:`sc`).
-
-    Return
-    ------
-    (float, float, float)
-        Specular point west longitude, latitude and angle (deg).
-
-    Raises
-    ------
-    ValueError
-        If :py:attr:`sc` and :py:attr:`sun` don't
-        have the same dimension.
-
-    """
-    if np.size(sc) != np.size(sun):
-        raise ValueError('SC and SUN must have the same dimension.')
-
-    npt = int(np.size(sc) / 3)
-    _sc = np.reshape(sc, (3, npt)).T
-    _sun = np.reshape(sun, (3, npt)).T
-
-    return np.reshape(np.transpose([
-        specular_location(_sc[i], _sun[i], radius) for i in range(npt)
-    ]), (3, *np.shape(sc)[1:]))
