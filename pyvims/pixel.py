@@ -289,27 +289,28 @@ class VIMSPixel:
     @property
     def specular_lonlat(self):
         """Specular point west longitude and latitude location."""
-        return None if self.limb else self.specular_pt[:2]
+        return self.specular_pt[:2]
 
     @property
     def specular_lon(self):
         """Specular point west longitude location."""
-        return None if self.limb else self.specular_pt[0]
+        return self.specular_pt[0]
 
     @property
     def specular_lat(self):
         """Specular point north latitude location."""
-        return None if self.limb else self.specular_pt[1]
+        return self.specular_pt[1]
 
     @property
     def specular_angle(self):
         """Specular point north latitude location."""
-        return None if self.limb else self.specular_pt[2]
+        return self.specular_pt[2]
 
     @property
     def is_specular(self):
         """Calculate if the specular point is within the pixel."""
-        return False if not self.specular_angle else self.specular_lonlat in self
+        return False if self.limb or self.specular_angle is None \
+            else self.specular_lonlat in self
 
     @property
     def specular_dist(self):
