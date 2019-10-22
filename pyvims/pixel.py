@@ -3,6 +3,8 @@
 from .coordinates import salt, slat, slon
 from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
+from .specular import specular_location
+from .vectors import hav_dist
 
 
 class VIMSPixel:
@@ -23,6 +25,7 @@ class VIMSPixel:
         self._cube = cube
         self.s = s
         self.l = l
+        self.__spec = None
 
     def __str__(self):
         return f'{self._cube}-S{self.s}_L{self.l}'
@@ -251,31 +254,6 @@ class VIMSPixel:
         return self._cube.res[self.j, self.i]
 
     @property
-    def is_specular(self):
-        """Calculate if the specular point is within the pixel."""
-        return self._cube.is_specular[self.j, self.i] if self.ground else None
-
-    @property
-    def specular_lon(self):
-        """Specular point west longitude location."""
-        return self._cube.specular_lon[self.j, self.i] if self.ground else None
-
-    @property
-    def specular_lat(self):
-        """Specular point north latitude location."""
-        return self._cube.specular_lat[self.j, self.i] if self.ground else None
-
-    @property
-    def specular_angle(self):
-        """Specular point north latitude location."""
-        return self._cube.specular_angle[self.j, self.i] if self.ground else None
-
-    @property
-    def specular_dist(self):
-        """Haversine distance between the pixel and the specular reflection."""
-        return self._cube.specular_dist[self.j, self.i] if self.ground else None
-
-    @property
     def corners(self):
         """VIMS pixel corners."""
         return VIMSPixelCorners(self)
@@ -292,3 +270,44 @@ class VIMSPixel:
     def patch(self, **kwargs):
         """Ground corners matplotlib polygon patch."""
         return self.corners.patch(**kwargs)
+
+    @property
+    def specular_pt(self):
+        """Specular point location."""
+        if self.__spec is None:
+            self.__spec = specular_location(self._cube._sc_position(self.et),
+                                            self._cube._sun_position(self.et),
+                                            self._cube.target_radius)
+        return self.__spec
+
+    @property
+    def specular_lonlat(self):
+        """Specular point west longitude and latitude location."""
+        return None if self.limb else self.specular_pt[:2]
+
+    @property
+    def specular_lon(self):
+        """Specular point west longitude location."""
+        return None if self.limb else self.specular_pt[0]
+
+    @property
+    def specular_lat(self):
+        """Specular point north latitude location."""
+        return None if self.limb else self.specular_pt[1]
+
+    @property
+    def specular_angle(self):
+        """Specular point north latitude location."""
+        return None if self.limb else self.specular_pt[2]
+
+    @property
+    def is_specular(self):
+        """Calculate if the specular point is within the pixel."""
+        return False if not self.specular_angle else self.specular_lonlat in self
+
+    @property
+    def specular_dist(self):
+        """Haversine distance between the pixel and the specular reflection."""
+        return None if not self.specular_angle else hav_dist(*self.lonlat,
+                                                             *self.specular_lonlat,
+                                                             self._cube.target_radius)
