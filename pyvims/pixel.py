@@ -73,6 +73,12 @@ class VIMSPixel:
         """
         return item in self.corners
 
+    def __eq__(self, item):
+        try:
+            return str(self) == str(item)
+        except TypeError:
+            return False
+
     @property
     def s(self):
         """Pixel sample position."""
