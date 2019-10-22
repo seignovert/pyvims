@@ -172,18 +172,18 @@ class VIMSContour:
         return Path(verts, codes)
 
     def patch_180(self, **kwargs):
-        """Ground contour matplotlib polygon in ]-180°, 180°] equirectangular projection."""
+        """Ground contour polygon in ]-180°, 180°] equirectangular projection."""
         return PathPatch(self.path_180, **kwargs)
 
     def patch_360(self, **kwargs):
-        """Ground contour matplotlib polygon in [0°, 360°[ equirectangular projection."""
+        """Ground contour polygon in [0°, 360°[ equirectangular projection."""
         return PathPatch(self.path_360, **kwargs)
 
     @property
     def path(self):
-        """Ground contour matplotlib path."""
+        """Ground contour path."""
         return self.path_360
 
     def patch(self, **kwargs):
-        """Ground contour matplotlib polygon patch."""
+        """Ground contour polygon patch."""
         return self.patch_360(**kwargs)
