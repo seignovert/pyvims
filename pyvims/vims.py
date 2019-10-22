@@ -20,7 +20,6 @@ from .pixel import VIMSPixel
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
-from .specular import specular_pts
 from .target import intersect
 from .time import hex2double
 from .vars import VIMS_DATA_PORTAL
@@ -213,7 +212,9 @@ class VIMS:
         self.__flimb = None
         self.__fpath_180 = None
         self.__fpath_180 = None
-        self.__spec = None
+        self.__spec_pix = None
+        self.__spec_pts = None
+        self.__spec_mid_pt = None
 
     @property
     def filename(self):
@@ -635,7 +636,9 @@ class VIMS:
             self.__flimb = None
             self.__fpath_180 = None
             self.__fpath_360 = None
-            self.__spec = None
+            self.__spec_pix = None
+            self.__spec_pts = None
+            self.__spec_mid_pt = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -718,7 +721,9 @@ class VIMS:
             self.__flimb = None
             self.__fpath_180 = None
             self.__fpath_360 = None
-            self.__spec = None
+            self.__spec_pix = None
+            self.__spec_pts = None
+            self.__spec_mid_pt = None
         return self.__pixels
 
     @property
@@ -742,7 +747,9 @@ class VIMS:
             self.__flimb = None
             self.__fpath_180 = None
             self.__fpath_360 = None
-            self.__spec = None
+            self.__spec_pix = None
+            self.__spec_pts = None
+            self.__spec_mid_pt = None
         return self.__sky
 
     @property
@@ -873,7 +880,9 @@ class VIMS:
             self.__flimb = None
             self.__fpath_180 = None
             self.__fpath_360 = None
-            self.__spec = None
+            self.__spec_pix = None
+            self.__spec_pts = None
+            self.__spec_mid_pt = None
         return self.__xyz
 
     @property
@@ -1653,66 +1662,114 @@ class VIMS:
         return None
 
     @property
-    def _specular_pts(self):
-        """Specular points location and angle."""
-        if self.__spec is None:
-            self.__spec = specular_pts(self._sc_position(self.et),
-                                       self._sun_position(self.et),
-                                       self.target_radius)
-        return self.__spec
+    def specular_pixels(self):
+        """List specular pixels."""
+        if self.__spec_pix is None:
+            pixels = []
+            for l in range(1, self.NL + 1):
+                for s in range(1, self.NS + 1):
+                    pixel = self[s, l]
+                    if pixel.is_specular:
+                        pixels.append(pixel)
+            self.__spec_pix = pixels
+        return self.__spec_pix
 
     @property
-    def specular_lon(self):
-        """Specular point west longitude."""
-        return self._specular_pts[0]
+    def guess_specular_pixels(self):
+        """Guess if the cube has specular pixels.
 
-    @property
-    def specular_lat(self):
-        """Specular point north latitude."""
-        return self._specular_pts[1]
+        1. Take the first, mid and last specular locations
+        and check if they are included in the FOV contour.
 
-    @property
-    def specular_angle(self):
-        """Specular point north latitude."""
-        return self._specular_pts[2]
+        2. Check if the specular locations for these
+        three pixel fall all into the same pixel.
 
-    @property
-    def specular_dist(self):
-        """Haversine distance between the pixel and the specular reflection."""
-        return self.dist_pt(*self._specular_pts[:2])
+        """
+        first = self[1, 1]
+        middle = self[self.NS // 2, self.NL // 2]
+        last = self[self.NS, self.NL]
 
-    @property
-    def is_specular(self):
-        """Calculate if the specular point is within the pixel."""
-        return np.ma.array(
-            (self.specular_dist < self.ground_res)
-            & (np.abs(self.specular_angle - self.inc) < 5)
-            & (np.abs(self.specular_angle - self.eme) < 5),
-            mask=self.limb,
-            dtype=bool,
-            fill_value=False)
+        if (first.specular_lonlat not in self.contour
+                and middle.specular_lonlat not in self.contour
+                and last.specular_lonlat not in self.contour):
+            return []
 
-    @property
-    def specular_pixel(self):
-        """List specular pixels [S, L] values."""
-        return self._sl[:, self.is_specular.filled()]
+        first_pix = self.get_pixel(*first.specular_lonlat)
+        middle_pix = self.get_pixel(*middle.specular_lonlat)
+        last_pix = self.get_pixel(*last.specular_lonlat)
+
+        if first_pix == middle_pix == last_pix:
+            return [] if first_pix is None else [first_pix]
+
+        return self.specular_pixels
 
     @property
     def nb_specular(self):
         """Number of specular pixels."""
-        return int(np.nansum(self.is_specular.filled()))
+        return len(self.specular_pixels)
 
     @property
-    def specular_sl(self):
-        """List specular pixels (S, L) points coordinates tuple(s)."""
-        nb_spec = self.nb_specular
-        if nb_spec == 0:
-            return None
+    def guess_nb_specular(self):
+        """Guess the number of specular pixels."""
+        return len(self.guess_specular_pixels)
 
-        if nb_spec == 1:
-            return [tuple([
-                int(self.specular_pixel[0, 0]),
-                int(self.specular_pixel[1, 0]),
-            ])]
+    @property
+    def _specular_pts(self):
+        """List specular point locations at the begging and end of each line."""
+        if self.__spec_pts is None:
+            pts = []
+            for l in range(1, self.NL + 1):
+                pts.append(self[1, l].specular_pt)
+                pts.append(self[self.NS, l].specular_pt)
+            self.__spec_pts = np.transpose(pts)
+        return self.__spec_pts
 
-        return [tuple([int(s), int(l)]) for s, l in self.specular_pixel.T]
+    @property
+    def specular_pts_lonlat(self):
+        """Specular points west longitudes."""
+        return self._specular_pts[:2]
+
+    @property
+    def specular_pts_lon(self):
+        """Specular points west longitudes."""
+        return self._specular_pts[0]
+
+    @property
+    def specular_pts_lat(self):
+        """Specular points latitudes."""
+        return self._specular_pts[1]
+
+    @property
+    def specular_pts_angle(self):
+        """Specular points angles."""
+        return self._specular_pts[2]
+
+    @property
+    def specular_pts_length(self):
+        """Specular points length.
+
+        Distance on the ground crossed by the specular points
+        during the cube acquisition.
+
+        """
+        lonlat = self.specular_pts_lonlat
+        return np.sum(hav_dist(*lonlat[:, :-1], *lonlat[:, 1:], self.target_radius))
+
+    @property
+    def specular_pts_dangle(self):
+        """Specular points angular range."""
+        angles = self.specular_pts_angle
+        return angles.max() - angles.min()
+
+    @property
+    def specular_mid_pt(self):
+        """Specular mid point."""
+        if self.__spec_mid_pt is None:
+            mid_pixel = self[self.NS // 2, self.NL // 2]
+            self.__spec_mid_pt = {
+                'lonlat': mid_pixel.specular_lonlat,
+                'lon': mid_pixel.specular_lon,
+                'lat': mid_pixel.specular_lat,
+                'angle': mid_pixel.specular_angle,
+            }
+        return self.__spec_mid_pt
