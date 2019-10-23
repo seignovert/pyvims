@@ -260,6 +260,31 @@ class VIMSPixel:
         return self._cube.res[self.j, self.i]
 
     @property
+    def sc_pt(self):
+        """Pixel sub-spacecraft point location."""
+        return self._cube._sc_position(self.et)
+
+    @property
+    def sc(self):
+        """Pixel sub-spacecraft point geographic coordinates."""
+        return lonlat(self.sc_pt)
+
+    @property
+    def ss_pt(self):
+        """Pixel sub-solar point location."""
+        return self._cube._sun_position(self.et)
+
+    @property
+    def ss(self):
+        """Pixel sub-solar point geographic coordinates."""
+        return lonlat(self.ss_pt)
+
+    @property
+    def target_radius(self):
+        """Pixel target radius (km)."""
+        return self._cube.target_radius
+
+    @property
     def corners(self):
         """VIMS pixel corners."""
         return VIMSPixelCorners(self)
@@ -279,11 +304,11 @@ class VIMSPixel:
 
     @property
     def specular_pt(self):
-        """Specular point location."""
+        """Specular point location at the time of the pixel acquisition."""
         if self.__spec is None:
-            self.__spec = specular_location(self._cube._sc_position(self.et),
-                                            self._cube._sun_position(self.et),
-                                            self._cube.target_radius)
+            self.__spec = specular_location(self.sc_pt,
+                                            self.ss_pt,
+                                            self.target_radius)
         return self.__spec
 
     @property
@@ -317,4 +342,4 @@ class VIMSPixel:
         """Haversine distance between the pixel and the specular reflection."""
         return None if not self.specular_angle else hav_dist(*self.lonlat,
                                                              *self.specular_lonlat,
-                                                             self._cube.target_radius)
+                                                             self.target_radius)
