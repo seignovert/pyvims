@@ -6,6 +6,9 @@ from .vectors import hat, norm, lonlat
 from .quaternions import q_rot
 
 
+SUN_RADIUS = 6.955e5  # km
+
+
 def specular_angle(beta, dist, radius, debug=False):
     '''Find specular angle with SS in the SS-O-SC plane.
 
@@ -101,3 +104,24 @@ def specular_location(sc, sun, radius):
 
     v = q_rot([c, *(s * n)], sun)
     return np.array([*lonlat(v), np.degrees(alpha)])
+
+
+def specular_footprint(sc, ss, radius, npt=33):
+    """Calculate the specular footprint of the sun on the surface."""
+    theta = np.linspace(0, 2 * np.pi, npt)
+    ct = np.transpose([np.cos(theta)])
+    st = np.transpose([np.sin(theta)])
+
+    x = hat(np.cross(ss, np.cross(ss, [0, 0, 1])))
+    y = hat(np.cross(ss, x))
+
+    ss_sun = ss + SUN_RADIUS * (x * ct + y * st)
+
+    lons = []
+    lats = []
+    for sun in ss_sun:
+        lon, lat, _ = specular_location(sc, sun, radius)
+        lons.append(lon)
+        lats.append(lat)
+
+    return np.array([lons, lats])
