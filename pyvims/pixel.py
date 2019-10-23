@@ -1,10 +1,12 @@
 """VIMS pixel module."""
 
+import numpy as np
+
 from .coordinates import salt, slat, slon
 from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
-from .specular import specular_location
-from .vectors import hav_dist
+from .specular import specular_footprint, specular_location
+from .vectors import hav_dist, lonlat
 
 
 class VIMSPixel:
@@ -26,6 +28,7 @@ class VIMSPixel:
         self.s = s
         self.l = l
         self.__spec = None
+        self.__sun_footprint = None
 
     def __str__(self):
         return f'{self._cube}-S{self.s}_L{self.l}'
@@ -343,3 +346,34 @@ class VIMSPixel:
         return None if not self.specular_angle else hav_dist(*self.lonlat,
                                                              *self.specular_lonlat,
                                                              self.target_radius)
+
+    @property
+    def sun_footprint(self):
+        """Specular footprint of the sun at the time of the pixel acquisition."""
+        if self.__sun_footprint is None:
+            self.__sun_footprint = specular_footprint(self.sc_pt,
+                                                      self.ss_pt,
+                                                      self.target_radius)
+        return self.__sun_footprint
+
+    @property
+    def _sun_footprint_r(self):
+        """Specular footprint radius extent on the ground (km)."""
+        return hav_dist(*self.sun_footprint,
+                        *self.specular_lonlat,
+                        self.target_radius)
+
+    @property
+    def sun_footprint_a(self):
+        """Specular footprint max extent (km)."""
+        return self._sun_footprint_r.max()
+
+    @property
+    def sun_footprint_b(self):
+        """Specular footprint min extent (km)."""
+        return self._sun_footprint_r.min()
+
+    @property
+    def sun_footprint_area(self):
+        """Specular footprint area extent (km^2)."""
+        return np.pi * self.sun_footprint_a * self.sun_footprint_b
