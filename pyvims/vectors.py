@@ -93,6 +93,40 @@ def lonlat(xyz):
     lat = np.degrees(np.arcsin(z / norm(xyz)))
     return np.array([lon_w, lat])
 
+def xyz(lon_w, lat, alt=1):
+    """Convert geographic coordinates in cartesian coordinates.
+
+    Parameters
+    ----------
+    lon_w: float or numpy.array
+        Point(s) west longitude [0°, 360°[.
+    lat: float or numpy.array
+        Point(s) latitude [-90°, 90°].
+    alt: float or numpy.array, optional
+        Point(s) altitude [km].
+
+    Return
+    ------
+    [float, float, float]
+        Cartesian coordinates.
+
+    Examples
+    --------
+    >>> xyz(0, 0)
+    [1, 0, 0]
+    >>> xyz(90, 0)
+    [0, -1, 0]
+    >>> xyz(315, 0)
+    [0.707..., 0.707..., 0]
+    >>> xyz(0, 45)
+    [0.707..., 0, 0.707...]
+
+    """
+    _lon_w, _lat = np.radians([lon_w, lat])
+    clon_e, clat = np.cos([-_lon_w, _lat])
+    slon_e, slat = np.sin([-_lon_w, _lat])
+    return alt * np.array([clat * clon_e, clat * slon_e, slat])
+
 
 def radec(j2000):
     """Convert RA/DEC pointing in cartesian coordinates in J2000 frame.
