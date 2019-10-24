@@ -16,6 +16,7 @@ from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
 from .isis import ISISCube
+from .misc import great_circle_patch
 from .pixel import VIMSPixel
 from .plot import plot_cube
 from .projections import ortho_proj
@@ -1131,6 +1132,21 @@ class VIMS:
     def ground_ortho(self):
         """Orthographic projection of the pixels on the ground."""
         return ortho_proj(self.ground_lon, self.ground_lat, *self.sc, self.target_radius)
+
+    @property
+    def fov_patch(self):
+        """Mean field of view patch on the ground."""
+        return great_circle_patch(*self.sc, inside=True, color='r', alpha=.1)
+
+    @property
+    def sun_patch(self):
+        """Sun illumination patch on the ground."""
+        return great_circle_patch(*self.ss, inside=True, color='gold', alpha=.1)
+
+    @property
+    def shadow_patch(self):
+        """Shadow patch on the ground."""
+        return great_circle_patch(*self.ss, inside=False, color='k', alpha=.1)
 
     # ============
     # FOV CONTOUR
