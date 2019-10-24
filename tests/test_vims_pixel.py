@@ -93,7 +93,7 @@ def test_pixel_properties(pixel):
     assert pixel.specular_lon == approx(141.2, abs=.1)
     assert pixel.specular_lat == approx(79.25, abs=.1)
     assert pixel.specular_angle == approx(65.77, abs=.1)
-    assert pixel.specular_dist == approx(195.2, abs=.1)
+    assert pixel.specular_dist == approx(60.8, abs=.1)
 
     assert len(pixel.spectrum) == len(pixel.wvlns)
     assert pixel.wvlns[0] == approx(0.892, abs=1e-3)
@@ -131,11 +131,7 @@ def test_limb_pixel_properties(limb_pixel):
     assert limb_pixel.dist_sc == approx(219698.4, abs=.1)
     assert limb_pixel.res == approx(108.7, abs=.1)
 
-    assert limb_pixel.is_specular is None
-    assert limb_pixel.specular_lon is None
-    assert limb_pixel.specular_lat is None
-    assert limb_pixel.specular_angle is None
-    assert limb_pixel.specular_dist is None
+    assert not limb_pixel.is_specular
 
 
 def test_pixel_properties_err(pixel):
