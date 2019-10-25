@@ -183,3 +183,11 @@ def _merge(lv, rv):
              + [Path.MOVETO] + [Path.LINETO] * (len(rv) - 2) + [Path.CLOSEPOLY])
 
     return np.vstack([lv, rv]), codes
+
+
+def area(vertices):
+    """Calculate the area of a polygon based on its catesian vertices."""
+    x, y = np.transpose(vertices)
+    y1 = np.array([*y[1:], y[0]])
+    x2 = np.array([*x[2:], *x[:2]])
+    return .5 * np.abs(np.sum((x2 - x) * y1))
