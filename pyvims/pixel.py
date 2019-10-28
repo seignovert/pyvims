@@ -99,7 +99,7 @@ class VIMSPixel:
             If the sample is outside the image range.
 
         """
-        if not isinstance(sample, int):
+        if not isinstance(sample, (int, np.int64)):
             raise VIMSError(f'Sample `{sample}` must be an integer.')
 
         if not 1 <= sample <= self._cube.NS:
@@ -128,7 +128,7 @@ class VIMSPixel:
             If the line is outside the image range.
 
         """
-        if not isinstance(line, int):
+        if not isinstance(line, (int, np.int64)):
             raise VIMSError(f'Line `{line}` must be an integer.')
 
         if not 1 <= line <= self._cube.NL:

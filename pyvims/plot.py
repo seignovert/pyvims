@@ -179,7 +179,7 @@ def plot_img(c, index, ax=None, title=None,
 
     if show_specular:
         edgecolors = 'r' if not isinstance(show_specular, str) else show_specular
-        ax.scatter(*c.specular_pixel, facecolors='none', edgecolors=edgecolors,
+        ax.scatter(*c.specular_sl.T, facecolors='none', edgecolors=edgecolors,
                    label=f'Specular: {c.specular_sl}')
         show_legend = True if show_legend is None else show_legend
 
@@ -663,7 +663,6 @@ def plot_equi(c, index, ax=None, title=None,
 
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
-
 
     if show_img:
         opts = {}

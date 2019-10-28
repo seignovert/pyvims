@@ -47,7 +47,7 @@ def get_img_id(fname):
 
 def _parse(val):
     """Parse index values based on type or format."""
-    if isinstance(val, (int, float, slice)):
+    if isinstance(val, (int, float, slice, np.int64)):
         return val
 
     if isinstance(val, (tuple, list)):
@@ -1691,6 +1691,11 @@ class VIMS:
         return self.__spec_pix
 
     @property
+    def specular_sl(self):
+        """Specular pixels positions."""
+        return np.array([[pixel.s, pixel.l] for pixel in self.specular_pixels])
+
+    @property
     def guess_specular_pixels(self):
         """Guess if the cube has specular pixels.
 
@@ -1787,5 +1792,8 @@ class VIMS:
                 'lon': mid_pixel.specular_lon,
                 'lat': mid_pixel.specular_lat,
                 'angle': mid_pixel.specular_angle,
+                'sun_a': mid_pixel.sun_footprint_a,
+                'sun_b': mid_pixel.sun_footprint_b,
+                'sun_area': mid_pixel.sun_footprint_area,
             }
         return self.__spec_mid_pt
