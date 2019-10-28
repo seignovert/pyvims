@@ -5,8 +5,10 @@ import numpy as np
 from .coordinates import salt, slat, slon
 from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
+from .projections.lambert import xy as lambert
 from .specular import specular_footprint, specular_location
 from .vectors import hav_dist, lonlat
+from .vertices import area
 
 
 class VIMSPixel:
@@ -370,15 +372,16 @@ class VIMSPixel:
 
     @property
     def sun_footprint_a(self):
-        """Specular footprint max extent (km)."""
+        """Sun footprint max extent on the ground (km)."""
         return self._sun_footprint_r.max()
 
     @property
     def sun_footprint_b(self):
-        """Specular footprint min extent (km)."""
+        """Sun footprint min extent on the ground (km)."""
         return self._sun_footprint_r.min()
 
     @property
     def sun_footprint_area(self):
-        """Specular footprint area extent (km^2)."""
-        return np.pi * self.sun_footprint_a * self.sun_footprint_b
+        """Sun footprint area on the ground (km^2)."""
+        vertices = lambert(*self.sun_footprint, *self._cube.sc).T
+        return area(vertices) * self.target_radius ** 2
