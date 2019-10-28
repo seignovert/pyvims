@@ -302,8 +302,13 @@ class VIMSPixel:
         self._cube.plot((self.s, self.l), **kwargs)
 
     def patch(self, **kwargs):
-        """Ground corners matplotlib polygon patch."""
+        """Ground corners matplotlib patch."""
         return self.corners.patch(**kwargs)
+
+    @property
+    def area(self):
+        """Ground corners surface area (km^2)."""
+        return self.corners.area
 
     @property
     def specular_pt(self):

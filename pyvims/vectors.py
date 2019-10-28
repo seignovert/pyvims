@@ -93,6 +93,7 @@ def lonlat(xyz):
     lat = np.degrees(np.arcsin(z / norm(xyz)))
     return np.array([lon_w, lat])
 
+
 def xyz(lon_w, lat, alt=1):
     """Convert geographic coordinates in cartesian coordinates.
 

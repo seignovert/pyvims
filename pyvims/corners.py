@@ -6,7 +6,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 from .projections.lambert import xy as lambert
-from .vertices import path_cross_180, path_cross_360, path_pole_180, path_pole_360
+from .vertices import area, path_cross_180, path_cross_360, path_pole_180, path_pole_360
 from .vectors import deg180, deg360
 
 
@@ -213,12 +213,12 @@ class VIMSPixelCorners:
         return Path(verts, codes)
 
     def patch_180(self, **kwargs):
-        """Ground corners matplotlib polygon in ]-180°, 180°] equirectangular projection."""
+        """Ground corners matplotlib patch in ]-180°, 180°] equirectangular projection."""
         return PathPatch(self.path_180, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
     def patch_360(self, **kwargs):
-        """Ground corners matplotlib polygon in [0°, 360°[ equirectangular projection."""
+        """Ground corners matplotlib patch in [0°, 360°[ equirectangular projection."""
         return PathPatch(self.path_360, **kwargs) if self.ground else \
             PathPatch([[0, 0], [0, 0]])
 
@@ -228,8 +228,18 @@ class VIMSPixelCorners:
         return self.path_360
 
     def patch(self, **kwargs):
-        """Ground corners matplotlib polygon patch."""
+        """Ground corners matplotlib patch."""
         return self.patch_360(**kwargs)
+
+    @property
+    def area(self):
+        """Corners area on the ground.
+
+        Use lambert equal-area projected pixel
+        centered on the mean sub-spacecraft point.
+
+        """
+        return area(self._lambert_path.vertices) * self._cube.target_radius ** 2
 
 
 class VIMSPixelFootpint(VIMSPixelCorners):
