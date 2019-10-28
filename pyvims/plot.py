@@ -213,6 +213,9 @@ def plot_img(c, index, ax=None, title=None,
     if show_legend:
         ax.legend()
 
+    ax.set_xlim(.5, c.NS + .5)
+    ax.set_ylim(c.NL + .5, .5)
+
     return ax
 
 
