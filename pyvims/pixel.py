@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from .angles import DEC, RA
 from .coordinates import salt, slat, slon
 from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
@@ -36,6 +37,15 @@ class VIMSPixel:
         return f'{self._cube}-S{self.s}_L{self.l}'
 
     def __repr__(self):
+        if self._cube.target_name == 'SKY':
+            return '\n - '.join([
+                f'<{self.__class__.__name__}> {self}',
+                f'Sample: {self.s}',
+                f'Line: {self.l}',
+                f'RA: {self.ra}',
+                f'Dec: {self.dec}',
+            ])
+
         return '\n - '.join([
             f'<{self.__class__.__name__}> {self}',
             f'Sample: {self.s}',
@@ -172,12 +182,12 @@ class VIMSPixel:
     @property
     def ra(self):
         """Pixel right ascension (deg)."""
-        return self._cube.sky[0, self.j, self.i]
+        return RA(self._cube.sky[0, self.j, self.i])
 
     @property
     def dec(self):
         """Pixel right declination (deg)."""
-        return self._cube.sky[1, self.j, self.i]
+        return DEC(self._cube.sky[1, self.j, self.i])
 
     @property
     def lonlat(self):
