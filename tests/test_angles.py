@@ -32,12 +32,12 @@ def test_angle_math():
 
 def test_ra_parser():
     """Test RA HMS parser."""
-    assert RA.parse('12h34m56s') == approx(188.73, abs=2)
-    assert RA.parse('12h34m56.789s') == approx(188.73, abs=2)
-    assert RA.parse('12:34:56') == approx(188.73, abs=2)
-    assert RA.parse('12:34:56.789') == approx(188.73, abs=2)
-    assert RA.parse('12 34 56') == approx(188.73, abs=2)
-    assert RA.parse('12 34 56.789') == approx(188.73, abs=2)
+    assert RA.parse('12h34m56s') == approx(188.73, abs=1e-2)
+    assert RA.parse('12h34m56.789s') == approx(188.73, abs=1e-2)
+    assert RA.parse('12:34:56') == approx(188.73, abs=1e-2)
+    assert RA.parse('12:34:56.789') == approx(188.73, abs=1e-2)
+    assert RA.parse('12 34 56') == approx(188.73, abs=1e-2)
+    assert RA.parse('12 34 56.789') == approx(188.73, abs=1e-2)
 
     with raises(ValueError):
         _ = RA.parse('12d34m56s')
@@ -58,31 +58,31 @@ def test_ra_attr():
 
     assert isinstance(2 + ra, RA)
 
-    assert ra.hours == approx(0.71, abs=2)
+    assert ra.hours == approx(0.71, abs=1e-2)
     assert ra.h == 0
-    assert ra.minutes == approx(42.50, abs=2)
+    assert ra.minutes == approx(42.50, abs=1e-2)
     assert ra.m == 42
-    assert ra.secondes == approx(30.00, abs=2)
+    assert ra.secondes == approx(30.00, abs=1e-2)
     assert ra.s == 30
 
-    assert ra.radians == ra.rad == approx(0.185, abs=3)
-    assert ra.cos == approx(0.983, abs=3)
-    assert ra.sin == approx(0.184, abs=3)
+    assert ra.radians == ra.rad == approx(0.185, abs=1e-3)
+    assert ra.cos == approx(0.983, abs=1e-3)
+    assert ra.sin == approx(0.184, abs=1e-3)
 
 
 def test_dec_parser():
     """Test DEC DMS parser."""
-    assert DEC.parse('12d34m56s') == approx(12.58, abs=2)
-    assert DEC.parse('12d34m56.789s') == approx(12.58, abs=2)
-    assert DEC.parse('+12d34m56s') == approx(12.58, abs=2)
-    assert DEC.parse('-12d34m56s') == approx(-12.58, abs=2)
-    assert DEC.parse('12:34:56') == approx(12.58, abs=2)
-    assert DEC.parse('12:34:56.789') == approx(12.58, abs=2)
-    assert DEC.parse('12 34 56') == approx(12.58, abs=2)
-    assert DEC.parse('12 34 56.789') == approx(12.58, abs=2)
-    assert DEC.parse("12°34'56''") == approx(12.58, abs=2)
-    assert DEC.parse("12º34'56\"") == approx(12.58, abs=2)
-    assert DEC.parse('12°34′56″') == approx(12.58, abs=2)
+    assert DEC.parse('12d34m56s') == approx(12.58, abs=1e-2)
+    assert DEC.parse('12d34m56.789s') == approx(12.58, abs=1e-2)
+    assert DEC.parse('+12d34m56s') == approx(12.58, abs=1e-2)
+    assert DEC.parse('-12d34m56s') == approx(-12.58, abs=1e-2)
+    assert DEC.parse('12:34:56') == approx(12.58, abs=1e-2)
+    assert DEC.parse('12:34:56.789') == approx(12.58, abs=1e-2)
+    assert DEC.parse('12 34 56') == approx(12.58, abs=1e-2)
+    assert DEC.parse('12 34 56.789') == approx(12.58, abs=1e-2)
+    assert DEC.parse("12°34'56''") == approx(12.58, abs=1e-2)
+    assert DEC.parse("12º34'56\"") == approx(12.58, abs=1e-2)
+    assert DEC.parse('12°34′56″') == approx(12.58, abs=1e-2)
 
     with raises(ValueError):
         DEC.parse('12h34m56s')
@@ -99,16 +99,16 @@ def test_dec_attr():
 
     assert isinstance(2 + dec, DEC)
 
-    assert dec.degrees == approx(12.58, abs=2)
+    assert dec.degrees == approx(12.58, abs=1e-2)
     assert dec.d == 12
-    assert dec.minutes == approx(34.80, abs=2)
+    assert dec.minutes == approx(34.80, abs=1e-2)
     assert dec.m == 34
-    assert dec.secondes == approx(48.00, abs=2)
+    assert dec.secondes == approx(48.00, abs=1e-2)
     assert dec.s == 48
 
-    assert dec.radians == dec.rad == approx(0.220, abs=3)
-    assert dec.cos == approx(0.976, abs=3)
-    assert dec.sin == approx(0.218, abs=3)
+    assert dec.radians == dec.rad == approx(0.220, abs=1e-3)
+    assert dec.cos == approx(0.976, abs=1e-3)
+    assert dec.sin == approx(0.218, abs=1e-3)
 
     with raises(ValueError):
         _ = DEC(90.1)
