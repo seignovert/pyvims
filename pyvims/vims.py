@@ -21,10 +21,11 @@ from .pixel import VIMSPixel
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
+from .star import Star
 from .target import intersect
 from .time import hex2double
 from .vars import VIMS_DATA_PORTAL
-from .vectors import angle, deg180, hat, lonlat, norm, radec, hav_dist, v_max_dist
+from .vectors import angle, deg180, hat, hav_dist, lonlat, norm, radec, v_max_dist
 from .wget import wget
 
 
@@ -1797,3 +1798,28 @@ class VIMS:
                 'sun_area': mid_pixel.sun_footprint_area,
             }
         return self.__spec_mid_pt
+
+    def star(self, star_obj):
+        """Star object corrected from proper motion and observer position.
+
+        Parameters
+        ----------
+        star_obj: dict
+            Star object dictionary from stars catalog. For example:
+
+            .. code:: python
+
+                {
+                    'source_id': 6071671369457586688,
+                    'ra': 187.81968200536744,
+                    'dec': -57.081421470214885,
+                    'pmra': 2.3170379374019983,
+                    'pmdec': -21.34892029322907,
+                    'parallax': 5.621437016523866,
+                    'phot_g_mean_mag': 6.3963637,
+                }
+
+        """
+        return Star(et=self.et_median,
+                    obs=-self._sun_position(self.et_median),  # Observer: Cassini -> Sun
+                    **star_obj)
