@@ -3,6 +3,7 @@
 import hashlib
 import io
 import os
+import re
 
 import requests
 
@@ -10,7 +11,7 @@ from tqdm import tqdm
 
 
 def nb_chunk(request, chunk=1024):
-    '''Calculate the number of chunk of a request size.
+    """Calculate the number of chunk of a request size.
 
     Parameters
     ----------
@@ -42,7 +43,7 @@ def nb_chunk(request, chunk=1024):
     For now we get this value to ``4594223`` (4.4 Mb) which
     correspond to the size of a typical 64x64 IR cube.
 
-    '''
+    """
     if 'content-length' in request.headers:
         size = int(request.headers['content-length'])
     else:
@@ -51,7 +52,7 @@ def nb_chunk(request, chunk=1024):
 
 
 def wget(url, filename=None, md5=None, overwrite=False, verbose=True, chunk_size=1024):
-    '''Download file based on url and it as file.
+    """Download file based on url and it as file.
 
     Parameters
     ----------
@@ -79,7 +80,7 @@ def wget(url, filename=None, md5=None, overwrite=False, verbose=True, chunk_size
     HTTPError
         If the HTTP request is invalid.
 
-    '''
+    """
     # tqdm bar format
     bar_format = '{desc}: {percentage:3.0f}% |{bar}| ({rate_fmt}{postfix})'
 
@@ -123,7 +124,7 @@ def wget(url, filename=None, md5=None, overwrite=False, verbose=True, chunk_size
 
 
 def check_md5(data, md5=None):
-    '''Check MD5 checksum matches the expeted value.
+    """Check MD5 checksum matches the expeted value.
 
     Parameters
     ----------
@@ -142,7 +143,7 @@ def check_md5(data, md5=None):
     IOError
         If :py:attr:`md5` don't match.
 
-    '''
+    """
     if md5 is not None:
         data_md5 = hashlib.md5(data).hexdigest()  # nosec: B303
         if data_md5 != md5:
@@ -150,3 +151,59 @@ def check_md5(data, md5=None):
                 'MD5 data ({data_md5}) does not match the expected value ({md5}).')
         return True
     return False
+
+
+def wget_txt(url):
+    """Get web page text content.
+
+    Parameters
+    ----------
+    url: str
+        URL page to download.
+
+    Raises
+    ------
+    HTTPError
+        If the HTTP request is invalid.
+
+    """
+
+    resp = requests.get(url)
+    if resp.status_code == requests.codes.ok:
+        return resp.text.replace('href="/', f'href="{domain(url)}')
+    return resp.raise_for_status()
+
+
+def domain(url):
+    """Get domain from url.
+
+    Domain must start with ``http://``, ``https://``
+    or ``/``.
+
+    Parameters
+    ----------
+    url: str
+        URL to parse to extract the domain.
+
+    Raises
+    ------
+    ValueError
+        If the URL pattern is invalid.
+
+    Examples
+    --------
+    >>> domain('https://example.com/test/page.html')
+    'https://example.com/'
+    >>> domain('http://example.com/test/page.html')
+    'http://example.com/'
+    >>> domain('/example.com/test/page.html')
+    '/example.com/'
+
+
+    """
+    pattern = re.compile(r'^(https?:/)?(/[a-z0-9][a-z0-9-_.]*/)')
+    res = pattern.match(url)
+    if res:
+        return res.group(2) if res.group(1) is None else ''.join(res.groups())
+
+    raise ValueError(f'Invalid URL pattern: `{url}`.')
