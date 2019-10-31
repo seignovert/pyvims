@@ -94,7 +94,7 @@ def lonlat(xyz):
     return np.array([lon_w, lat])
 
 
-def xyz(lon_w, lat, alt=1):
+def xyz(lon_w, lat, r=1):
     """Convert geographic coordinates in cartesian coordinates.
 
     Parameters
@@ -103,8 +103,8 @@ def xyz(lon_w, lat, alt=1):
         Point(s) west longitude [0°, 360°[.
     lat: float or numpy.array
         Point(s) latitude [-90°, 90°].
-    alt: float or numpy.array, optional
-        Point(s) altitude [km].
+    r: float or numpy.array, optional
+        Point(s) distance/altitude [km].
 
     Return
     ------
@@ -126,7 +126,7 @@ def xyz(lon_w, lat, alt=1):
     _lon_w, _lat = np.radians([lon_w, lat])
     clon_e, clat = np.cos([-_lon_w, _lat])
     slon_e, slat = np.sin([-_lon_w, _lat])
-    return alt * np.array([clat * clon_e, clat * slon_e, slat])
+    return r * np.array([clat * clon_e, clat * slon_e, slat])
 
 
 def radec(j2000):
