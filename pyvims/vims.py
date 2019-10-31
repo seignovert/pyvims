@@ -1647,7 +1647,7 @@ class VIMS:
     @property
     def flyby(self):
         """Cube flyby."""
-        return FLYBYS@self.time
+        return None if self.target_name == 'SKY' else FLYBYS@self.time
 
     def dist_pt(self, lon_w, lat):
         """Haversine distances between a geographic point and all the pixels."""
