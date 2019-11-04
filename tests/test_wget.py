@@ -1,6 +1,6 @@
 """Test wget module."""
 
-from pyvims.wget import domain, wget_txt
+from pyvims.wget import domain, url_exists, wget_txt
 
 from pytest import fixture, raises
 
@@ -59,3 +59,12 @@ def test_wget_txt(requests_mock, html):
 
     with raises(HTTPError):
         _ = wget_txt('https://domain.tld/404-not-found')
+
+
+def test_url_exists(requests_mock):
+    '''Test wget text with requests.'''
+    requests_mock.head('https://domain.tld/txt.html', status_code=200)
+    requests_mock.head('https://domain.tld/404-not-found', status_code=404)
+
+    assert url_exists('https://domain.tld/txt.html')
+    assert not url_exists('https://domain.tld/404-not-found')

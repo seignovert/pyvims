@@ -207,3 +207,9 @@ def domain(url):
         return res.group(2) if res.group(1) is None else ''.join(res.groups())
 
     raise ValueError(f'Invalid URL pattern: `{url}`.')
+
+
+def url_exists(url):
+    """Check if the URL exists."""
+    resp = requests.head(url)
+    return resp.status_code == requests.codes.ok
