@@ -212,4 +212,6 @@ def domain(url):
 def url_exists(url):
     """Check if the URL exists."""
     resp = requests.head(url)
+    if resp.status_code == requests.codes.found:
+        return url_exists(resp.headers['Location'])
     return resp.status_code == requests.codes.ok

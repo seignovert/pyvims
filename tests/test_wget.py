@@ -65,6 +65,9 @@ def test_url_exists(requests_mock):
     '''Test wget text with requests.'''
     requests_mock.head('https://domain.tld/txt.html', status_code=200)
     requests_mock.head('https://domain.tld/404-not-found', status_code=404)
+    requests_mock.head('https://domain.tld/302-redirect', status_code=302,
+                       headers={'location': 'https://domain.tld/txt.html'})
 
     assert url_exists('https://domain.tld/txt.html')
     assert not url_exists('https://domain.tld/404-not-found')
+    assert url_exists('https://domain.tld/302-redirect')
