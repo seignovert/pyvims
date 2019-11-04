@@ -23,6 +23,8 @@ class PDS:
         Releases prefix.
     src: str, optional
         Release source (JPL/SETI/USGS).
+    fmt: str, optional
+        Data format (LBL, QUB).
     update: bool, optional
         Update releases list.
     verbose: bool, optional
@@ -38,10 +40,12 @@ class PDS:
 
     """
 
-    def __init__(self, instr, prefix='co', src='jpl', update=False, verbose=True):
+    def __init__(self, instr, prefix='co', src='jpl', fmt='lbl',
+                 update=False, verbose=True):
         self.instr = instr.lower()
         self.prefix = prefix
         self.src = src
+        self.fmt = fmt.lower()
         self.update = update
         self.verbose = verbose
         self.__releases = []
@@ -98,11 +102,15 @@ class PDS:
             return utc2cassini(data)
         raise ValueError(f'Unknown parsing times for instrument: {self.instr}')
 
-    def _lbl(self, fname):
-        """Get LBL name based on file and instrument name."""
+    def _fmt(self, fname):
+        """Get formatted name based on file and instrument name."""
         if self.instr == 'vims':
-            return f'v{img_id(fname)}.lbl'
-        raise ValueError(f'Invalid instrument: {self.instr}')
+            _id = img_id(fname)
+            if self.fmt == 'lbl':
+                return f'v{_id}.lbl'
+            if self.fmt == 'qub':
+                return f'v{_id}.qub'
+        raise ValueError(f'Invalid instrument: {self.instr} with format: {self.fmt}')
 
     @property
     def dtype(self):
@@ -237,7 +245,7 @@ class PDS:
         urls = []
         for release in self.release(fname):
             for link in PDSRelease(self, release, update=self.update).link(fname):
-                url = link + self._lbl(fname)
+                url = link + self._fmt(fname)
                 if url_exists(url):
                     urls.append(url)
 
