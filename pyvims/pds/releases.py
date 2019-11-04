@@ -8,7 +8,8 @@ from .errors import PDSError
 from .html import JPLReleaseParser, ReleasesParser
 from .times import cassini_time, utc2cassini
 from .vars import RELEASES_URL, ROOT_DATA
-from ..wget import wget_txt
+from ..cassini import img_id
+from ..wget import url_exists, wget_txt
 
 
 class PDS:
@@ -55,12 +56,12 @@ class PDS:
         return len(self.__releases)
 
     def __contains__(self, item):
-        return True if self.contains(item) else False
+        return True if self.locate(item) else False
 
     def __getitem__(self, item):
-        releases = self.contains(item)
-        if releases:
-            return releases
+        urls = self.locate(item)
+        if urls:
+            return urls[0] if len(urls) == 1 else urls
         raise IndexError(f'Data `{item}` was not found in {self.instr.upper()} releases.')
 
     @property
@@ -95,6 +96,12 @@ class PDS:
         if self.instr == 'vims':
             return utc2cassini(data)
         raise ValueError(f'Unknown parsing times for instrument: {self.instr}')
+
+    def _lbl(self, fname):
+        """Get LBL name based on file and instrument name."""
+        if self.instr == 'vims':
+            return f'v{img_id(fname)}.lbl'
+        raise ValueError(f'Invalid instrument: {self.instr}')
 
     @property
     def dtype(self):
@@ -169,23 +176,6 @@ class PDS:
         """List available releases links."""
         return self.__releases['url']
 
-    def contains(self, time):
-        """Find the releases which contains the spacecraft time.
-
-        Parameters
-        ----------
-        time: str or int
-            Cassini time.
-
-        Returns
-        -------
-        list
-            List of all the releases which overlap the input time.
-
-        """
-        t = cassini_time(time)
-        return list(self.releases[(self.starts <= t) & (t <= self.stops)])
-
     def link(self, release):
         """Get URL of the release.
 
@@ -205,11 +195,52 @@ class PDS:
             If the name of the release was not found in the available releases.
 
         """
-        try:
-            links = self.links[self.releases == release]
-            return links[0] if len(links) == 1 else links
-        except IndexError:
-            raise PDSError(f'Release `{release}` not found.')
+        links = self.links[self.releases == release]
+        if not links:
+            raise PDSError(
+                f'Release `{release}` not found in {self.src.upper()} releases.')
+
+        return links[0] if len(links) == 1 else links
+
+    def release(self, time):
+        """Find the releases which contains the spacecraft time.
+
+        Parameters
+        ----------
+        time: str or int
+            Cassini time.
+
+        Returns
+        -------
+        list
+            List of all the releases names which overlap the input time.
+
+        """
+        t = cassini_time(time)
+        return list(self.releases[(self.starts <= t) & (t <= self.stops)])
+
+    def locate(self, fname):
+        """Find the location a filename.
+
+        Parameters
+        ----------
+        fname: str
+            Input file name.
+
+        Returns
+        -------
+        list
+            List of URL where the label file is located.
+
+        """
+        urls = []
+        for release in self.release(fname):
+            for link in PDSRelease(self, release).link(fname):
+                url = link + self._lbl(fname)
+                if url_exists(url):
+                    urls.append(url)
+
+        return urls
 
 
 class PDSRelease:

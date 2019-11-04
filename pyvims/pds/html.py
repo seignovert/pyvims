@@ -197,7 +197,7 @@ class ReleaseParser(HTMLParser):
         raise PDSError(message)
 
 
-class JPLReleaseParser(HTMLParser):
+class JPLReleaseParser(ReleaseParser):
     """JPL PDS releases parser object.
 
     Parameters
