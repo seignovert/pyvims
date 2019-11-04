@@ -197,6 +197,41 @@ def dt_date(time, eod=False):
     return t[0] if len(t) == 1 else t
 
 
+def pds_folder(name):
+    """Parse PDS folder name as string.
+
+    Parameters
+    ----------
+    name: str
+        Input older name.
+
+    Returns
+    -------
+    datetime.datetime or [datetime.datetime, …]
+        Parsed time(s).
+
+    Raises
+    ------
+    ValueError
+        If the input time pattern is invalid.
+
+    Examples
+    --------
+    >>> pds_folder('2005015T175855')
+    '2005-015T17:58:55'
+
+    >>> pds_folder('2005015T175855_2005016T184233/')
+    '2005-015T17:58:55 2005-016T18:42:33'
+
+    """
+    times = re.findall(r'(\d{4})(\d{3})T(\d{2})(\d{2})(\d{2})', name)
+
+    if not times:
+        return name
+
+    return ' '.join([f'{_t[0]}-{_t[1]}T{_t[2]}:{_t[3]}:{_t[4]}' for _t in times])
+
+
 def pds_time(time):
     """Parse PDS time.
 
@@ -216,6 +251,7 @@ def pds_time(time):
         If the input time pattern is invalid.
 
     """
+    time = pds_folder(time)
     try:
         return dt_iso(time)
     except ValueError:

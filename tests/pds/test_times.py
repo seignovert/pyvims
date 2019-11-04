@@ -1,7 +1,7 @@
 """Test PDS times modules."""
 
 from pyvims.pds.times import (cassini2utc, cassini_time, dt_date, dt_doy, dt_iso,
-                              pds_time, utc2cassini)
+                              pds_folder, pds_time, utc2cassini)
 
 
 from pytest import approx, raises
@@ -76,6 +76,10 @@ def test_pds_time():
     assert str(t0) == '2011-10-01 00:02:04.244000'
     assert str(t1) == '2011-12-31 12:28:45.128000'
 
+    t0, t1 = pds_time('2005015T175855_2005016T184233/')
+    assert str(t0) == '2005-01-15 17:58:55'
+    assert str(t1) == '2005-01-16 18:42:33'
+
     with raises(ValueError):
         _ = pds_time('No data available')
 
@@ -107,3 +111,10 @@ def test_utc2cassini():
     assert len(times) == 2
     assert times[0] == approx(1558049638.579, abs=1e-3)
     assert times[1] == approx(1561937662.855, abs=1e-3)
+
+
+def test_pds_folder():
+    """Test convert PDS folder as string."""
+    assert pds_folder('2005015T175855') == '2005-015T17:58:55'
+    assert pds_folder('2005015T175855_2005016T184233/') == \
+        '2005-015T17:58:55 2005-016T18:42:33'
