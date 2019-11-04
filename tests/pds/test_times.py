@@ -86,7 +86,7 @@ def test_pds_time():
 
 def test_cassini_time():
     """Test Cassini time parsing."""
-    assert cassini_time('v1487096932_1') == 1487096932.0
+    assert cassini_time('v1487096932_1.qub') == 1487096932.0
     assert cassini_time(1483230358.172) == 1483230358.172
 
     with raises(ValueError):

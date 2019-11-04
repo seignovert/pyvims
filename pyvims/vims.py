@@ -10,6 +10,7 @@ from matplotlib.patches import PathPatch
 from requests import HTTPError
 
 from .camera import VIMSCamera
+from .cassini import img_id
 from .contour import VIMSContour
 from .corners import cube_paths
 from .errors import VIMSError
@@ -27,23 +28,6 @@ from .time import hex2double
 from .vars import VIMS_DATA_PORTAL
 from .vectors import angle, deg180, hat, hav_dist, lonlat, norm, radec, v_max_dist
 from .wget import wget
-
-
-def get_img_id(fname):
-    """Extract image ID from filename.
-
-    Parameters
-    ----------
-    fname:
-
-    """
-    img_ids = re.findall(r'\d{10}_\d+(?:_\d+)?', fname)
-
-    if not img_ids:
-        raise VIMSError(f'File `{fname}` name does not '
-                        'match the correct ID pattern.')
-
-    return img_ids[0]
 
 
 def _parse(val):
@@ -115,7 +99,7 @@ class VIMS:
 
     def __init__(self, fname, root=None, download=True,
                  channel='ir', prefix='C', ext='cub'):
-        self.img_id = get_img_id(fname)
+        self.img_id = img_id(fname)
         self.fname = f'{prefix}{self.img_id}_{channel}.{ext}'
         self.root = root
         self.download = download
