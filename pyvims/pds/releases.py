@@ -42,6 +42,7 @@ class PDS:
         self.instr = instr.lower()
         self.prefix = prefix
         self.src = src
+        self.update = update
         self.verbose = verbose
         self.__releases = []
 
@@ -130,7 +131,7 @@ class PDS:
         for data, link in results:
             start, stop = self.parse_times(data)
             release = link.split('/')[-2]
-            releases.append([release, int(start), int(stop), link])
+            releases.append((release, int(start), int(stop), link))
 
         with open(self.filename, 'w') as f:
             f.write(f'release, start, stop, url, src:{self.url}\n')
@@ -235,7 +236,7 @@ class PDS:
         """
         urls = []
         for release in self.release(fname):
-            for link in PDSRelease(self, release).link(fname):
+            for link in PDSRelease(self, release, update=self.update).link(fname):
                 url = link + self._lbl(fname)
                 if url_exists(url):
                     urls.append(url)
