@@ -2,7 +2,7 @@
 
 from html.parser import HTMLParser
 
-from .errors import HTMLReleasesError
+from .errors import PDSError
 
 
 class ReleasesParser(HTMLParser):
@@ -30,7 +30,7 @@ class ReleasesParser(HTMLParser):
         self.feed(html)
 
         if not self.results:
-            raise HTMLReleasesError('No links fond during parsing.')
+            self.error('No links found during parsing.')
 
     def __repr__(self):
         return (f'<{self.__class__.__name__}> '
@@ -91,8 +91,8 @@ class ReleasesParser(HTMLParser):
 
         Raises
         ------
-        HTMLReleasesError
+        PDSError
             If error occurs during the parsing
 
         """
-        raise HTMLReleasesError(message)
+        raise PDSError(message)

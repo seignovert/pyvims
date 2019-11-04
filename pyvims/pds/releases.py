@@ -20,6 +20,12 @@ class PDS:
         Instrument name.
     prefix: str, optional
         Releases prefix.
+    src: str, optional
+        Release source (JPL/SETI/USGS).
+    update: bool, optional
+        Update releases list.
+    verbose: bool, optional
+        Display verbose results.
 
     Examples
     --------
@@ -38,12 +44,12 @@ class PDS:
         self.verbose = verbose
         self.__releases = []
 
-        self.create_csv() if not self.is_file or update else self.load_csv()
+        self.download() if not self.is_file or update else self.load_csv()
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}> '
-                f'{len(self)} {self.instr.upper()} releases.\n'
-                f' - Source: `{self.src.upper()}`')
+        return (f'<{self.__class__.__name__}> {self.instr.upper()}\n'
+                f' - Releases: {len(self)}\n'
+                f' - Source: {self.src.upper()}')
 
     def __len__(self):
         return len(self.__releases)
@@ -59,12 +65,12 @@ class PDS:
 
     @property
     def fname(self):
-        """Release file name."""
+        """Releases file name."""
         return f'{self.prefix}{self.instr}_{self.src}_releases.csv'
 
     @property
     def filename(self):
-        """List of release filename."""
+        """List of releases absolute file name."""
         return os.path.join(ROOT_DATA, self.fname)
 
     @property
@@ -84,54 +90,64 @@ class PDS:
             return 'Raw cube data'
         raise ValueError(f'Unknown parsing keyword for instrument: {self.instr}')
 
-    def _times(self, data):
+    def parse_times(self, data):
         """Parse releases times based on instrument name."""
         if self.instr == 'vims':
             return utc2cassini(data)
         raise ValueError(f'Unknown parsing times for instrument: {self.instr}')
 
+    @property
+    def dtype(self):
+        """Date types."""
+        return {
+            'names': ('release', 'start', 'stop', 'url'),
+            'formats': ('U25', int, int, 'U999'),
+        }
+
     def download(self):
-        """Get parsed HTML release."""
+        """Download and parse PDS releases list.
+
+        The list is cached in a CSV file.
+
+        """
         if self.verbose:
             print(f'Download list of releases from `{self.url}`.')
 
-        results = ReleasesParser(wget_txt(self.url), src=self.src, keyword=self._keyword)
+        try:
+            html = wget_txt(self.url)
+            results = ReleasesParser(html, src=self.src, keyword=self._keyword)
+        except PDSError:
+            raise PDSError(f'No releases found in {self.url}')
 
-        if not results:
-            raise PDSError(f'Not releases found in {self.url}')
-
-        self.__releases = []
+        releases = []
         for data, link in results:
-            start, stop = self._times(data)
+            start, stop = self.parse_times(data)
             release = link.split('/')[-2]
-            self.__releases.append([release, int(start), int(stop), link])
-
-    def create_csv(self):
-        """Download and save releases list in csv file."""
-        self.download()
+            releases.append([release, int(start), int(stop), link])
 
         with open(self.filename, 'w') as f:
             f.write(f'release, start, stop, url, src:{self.url}\n')
             f.write('\n'.join(
-                [', '.join([str(r) for r in row]) for row in self.__releases]))
+                [', '.join([str(r) for r in row]) for row in releases]))
+
+        self.__releases = np.array(releases, dtype=self.dtype)
 
     def load_csv(self):
         """Load CSV file."""
         with open(self.filename, 'r') as f:
-            url = f.readlines()[1].split(', ')[3]
+            src_url = f.readlines()[1].split(':')[1]
 
-        if 'jpl.nasa.gov' in url:
+        if 'jpl.nasa.gov' in src_url:
             self.src = 'jpl'
-        elif 'usgs.gov' in url:
+        elif 'usgs.gov' in src_url:
             self.src = 'usgs'
-        elif 'seti.org' in url:
+        elif 'seti.org' in src_url:
             self.src = 'seti'
         else:
-            raise ValueError(f'Data source unknown: `{url}`.')
+            raise ValueError(f'Data source unknown: `{src_url}`.')
 
         self.__releases = np.loadtxt(self.filename, delimiter=', ', skiprows=1,
-                                     dtype={'names': ('release', 'start', 'stop', 'url'),
-                                            'formats': ('U25', int, int, 'U999')})
+                                     dtype=self.dtype)
 
     @property
     def releases(self):
@@ -161,6 +177,36 @@ class PDS:
         time: str or int
             Cassini time.
 
+        Returns
+        -------
+        list
+            List of all the releases which overlap the input time.
+
         """
         t = cassini_time(time)
         return list(self.releases[(self.starts <= t) & (t <= self.stops)])
+
+    def link(self, release):
+        """Get URL of the release.
+
+        Parameters
+        ----------
+        release: str
+            Release name.
+
+        Returns
+        -------
+        str
+            Link to the release based on the source data.
+
+        Raises
+        ------
+        IndexError
+            If the name of the release was not found in the available releases.
+
+        """
+        try:
+            links = self.links[self.releases == release]
+            return links[0] if len(links) == 1 else links
+        except IndexError:
+            raise PDSError(f'Release `{release}` not found.')
