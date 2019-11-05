@@ -32,11 +32,12 @@ class Star:
         Observer position in the J2000 frame.
     source_id: str, optional
         Star name or ID.
+    epoch: str
 
     """
 
     def __init__(self, ra=0, dec=0, pmra=None, pmdec=None, et=None,
-                 parallax=None, obs=None, source_id=None, **kwargs):
+                 parallax=None, obs=None, source_id=None, epoch='J2000', **kwargs):
         self.ra_2000 = RA(ra)
         self.dec_2000 = DEC(dec)
         self.pmra = pmra
@@ -45,6 +46,7 @@ class Star:
         self.parallax = parallax
         self.obs = obs
         self.source_id = source_id
+        self.epoch = float(epoch.replace('J', ''))
         self.__kwargs = kwargs
         self.__radec = None
 
@@ -68,16 +70,16 @@ class Star:
     @property
     def dyr(self):
         """Decimal years since 2000."""
-        return 0 if self.et is None else self.et / YR
+        return 0 if self.et is None else self.et / YR + 2000 - self.epoch
 
     @property
     def mu_ra(self):
-        """Star right ascension offset since 2000 (deg)."""
+        """Star right ascension offset since Epoch (deg)."""
         return 0 if self.pmra is None else self.dyr * self.pmra * MAS
 
     @property
     def mu_dec(self):
-        """Star declination offset since 2000 (deg)."""
+        """Star declination offset since Epoch (deg)."""
         return 0 if self.pmdec is None else self.dyr * self.pmdec * MAS
 
     @property
