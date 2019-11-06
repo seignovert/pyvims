@@ -54,10 +54,15 @@ def test_pixel_err(cube):
     with raises(VIMSError):
         _ = cube[1, 1.1]
 
+    with raises(TypeError):
+        _ = (cube[1, 1] == str)
+
 
 def test_pixel_properties(pixel):
     """Test VIMS pixel properties (ground and specular)."""
-    assert str(pixel) == f'1731456416_1-S6_L32'
+    assert pixel == f'1731456416_1-S6_L32'
+    assert pixel != f'1731456416_1-S6_L33'
+
     assert pixel.s == 6
     assert pixel.l == 32
 
@@ -86,6 +91,9 @@ def test_pixel_properties(pixel):
     assert pixel.eme == approx(64.4, abs=.1)
     assert pixel.phase == approx(131.5, abs=.1)
 
+    assert_array(pixel.sc, [12.25, 31.96], decimal=2)
+    assert_array(pixel.ss, [185.00, 16.64], decimal=2)
+
     assert pixel.dist_sc == approx(211868.6, abs=.1)
     assert pixel.res_s == pixel.res_l == pixel.res == approx(104.9, abs=.1)
 
@@ -100,7 +108,7 @@ def test_pixel_properties(pixel):
     assert pixel.spectrum[0] == approx(0.156, abs=1e-3)
 
 
-def test_limb_pixel_properties(limb_pixel):
+def test_limb_pixel_properties_limb(limb_pixel):
     """Test VIMS limb pixel properties (not specular)."""
     assert str(limb_pixel) == f'1731456416_1-S1_L1'
     assert limb_pixel.s == 1
@@ -111,7 +119,7 @@ def test_limb_pixel_properties(limb_pixel):
 
     assert limb_pixel.et == approx(406034072.7, abs=.1)
     assert_array(limb_pixel.j2000, [0.7384, 0.2954, -0.6062], decimal=4)
-    assert limb_pixel.ra == approx(21.80, abs=1e-2)
+    assert limb_pixel.ra == approx(21.81, abs=1e-2)
     assert limb_pixel.dec == approx(-37.31, abs=1e-2)
 
     assert limb_pixel.lon == approx(251.01, abs=1e-2)
