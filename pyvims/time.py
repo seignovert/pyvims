@@ -2,7 +2,6 @@
 
 import struct
 import binascii
-
 from datetime import datetime as dt
 
 
@@ -12,7 +11,7 @@ def time(t):
         return t
 
     if isinstance(t, str):
-        return dt.strptime(t, '%Y-%jT%H:%m:%S.%f')
+        return dt.strptime(t, '%Y-%jT%H:%M:%S.%f')
 
     raise TypeError(f'Time type `{t}` is invalid.')
 
