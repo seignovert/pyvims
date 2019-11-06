@@ -1,13 +1,18 @@
 """VIMS RAW QUB data module."""
 
 import os
+from datetime import datetime as dt
 
 import numpy as np
 
 import pvl
 
 from .cassini import img_id
-from .time import time as _dt
+
+
+def _dt(time):
+    """Parse time as datetime."""
+    return dt.strptime(time[:-1], '%Y-%jT%H:%M:%S.%f')
 
 
 class QUB:
@@ -532,12 +537,12 @@ class QUB:
     @property
     def start(self):
         """Acquisition start time (UTC)."""
-        return _dt(self.core['START_TIME'][:-1])
+        return _dt(self.core['START_TIME'])
 
     @property
     def stop(self):
         """Acquisition stop time (UTC)."""
-        return _dt(self.core['STOP_TIME'][:-1])
+        return _dt(self.core['STOP_TIME'])
 
     @property
     def duration(self):
