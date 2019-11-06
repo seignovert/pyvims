@@ -1,12 +1,8 @@
-"""VIMS ISIS generic errors."""
+"""VIMS generic errors."""
 
 
 class VIMSError(Exception):
     """Generic VIMS error."""
-
-
-class ISISError(Exception):
-    """Generic ISIS error."""
 
 
 class VIMSCameraError(VIMSError):

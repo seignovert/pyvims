@@ -143,9 +143,8 @@ class ISISCube:
     @property
     def dtype(self):
         """Cube data type."""
-        return np.dtype(
-            BYTE_ORDERS[self._pix['ByteOrder']] +
-            FIELD_TYPES[self._pix['Type']])
+        return np.dtype(BYTE_ORDERS[self._pix['ByteOrder']]
+                        + FIELD_TYPES[self._pix['Type']])
 
     @property
     def _start_byte(self):
@@ -327,7 +326,7 @@ class ISISCube:
     @property
     def target_radius(self):
         """Main target mean radius (km)."""
-        return np.power(np.prod(self.target_radii), 1/3)
+        return np.power(np.prod(self.target_radii), 1 / 3)
 
     def dumps_header(self):
         """Dumps cube header."""

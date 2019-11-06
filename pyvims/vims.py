@@ -16,7 +16,7 @@ from .corners import cube_paths
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
-from .isis import ISISCube
+from .isis import ISISCube, hex2double
 from .misc import great_circle_patch
 from .pixel import VIMSPixel
 from .plot import plot_cube
@@ -24,7 +24,6 @@ from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .star import Star
 from .target import intersect
-from .time import hex2double
 from .vars import VIMS_DATA_PORTAL
 from .vectors import angle, deg180, hat, hav_dist, lonlat, norm, radec, v_max_dist
 from .wget import wget
