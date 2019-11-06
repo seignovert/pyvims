@@ -98,9 +98,9 @@ class VIMS:
     VIMS_SEC = 1.01725
 
     def __init__(self, fname, root=None, download=True,
-                 channel='ir', prefix='C', ext='cub'):
+                 channel='ir', prefix='C', suffix='', ext='cub'):
         self.img_id = img_id(fname)
-        self.fname = f'{prefix}{self.img_id}_{channel}.{ext}'
+        self.fname = f'{prefix}{self.img_id}{suffix}_{channel}.{ext}'
         self.root = root
         self.download = download
 
