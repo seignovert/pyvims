@@ -1,5 +1,9 @@
-Map sources
-============
+List of maps available
+======================
 
-* [`Titan_VIMS_ISS[-HR].jpg`](https://dx.doi.org/10.22002/D1.1173)
-* [`Titan_ISS[-HR].jpg`](https://photojournal.jpl.nasa.gov/catalog/PIA22770)
+## Titan VIMS/ISS
+
+* Filename: `Titan_VIMS_ISS.jpg`
+* Source: [Seignovert et al. 2019](https://doi.org/10.22002/D1.1173)
+* Extent: `-180° 180° -90° 90°`
+* Projection: `equirectangular`
