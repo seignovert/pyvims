@@ -3,10 +3,11 @@
 from .geocube import create_nav
 from .greatcircle import (great_circle, great_circle_arc,
                           great_circle_patch, great_circle_pole)
-from .maps import bg_map
+from .maps import MAPS, Map
 
 __all__ = [
-    bg_map,
+    MAPS,
+    Map,
     create_nav,
     great_circle,
     great_circle_arc,
