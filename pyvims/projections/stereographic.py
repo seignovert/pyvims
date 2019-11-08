@@ -8,7 +8,7 @@ from ..interp import cube_interp_filled
 def r_stereo(lat, n_pole=True):
     """Convert radius for stereo projection."""
     s = 1 if n_pole else -1
-    return 1 / np.tan(np.radians(np.add(90, lat)) / 2)
+    return 1 / np.tan(np.radians(np.add(90, s * lat)) / 2)
 
 
 def inv_r_stereo(r, n_pole=True):

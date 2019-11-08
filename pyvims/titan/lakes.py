@@ -6,7 +6,7 @@ import numpy as np
 
 from scipy import misc as im
 
-from ..projections.sterographic import stereo_scale, xy as stereo_xy
+from ..projections.stereographic import stereo_scale, xy as stereo_xy
 from ..vars import ROOT_DATA
 
 
