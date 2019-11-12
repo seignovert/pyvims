@@ -452,6 +452,56 @@ class Map:
         return self.img.ndim
 
     @property
+    def center_0(self):
+        """Center equirectangular image background at 0°."""
+        if self._proj != 'lonlat':
+            raise ValueError('Recentering is only available for equirectangular maps.')
+
+        if self.data_extent[0] == -180 and self.data_extent[1] == 180:
+            return self
+
+        if self.data_extent[0] != 360 or self.data_extent[1] != 0:
+            raise ValueError('Longitude span invalid. Must be [360, 0], not '
+                             f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].')
+
+        if self.ndim == 2:
+            _, ns = self.shape
+            self.__img = np.hstack([self.img[:, ns // 2:], self.img[:, :ns // 2]])
+        elif self.ndim == 3:
+            _, ns, _ = self.shape
+            self.__img = np.hstack([self.img[:, ns // 2:, :], self.img[:, :ns // 2, :]])
+        else:
+            raise ValueError(f'Image dimension invalid: {self.ndim}.')
+
+        self.data_extent[:2] = [-180, 180]
+        return self
+
+    @property
+    def center_180(self):
+        """Center equirectangular image background at 180°."""
+        if self._proj != 'lonlat':
+            raise ValueError('Recentering is only available for equirectangular maps.')
+
+        if self.data_extent[0] == 360 and self.data_extent[1] == 0:
+            return self
+
+        if self.data_extent[0] != -180 or self.data_extent[1] != 180:
+            raise ValueError('Longitude span invalid. Must be [-180, 180], not '
+                             f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].')
+
+        if self.ndim == 2:
+            _, ns = self.shape
+            self.__img = np.hstack([self.img[:, ns // 2:], self.img[:, :ns // 2]])
+        elif self.ndim == 3:
+            _, ns, _ = self.shape
+            self.__img = np.hstack([self.img[:, ns // 2:, :], self.img[:, :ns // 2, :]])
+        else:
+            raise ValueError(f'Image dimension invalid: {self.ndim}.')
+
+        self.data_extent[:2] = [360, 0]
+        return self
+
+    @property
     def n_pole(self):
         """Pole observered for polar projection."""
         if self.__n_pole is None:
@@ -505,7 +555,7 @@ class Map:
         if self._proj == 'stereo':
             return xy_stereo(lon_w, lat, n_pole=self.n_pole)
 
-            return self.data_extent
+        return self.data_extent
 
     def lons(self, lon_min=None, lon_max=None, npts=None):
         """Get longitude grid.
