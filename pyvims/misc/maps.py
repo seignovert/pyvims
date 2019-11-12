@@ -5,6 +5,7 @@ import re
 
 from matplotlib.image import imread
 
+from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
 
 
@@ -381,6 +382,7 @@ class Map:
 
         self.__fname = os.path.basename(fname)
         self.__img = None
+        self.__n_pole = None
 
         if not os.path.exists(self.filename):
             raise FileNotFoundError(f'Map `{self.filename}` is not available.')
@@ -440,10 +442,37 @@ class Map:
     def ndim(self):
         """Background image dimension."""
         return self.img.ndim
+
+    @property
+    def n_pole(self):
+        """Pole observered for polar projection."""
+        if self.__n_pole is None:
+            if self._proj == 'stereo':
+                self.__n_pole = self.data_extent[3] > 0
+        return self.__n_pole
+
+    @property
+    def _proj(self):
+        if self.proj in [None, 'equi', 'equirectangular', 'plate carrée', 'lonlat']:
+            return 'lonlat'
+
+        if self.proj in ['stereo', 'stereographic']:
+            return 'stereo'
+
+        raise ValueError(f'Projection `{self.proj}` is not available.')
+
     @property
     def extent(self):
         """Projected data extent."""
-        if self.proj in [None, 'equi', 'equirectangular', 'plate carrée', 'lonlat']:
+        if self._proj in ['lon_w_lat', 'lon_e_lat']:
+            return self.data_extent
+
+        if self._proj == 'stereo':
+            r = r_stereo(self.data_extent[2], n_pole=self.n_pole)
+            return [-r, r, r, -r]
+
+        return self.data_extent
+
             return self.data_extent
 
 
