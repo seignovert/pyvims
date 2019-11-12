@@ -6,6 +6,8 @@ import re
 import numpy as np
 
 from matplotlib.image import imread
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
 
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
@@ -375,9 +377,13 @@ class Map:
             yield k, v
 
     def __call__(self, *args):
-        if len(args) != 2:
-            raise ValueError('2 attributes are required (lon_w, lat)')
-        return self.xy(args[0], args[1])
+        if len(args) == 1 and isinstance(args[0], PathPatch):
+            return self.xy_patch(args[0])
+
+        if len(args) == 2:
+            return self.xy(args[0], args[1])
+
+        raise ValueError('A `PathPatch` or 2 attributes are required (lon_w, lat)')
 
     @property
     def fname(self):
@@ -556,6 +562,29 @@ class Map:
             return xy_stereo(lon_w, lat, n_pole=self.n_pole)
 
         return self.data_extent
+
+    def xy_patch(self, patch):
+        """Convert patch vertices on the map coordinates.
+
+        Parameters
+        ----------
+        patch: matplotlib.patches.PathPatch
+            Pyplot patch.
+
+        Returns
+        -------
+        matplotlib.patches.PathPatch
+            Re-projected patch in map coordinates.
+
+        """
+        path = patch.get_path()
+        vertices = np.transpose(self.xy(*path.vertices.T))
+
+        return PathPatch(
+            Path(vertices, path.codes),
+            edgecolor=patch.get_ec(),
+            facecolor=patch.get_fc(),
+        )
 
     def lons(self, lon_min=None, lon_max=None, npts=None):
         """Get longitude grid.
