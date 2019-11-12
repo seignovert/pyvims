@@ -263,7 +263,8 @@ class MapsDetails(type):
                     '======================\n',
                     '## Titan VIMS/ISS\n',
                     '* Filename: `Titan_VIMS_ISS.jpg`',
-                    '* Source: [Seignovert et al. 2019](https://doi.org/10.22002/D1.1173)',
+                    '* Source: [Seignovert et al. 2019]'
+                    '(https://doi.org/10.22002/D1.1173)',
                     '* Extent: `-180° 180° -90° 90°`',
                     '* Projection: `equirectangular`\n',
                 ]))
@@ -345,7 +346,7 @@ class Map:
         self.root = root if root else ROOT
         self.fname = fname
 
-        self.data_extent = extent
+        self.data_extent = list(extent)
         self.src = src
         self.url = url
         self.proj = projection.lower() if isinstance(projection, str) else None
@@ -359,7 +360,6 @@ class Map:
     def __repr__(self):
         return '\n - '.join([
             f'<{self.__class__.__name__}> {self}',
-            f'Size: {self.img.shape}',
             f'Extent: {"Undefined" if self.data_extent is None else self.data_extent}',
             f'Source: {"Undefined" if self.src is None else self.src}',
             f'URL: {"Undefined" if self.url is None else self.url}',
@@ -432,9 +432,27 @@ class Map:
         return self.__img
 
     @property
+    def shape(self):
+        """Background image shape."""
+        return self.img.shape
+
+    @property
+    def ndim(self):
+        """Background image dimension."""
+        return self.img.ndim
+    @property
     def extent(self):
         """Projected data extent."""
         if self.proj in [None, 'equi', 'equirectangular', 'plate carrée', 'lonlat']:
             return self.data_extent
 
-        raise ValueError(f'Projection `{self.proj}` is not available.')
+
+    @property
+    def xlim(self):
+        """X-axis limits based on image background."""
+        return self.extent[0], self.extent[1]
+
+    @property
+    def ylim(self):
+        """Y-axis limits based on image background."""
+        return self.extent[2], self.extent[3]
