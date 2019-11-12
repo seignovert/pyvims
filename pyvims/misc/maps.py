@@ -3,6 +3,8 @@
 import os
 import re
 
+import numpy as np
+
 from matplotlib.image import imread
 
 from ..projections.stereographic import r_stereo, xy as xy_stereo
@@ -475,6 +477,62 @@ class Map:
 
             return self.data_extent
 
+    def lons(self, lon_min=None, lon_max=None, npts=None):
+        """Get longitude grid.
+
+        Parameters
+        ----------
+        lon_min: float, optional
+            Minimal longitude. Use ``data_extent`` min value
+            if ``None`` provided.
+        lon_max: float, optional
+            Minimal longitude. Use ``data_extent`` max value
+            if ``None`` provided.
+        npts: int, optional
+            Number of points to output (default ``13``).
+
+        Returns
+        -------
+        numpy.array
+            List of longitudes.
+
+        """
+        lons = np.linspace(
+            min(self.data_extent[:2]) if lon_min is None else lon_min,
+            max(self.data_extent[:2]) if lon_max is None else lon_max,
+            13 if npts is None else npts,
+        )
+
+        if self.data_extent[0] > self.data_extent[1]:
+            lons = lons[::-1]  # Revert x-axis
+
+        return lons
+
+    def lats(self, lat_min=None, lat_max=None, npts=None):
+        """Get latitude grid.
+
+        Parameters
+        ----------
+        lat_min: float, optional
+            Minimal latitude. Use ``data_extent`` min value
+            if ``None`` provided.
+        lat_max: float, optional
+            Minimal latitude. Use ``data_extent`` max value
+            if ``None`` provided.
+        npts: int, optional
+            Number of points to output (default ``7``).
+
+        Returns
+        -------
+        numpy.array
+            List of latitudes.
+
+        """
+        return np.linspace(
+            min(self.data_extent[2:]) if lat_min is None else lat_min,
+            max(self.data_extent[2:]) if lat_max is None else lat_max,
+            7 if npts is None else npts,
+        )
 
     @property
     def xlim(self):
