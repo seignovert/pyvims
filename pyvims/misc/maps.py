@@ -324,6 +324,11 @@ class MapsDetails(type):
             remove_from_readme(cls.filename(), key)
             del cls.__maps[key]
 
+    @classmethod
+    def reload(cls):
+        """Reload maps list from README."""
+        cls.__maps = {}
+
 
 class MAPS(metaclass=MapsDetails):
     """List of all the registered maps."""
