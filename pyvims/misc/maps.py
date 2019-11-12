@@ -9,6 +9,7 @@ from matplotlib.image import imread
 
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
+from ..vectors import deg180, deg360
 
 
 ROOT = root = os.path.join(ROOT_DATA, 'maps')
@@ -373,6 +374,11 @@ class Map:
         for k, v in self.as_dict.items():
             yield k, v
 
+    def __call__(self, *args):
+        if len(args) != 2:
+            raise ValueError('2 attributes are required (lon_w, lat)')
+        return self.xy(args[0], args[1])
+
     @property
     def fname(self):
         return self.__fname
@@ -474,6 +480,30 @@ class Map:
             return [-r, r, r, -r]
 
         return self.data_extent
+
+    def xy(self, lon_w, lat):
+        """Convert point coordinate on the map coordinates.
+
+        Parameters
+        ----------
+        lon_w: float
+            Point longitude West (degree).
+        lat: float
+            Point latitude (degree).
+
+        Returns
+        -------
+        float, float
+            X-Y coordinates of the point on the surface.
+
+        """
+        if self._proj == 'lonlat':
+            if self.data_extent[0] < self.data_extent[1]:
+                return deg180(-lon_w), lat  # East longitude ]-180°, 180°]
+            return deg360(lon_w), lat
+
+        if self._proj == 'stereo':
+            return xy_stereo(lon_w, lat, n_pole=self.n_pole)
 
             return self.data_extent
 
