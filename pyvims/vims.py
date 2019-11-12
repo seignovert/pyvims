@@ -1757,25 +1757,27 @@ class VIMS:
         during the cube acquisition.
 
         """
-        lonlat = self.specular_pts_lonlat
+        lonlat = self.specular_pts_lonlat.astype(float)
         return np.sum(hav_dist(*lonlat[:, :-1], *lonlat[:, 1:], self.target_radius))
 
     @property
     def specular_pts_dangle(self):
         """Specular points angular range."""
-        angles = self.specular_pts_angle
-        return angles.max() - angles.min()
+        angles = self.specular_pts_angle.astype(float)
+        return np.nanmax(angles) - np.nanmin(angles)
 
     @property
     def specular_mid_pt(self):
         """Specular mid point."""
         if self.__spec_mid_pt is None:
             mid_pixel = self[self.NS // 2, self.NL // 2]
+            angle = mid_pixel.specular_angle if mid_pixel.specular_angle else np.nan
+
             self.__spec_mid_pt = {
                 'lonlat': mid_pixel.specular_lonlat,
                 'lon': mid_pixel.specular_lon,
                 'lat': mid_pixel.specular_lat,
-                'angle': mid_pixel.specular_angle,
+                'angle': angle,
                 'sun_a': mid_pixel.sun_footprint_a,
                 'sun_b': mid_pixel.sun_footprint_b,
                 'sun_area': mid_pixel.sun_footprint_area,
