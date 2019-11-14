@@ -54,10 +54,6 @@ def test_pixel_err(cube):
     with raises(VIMSError):
         _ = cube[1, 1.1]
 
-    with raises(TypeError):
-        _ = (cube[1, 1] == str)
-
-
 def test_pixel_properties(pixel):
     """Test VIMS pixel properties (ground and specular)."""
     assert pixel == f'1731456416_1-S6_L32'
