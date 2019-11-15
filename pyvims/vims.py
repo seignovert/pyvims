@@ -179,7 +179,7 @@ class VIMS:
         self.__isis = None
         self.__et = None
         self.__camera = None
-        self.__pixels = None
+        self.__j2000 = None
         self.__sky = None
         self.__xyz = None
         self.__lonlat = None
@@ -196,7 +196,7 @@ class VIMS:
         self.__flonlat = None
         self.__flimb = None
         self.__fpath_180 = None
-        self.__fpath_180 = None
+        self.__fpath_360 = None
         self.__spec_pix = None
         self.__spec_pts = None
         self.__spec_mid_pt = None
@@ -603,7 +603,7 @@ class VIMS:
             offsets = [self.isis._inst['XOffset'], self.isis._inst['ZOffset']]
             swaths = [self.isis._inst['SwathWidth'], self.isis._inst['SwathLength']]
             self.__camera = VIMSCamera(self.channel, self.mode, offsets, swaths)
-            self.__pixels = None
+            self.__j2000 = None
             self.__sky = None
             self.__xyz = None
             self.__lonlat = None
@@ -685,10 +685,10 @@ class VIMS:
         return self._grid(q)
 
     @property
-    def pixels(self):
+    def j2000(self):
         """Camera pixel pointing direction in J2000 frame."""
-        if self.__pixels is None:
-            self.__pixels = q_rot_t(self._inst_q, self.camera.pixels)
+        if self.__j2000 is None:
+            self.__j2000 = q_rot_t(self._inst_q, self.camera.pixels)
             self.__sky = None
             self.__xyz = None
             self.__lonlat = None
@@ -709,13 +709,13 @@ class VIMS:
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
-        return self.__pixels
+        return self.__j2000
 
     @property
     def sky(self):
         """Camera pixel pointing direction in J2000 frame."""
         if self.__sky is None:
-            self.__sky = radec(self.pixels)
+            self.__sky = radec(self.j2000)
             self.__xyz = None
             self.__lonlat = None
             self.__alt = None
@@ -747,10 +747,10 @@ class VIMS:
             Mean right-ascension, mean declination and fov radius (in degrees).
 
         """
-        ra, dec = radec(self._mean(self.pixels))
+        ra, dec = radec(self._mean(self.j2000))
 
         # Search FOV max diameter
-        vecs = self._flat(self.pixels)
+        vecs = self._flat(self.j2000)
         imaxs = v_max_dist(vecs)
         fov = np.degrees(np.arccos(np.dot(vecs[:, imaxs[0]], vecs[:, imaxs[1]])))
 
@@ -846,7 +846,7 @@ class VIMS:
 
         """
         if self.__xyz is None:
-            v = self._flat(q_rot(self._body_rotation(self.et), self.pixels))
+            v = self._flat(q_rot(self._body_rotation(self.et), self.j2000))
             sc = self._flat(self._sc_position(self.et))
 
             self.__xyz = self._grid(intersect(v, sc, self.target_radius))
@@ -1412,6 +1412,10 @@ class VIMS:
             sc = self._sc_position(et)
 
             self.__fxyz = intersect(v, sc, self.target_radius)
+            self.__flonlat = None
+            self.__flimb = None
+            self.__fpath_180 = None
+            self.__fpath_360 = None
         return self.__fxyz
 
     @property
