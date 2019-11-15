@@ -109,8 +109,6 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
-        self.plot('surface') if self._is_ir else self.plot(75)
-
         return ('\n - '.join([
             f'<{self.__class__.__name__}> Cube: {self}',
             f'Size: {self.NS, self.NL}',
@@ -151,6 +149,12 @@ class VIMS:
 
     def __matmul__(self, val):
         return self[val]
+
+    def __call__(self, *args, **kwargs):
+        """Call plot function by default."""
+        if not args:
+            args = ['surface' if self._is_ir else 75]
+        return self.plot(*args, **kwargs)
 
     @property
     def root(self):
