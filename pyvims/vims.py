@@ -14,7 +14,7 @@ from requests import HTTPError
 from .camera import VIMSCamera
 from .cassini import img_id
 from .contour import VIMSContour
-from .corners import VIMSPixelCorners, VIMSPixelFootpint, cube_paths
+from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
@@ -619,13 +619,9 @@ class VIMS:
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
-            self.__rpath_180 = None
-            self.__rpath_360 = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
-            self.__fpath_180 = None
-            self.__fpath_360 = None
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
@@ -707,13 +703,9 @@ class VIMS:
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
-            self.__rpath_180 = None
-            self.__rpath_360 = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
-            self.__fpath_180 = None
-            self.__fpath_360 = None
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
@@ -736,13 +728,9 @@ class VIMS:
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
-            self.__rpath_180 = None
-            self.__rpath_360 = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
-            self.__fpath_180 = None
-            self.__fpath_360 = None
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
@@ -872,13 +860,9 @@ class VIMS:
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
-            self.__rpath_180 = None
-            self.__rpath_360 = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
-            self.__fpath_180 = None
-            self.__fpath_360 = None
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
@@ -1304,8 +1288,6 @@ class VIMS:
             self.__rxyz = intersect(v, sc, self.target_radius)
             self.__rlonlat = None
             self.__rlimb = None
-            self.__rpath_180 = None
-            self.__rpath_360 = None
             self.__pixels = None
             self.__corners = None
         return self.__rxyz
@@ -1337,28 +1319,6 @@ class VIMS:
     def rground(self):
         """Is at least one pixel corner on the ground."""
         return ~self.rlimb
-
-    @property
-    def _rpath_180(self):
-        """Pixel corner equirectangular ]-180°,180°] paths."""
-        if self.__rpath_180 is None:
-            self.__rpath_180 = cube_paths(self, lon_e=True)
-        return self.__rpath_180
-
-    @property
-    def _rpath_360(self):
-        """Pixel corner equirectangular [0°, 360°] paths."""
-        if self.__rpath_360 is None:
-            self.__rpath_360 = cube_paths(self)
-        return self.__rpath_360
-
-    def rpatch_180(self, **kwargs):
-        """Pixel corner equirectangular ]-180°, 180°] polygon patches."""
-        return PathPatch(self._rpath_180, **kwargs)
-
-    def rpatch_360(self, **kwargs):
-        """Pixel corner equirectangular [0°, 360°[ polygon patches."""
-        return PathPatch(self._rpath_360, **kwargs)
 
     @property
     def corners(self):
@@ -1464,8 +1424,6 @@ class VIMS:
             self.__fxyz = intersect(v, sc, self.target_radius)
             self.__flonlat = None
             self.__flimb = None
-            self.__fpath_180 = None
-            self.__fpath_360 = None
             self.__pixels = None
             self.__footprints = None
         return self.__fxyz
@@ -1497,28 +1455,6 @@ class VIMS:
     def fground(self):
         """Is at least one pixel footpoint point on the ground."""
         return ~self.flimb
-
-    @property
-    def _fpath_180(self):
-        """Pixel footprint equirectangular ]-180°,180°] paths."""
-        if self.__fpath_180 is None:
-            self.__fpath_180 = cube_paths(self, corners=False, lon_e=True)
-        return self.__fpath_180
-
-    @property
-    def _fpath_360(self):
-        """Pixel footprint equirectangular [0°, 360°] paths."""
-        if self.__fpath_360 is None:
-            self.__fpath_360 = cube_paths(self, corners=False)
-        return self.__fpath_360
-
-    def fpatch_180(self, **kwargs):
-        """Pixel footprint equirectangular ]-180°, 180°] polygon patches."""
-        return PathPatch(self._fpath_180, **kwargs)
-
-    def fpatch_360(self, **kwargs):
-        """Pixel footprint equirectangular [0°, 360°[ polygon patches."""
-        return PathPatch(self._fpath_360, **kwargs)
 
     @property
     def footprints(self):
