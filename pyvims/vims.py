@@ -14,7 +14,7 @@ from requests import HTTPError
 from .camera import VIMSCamera
 from .cassini import img_id
 from .contour import VIMSContour
-from .corners import VIMSPixelCorners, cube_paths
+from .corners import VIMSPixelCorners, VIMSPixelFootpint, cube_paths
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
@@ -204,6 +204,7 @@ class VIMS:
         self.__spec_mid_pt = None
         self.__pixels = None
         self.__corners = None
+        self.__footprints = None
 
     @property
     def filename(self):
@@ -630,6 +631,7 @@ class VIMS:
             self.__spec_mid_pt = None
             self.__pixels = None
             self.__corners = None
+            self.__footprints = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -717,6 +719,7 @@ class VIMS:
             self.__spec_mid_pt = None
             self.__pixels = None
             self.__corners = None
+            self.__footprints = None
         return self.__j2000
 
     @property
@@ -745,6 +748,7 @@ class VIMS:
             self.__spec_mid_pt = None
             self.__pixels = None
             self.__corners = None
+            self.__footprints = None
         return self.__sky
 
     @property
@@ -880,6 +884,7 @@ class VIMS:
             self.__spec_mid_pt = None
             self.__pixels = None
             self.__corners = None
+            self.__footprints = None
         return self.__xyz
 
     @property
@@ -1462,6 +1467,7 @@ class VIMS:
             self.__fpath_180 = None
             self.__fpath_360 = None
             self.__pixels = None
+            self.__footprints = None
         return self.__fxyz
 
     @property
@@ -1513,6 +1519,48 @@ class VIMS:
     def fpatch_360(self, **kwargs):
         """Pixel footprint equirectangular [0°, 360°[ polygon patches."""
         return PathPatch(self._fpath_360, **kwargs)
+
+    @property
+    def footprints(self):
+        """Get all cube footprints."""
+        return np.array([pix.footprint for pix in self.pixels])
+
+    @property
+    def footprints_ground(self):
+        """Check if footprints are on the ground."""
+        return np.array([c.ground for c in self.footprints])
+
+    @property
+    def footprints_vertices(self):
+        """Get all footprints vertices in the cube."""
+        return [
+            c.vertices if g else None
+            for c, g in zip(self.footprints, self.footprints_ground)
+        ]
+
+    @property
+    def footprints_patches(self):
+        """Get all footprint patches."""
+        if self.__footprints is None:
+            codes = VIMSPixelFootpint.CODES
+            self.__footprints = [
+                PathPatch(None) if vertices is None
+                else PathPatch(Path(vertices, codes))
+                for vertices in self.footprints_vertices
+            ]
+        return self.__footprints
+
+    def footprints_collection(self, index='surface', **kwargs):
+        """Get collection of all footprints patches."""
+        data = self[index]
+        if np.ndim(data) == 2:
+            data = rgb(data, data, data)
+
+        colors = np.reshape(data, (self.NP, 3)) / 255
+        return PatchCollection(self.footprints_patches,
+                               edgecolors='None',
+                               facecolors=colors,
+                               **kwargs)
 
     # =====
     # PLOT
