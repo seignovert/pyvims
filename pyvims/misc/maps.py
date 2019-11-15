@@ -783,10 +783,16 @@ class MapAxis:
         self.ax.set_xticklabels(self.bg.lons() if xticklabels is None else xticklabels)
         self.ax.set_yticklabels(self.bg.lats() if yticklabels is None else yticklabels)
 
-    def set_xylim(self):
+    def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
-        self.ax.set_xlim(self.bg.xlim)
-        self.ax.set_ylim(self.bg.ylim)
+        if None in [bl_lon_w, bl_lat, tr_lon_w, tr_lat]:
+            self.ax.set_xlim(self.bg.xlim)
+            self.ax.set_ylim(self.bg.ylim)
+        else:
+            xmin, ymin = self.bg(bl_lon_w, bl_lat)
+            xmax, ymax = self.bg(tr_lon_w, tr_lat)
+            self.ax.set_xlim(xmin, xmax)
+            self.ax.set_ylim(ymin, ymax)
 
     def grid(self, **kwargs):
         """Set image ticks, limits and grid."""
