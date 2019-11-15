@@ -5,14 +5,16 @@ import re
 
 import numpy as np
 
+from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
 
 from requests import HTTPError
 
 from .camera import VIMSCamera
 from .cassini import img_id
 from .contour import VIMSContour
-from .corners import cube_paths
+from .corners import VIMSPixelCorners, cube_paths
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
@@ -201,6 +203,7 @@ class VIMS:
         self.__spec_pts = None
         self.__spec_mid_pt = None
         self.__pixels = None
+        self.__corners = None
 
     @property
     def filename(self):
@@ -626,6 +629,7 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
+            self.__corners = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -712,6 +716,7 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
+            self.__corners = None
         return self.__j2000
 
     @property
@@ -739,6 +744,7 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
+            self.__corners = None
         return self.__sky
 
     @property
@@ -873,6 +879,7 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
+            self.__corners = None
         return self.__xyz
 
     @property
@@ -1295,6 +1302,7 @@ class VIMS:
             self.__rpath_180 = None
             self.__rpath_360 = None
             self.__pixels = None
+            self.__corners = None
         return self.__rxyz
 
     @property
@@ -1347,29 +1355,46 @@ class VIMS:
         """Pixel corner equirectangular [0°, 360°[ polygon patches."""
         return PathPatch(self._rpath_360, **kwargs)
 
-    def patches(self, **kwargs):
-        """Default pixel corner equirectangular polygon patches."""
-        return self.rpatch_360(**kwargs)
+    @property
+    def corners(self):
+        """Get all cube corners."""
+        return np.array([pix.corners for pix in self.pixels])
 
     @property
     def corners_ground(self):
         """Check if corners are on the ground."""
-        return np.array([
-            corners.ground
-            for l in range(1, self.NL + 1)
-            for s in range(1, self.NS + 1)
-            for corners in [self[s, l].corners]
-        ])
+        return np.array([c.ground for c in self.corners])
 
     @property
     def corners_vertices(self):
         """Get all corners vertices in the cube."""
-        return np.array([
-            corners.vertices
-            for l in range(1, self.NL + 1)
-            for s in range(1, self.NS + 1)
-            for corners in [self[s, l].corners]
-        ])
+        return [
+            c.vertices if g else None
+            for c, g in zip(self.corners, self.corners_ground)
+        ]
+
+    @property
+    def corners_patches(self):
+        """Get all corner patches."""
+        if self.__corners is None:
+            codes = VIMSPixelCorners.CODES
+            self.__corners = [
+                PathPatch(None) if vertices is None else PathPatch(Path(vertices, codes))
+                for vertices in self.corners_vertices
+            ]
+        return self.__corners
+
+    def corners_collection(self, index='surface', **kwargs):
+        """Get collection of all corners patches."""
+        data = self[index]
+        if np.ndim(data) == 2:
+            data = rgb(data, data, data)
+
+        colors = np.reshape(data, (self.NP, 3)) / 255
+        return PatchCollection(self.corners_patches,
+                               edgecolors='None',
+                               facecolors=colors,
+                               **kwargs)
 
     # ==========
     # FOOTPRINT
