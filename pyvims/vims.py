@@ -200,6 +200,7 @@ class VIMS:
         self.__spec_pix = None
         self.__spec_pts = None
         self.__spec_mid_pt = None
+        self.__pixels = None
 
     @property
     def filename(self):
@@ -624,6 +625,7 @@ class VIMS:
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
+            self.__pixels = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -709,6 +711,7 @@ class VIMS:
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
+            self.__pixels = None
         return self.__j2000
 
     @property
@@ -735,6 +738,7 @@ class VIMS:
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
+            self.__pixels = None
         return self.__sky
 
     @property
@@ -868,6 +872,7 @@ class VIMS:
             self.__spec_pix = None
             self.__spec_pts = None
             self.__spec_mid_pt = None
+            self.__pixels = None
         return self.__xyz
 
     @property
@@ -1132,6 +1137,20 @@ class VIMS:
         """Shadow patch on the ground."""
         return great_circle_patch(*self.ss, inside=False, color='k', alpha=.1)
 
+    @property
+    def pixels(self):
+        """Cube collection of all the pixels."""
+        if self.__pixels is None:
+            self.__pixels = np.array([
+                self[s, l]
+                for l in range(1, self.NL + 1)
+                for s in range(1, self.NS + 1)
+            ])
+
+            self.__corners = None
+            self.__footprints = None
+        return self.__pixels
+
     # ============
     # FOV CONTOUR
     # ============
@@ -1275,6 +1294,7 @@ class VIMS:
             self.__rlimb = None
             self.__rpath_180 = None
             self.__rpath_360 = None
+            self.__pixels = None
         return self.__rxyz
 
     @property
@@ -1416,6 +1436,7 @@ class VIMS:
             self.__flimb = None
             self.__fpath_180 = None
             self.__fpath_360 = None
+            self.__pixels = None
         return self.__fxyz
 
     @property
