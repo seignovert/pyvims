@@ -1331,6 +1331,26 @@ class VIMS:
         """Default pixel corner equirectangular polygon patches."""
         return self.rpatch_360(**kwargs)
 
+    @property
+    def corners_ground(self):
+        """Check if corners are on the ground."""
+        return np.array([
+            corners.ground
+            for l in range(1, self.NL + 1)
+            for s in range(1, self.NS + 1)
+            for corners in [self[s, l].corners]
+        ])
+
+    @property
+    def corners_vertices(self):
+        """Get all corners vertices in the cube."""
+        return np.array([
+            corners.vertices
+            for l in range(1, self.NL + 1)
+            for s in range(1, self.NS + 1)
+            for corners in [self[s, l].corners]
+        ])
+
     # ==========
     # FOOTPRINT
     # ==========
