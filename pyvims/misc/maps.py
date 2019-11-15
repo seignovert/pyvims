@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib.image import imread
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
 
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
@@ -382,13 +383,21 @@ class Map:
             yield k, v
 
     def __call__(self, *args):
-        if len(args) == 1 and isinstance(args[0], PathPatch):
-            return self.xy_patch(args[0])
+        if len(args) == 1:
+            if isinstance(args[0], PatchCollection):
+                return self.xy_collection(args[0])
+
+            if isinstance(args[0], PathPatch):
+                return self.xy_patch(args[0])
+
+            if isinstance(args[0], Path):
+                return self.xy_path(args[0])
 
         if len(args) == 2:
             return self.xy(args[0], args[1])
 
-        raise ValueError('A `PathPatch` or 2 attributes are required (lon_w, lat)')
+        raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
+                         'or (lon_w, lat) attributes are required.')
 
     @property
     def fname(self):
@@ -543,7 +552,7 @@ class Map:
         return self.data_extent
 
     def xy(self, lon_w, lat):
-        """Convert point coordinate on the map coordinates.
+        """Convert point coordinate in map coordinates.
 
         Parameters
         ----------
@@ -568,8 +577,29 @@ class Map:
 
         return self.data_extent
 
+    def xy_path(self, path):
+        """Convert path vertices in map coordinates.
+
+        Parameters
+        ----------
+        path: matplotlib.path.Path
+            Pyplot path.
+
+        Returns
+        -------
+        matplotlib.path.Path
+            Re-projected path.
+
+        """
+        if path is None:
+            return None
+
+        vertices = np.transpose(self.xy(*path.vertices.T))
+
+        return Path(vertices, path.codes)
+
     def xy_patch(self, patch):
-        """Convert patch vertices on the map coordinates.
+        """Convert patch vertices in map coordinates.
 
         Parameters
         ----------
@@ -579,16 +609,36 @@ class Map:
         Returns
         -------
         matplotlib.patches.PathPatch
-            Re-projected patch in map coordinates.
+            Re-projected patch.
 
         """
-        path = patch.get_path()
-        vertices = np.transpose(self.xy(*path.vertices.T))
-
         return PathPatch(
-            Path(vertices, path.codes),
+            self.xy_path(patch.get_path()),
             edgecolor=patch.get_ec(),
             facecolor=patch.get_fc(),
+        )
+
+    def xy_collection(self, collection):
+        """Convert patch collection vertices in map coordinates.
+
+        Parameters
+        ----------
+        collection: matplotlib.collections.PatchCollection
+            Pyplot patch collection.
+
+        Returns
+        -------
+        matplotlib.collections.PatchCollection
+            Re-projected patch collection.
+
+        """
+        return PatchCollection(
+            [
+                PathPatch(self.xy_path(path))
+                for path in collection.get_paths()
+            ],
+            edgecolor=collection.get_ec(),
+            facecolor=collection.get_fc(),
         )
 
     def lons(self, lon_min=None, lon_max=None, npts=None):
