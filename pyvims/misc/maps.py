@@ -530,6 +530,11 @@ class Map:
         return self.__n_pole
 
     @property
+    def xright(self):
+        """Check if x-axis is positive to the right."""
+        return self.data_extent[0] < self.data_extent[1]
+
+    @property
     def _proj(self):
         if self.proj in [None, 'equi', 'equirectangular', 'plate carrée', 'lonlat']:
             return 'lonlat'
@@ -568,9 +573,7 @@ class Map:
 
         """
         if self._proj == 'lonlat':
-            if self.data_extent[0] < self.data_extent[1]:
-                return deg180(-lon_w), lat  # East longitude ]-180°, 180°]
-            return deg360(lon_w), lat
+            return deg180(-lon_w) if self.xright else deg360(lon_w), lat
 
         if self._proj == 'stereo':
             return xy_stereo(lon_w, lat, n_pole=self.n_pole)
@@ -595,8 +598,9 @@ class Map:
             return None
 
         vertices = np.transpose(self.xy(*path.vertices.T))
+        codes = path.codes
 
-        return Path(vertices, path.codes)
+        return Path(vertices, codes)
 
     def xy_patch(self, patch):
         """Convert patch vertices in map coordinates.
@@ -661,6 +665,9 @@ class Map:
             List of longitudes.
 
         """
+        if self._proj == 'stereo':
+            return []
+
         lons = np.linspace(
             min(self.data_extent[:2]) if lon_min is None else lon_min,
             max(self.data_extent[:2]) if lon_max is None else lon_max,
@@ -692,6 +699,9 @@ class Map:
             List of latitudes.
 
         """
+        if self._proj == 'stereo':
+            return []
+
         return np.linspace(
             min(self.data_extent[2:]) if lat_min is None else lat_min,
             max(self.data_extent[2:]) if lat_max is None else lat_max,
