@@ -5,6 +5,7 @@ import re
 
 import numpy as np
 
+import matplotlib.pyplot as plt
 from matplotlib.image import imread
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
@@ -717,3 +718,135 @@ class Map:
     def ylim(self):
         """Y-axis limits based on image background."""
         return self.extent[2], self.extent[3]
+
+    def subplots(self, *args, bgshow=True, ticks=True,
+                 lim=True, grid=True, **kwargs):
+        """Create subplots based on map background."""
+        fig, ax = plt.subplots(*args, **kwargs)
+
+        return fig, MapAxes(self, ax, bgshow=bgshow, ticks=ticks,
+                            lim=lim, grid=grid)
+
+    def figure(self, *args, **kwargs):
+        """Create figure based on map background."""
+        return self.subplots(*args, **kwargs)
+
+
+class MapAxis:
+    """Map axis object.
+
+    Parameters
+    ----------
+    bg: Map
+        Background Map object.
+    ax: matplotlib.axes._subplots.AxesSubplot
+        Matplotlib axis.
+    bgshow: bool, optional
+        Show basemap image (default: ``True``).
+    ticks: bool, optional
+        Show map X-Y ticks (default: ``True``).
+    lim: bool, optional
+        Set X-Y limits based on map extent (default: ``True``).
+    grid: bool, optional
+        Show default image grid (default: ``True``).
+
+    """
+
+    def __init__(self, bg, ax, bgshow=True, ticks=True,
+                 lim=True, grid=True):
+        self.bg = bg
+        self.ax = ax
+
+        if bgshow:
+            self.set_bg()
+        if ticks:
+            self.set_xyticks()
+        if lim:
+            self.set_xylim()
+        if grid:
+            self.grid()
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__}> {self.bg}'
+
+    def set_bg(self, cmap='gray', **kwargs):
+        """Show background image scaled on the map."""
+        self.ax.imshow(self.bg.img, extent=self.bg.extent, cmap=cmap, **kwargs)
+
+    def set_xyticks(self, xticks=None, yticks=None):
+        """Set axis X-Y ticks."""
+        self.ax.set_xticks(self.bg.lons() if xticks is None else xticks)
+        self.ax.set_yticks(self.bg.lats() if yticks is None else yticks)
+
+    def set_xyticklabels(self, xticklabels=None, yticklabels=None):
+        """Set axis X-Y ticklabels."""
+        self.ax.set_xticklabels(self.bg.lons() if xticklabels is None else xticklabels)
+        self.ax.set_yticklabels(self.bg.lats() if yticklabels is None else yticklabels)
+
+    def set_xylim(self):
+        """Set X-Y axis limits based on map dimensions."""
+        self.ax.set_xlim(self.bg.xlim)
+        self.ax.set_ylim(self.bg.ylim)
+
+    def grid(self, **kwargs):
+        """Set image ticks, limits and grid."""
+        self.ax.grid(**kwargs)
+
+    def set_title(self, *args, **kwargs):
+        """Set title on map axis."""
+        self.ax.set_title(*args, **kwargs)
+
+    def plot(self, lon_w, lat, *args, **kwargs):
+        """Plot on the map."""
+        self.ax.plot(*self.bg(lon_w, lat), *args, **kwargs)
+
+    def scatter(self, lon_w, lat, *args, **kwargs):
+        """Scatter point(s) on the map."""
+        self.ax.scatter(*self.bg(lon_w, lat), *args, **kwargs)
+
+    def add_path(self, path, **kwargs):
+        """Add path on the map."""
+        self.ax.add_patch(PathPatch(self.bg(path), **kwargs))
+
+    def add_patch(self, patch, **kwargs):
+        """Add patch on the map."""
+        self.ax.add_patch(self.bg(patch), **kwargs)
+
+    def add_collection(self, collection, **kwargs):
+        """Add collection on the map."""
+        self.ax.add_collection(self.bg(collection), **kwargs)
+
+
+class MapAxes:
+    """Multi axis map object.
+
+    Parameters
+    ----------
+    bg: Map
+        Background Map object.
+    ax: matplotlib.axes._subplots.AxesSubplot or numpy.ndarray
+        Matplotlib axis.
+    bgshow: bool, optional
+        Show basemap image (default: ``True``).
+    ticks: bool, optional
+        Show map X-Y ticks (default: ``True``).
+    lim: bool, optional
+        Set X-Y limits based on map extent (default: ``True``).
+    grid: bool, optional
+        Show default image grid (default: ``True``).
+
+    """
+
+    def __new__(cls, bg, ax, **kwargs):
+        if np.ndim(ax) == 0:
+            return MapAxis(bg, ax, **kwargs)
+
+        if np.ndim(ax) == 1:
+            return np.array([MapAxis(bg, axis, **kwargs) for axis in ax])
+
+        if np.ndim(ax) == 2:
+            return np.array([
+                [MapAxis(bg, axis, **kwargs) for axis in _ax] for _ax in ax
+            ])
+
+        raise ValueError(f'Invalid axis dimension: {np.ndim(ax)}')
