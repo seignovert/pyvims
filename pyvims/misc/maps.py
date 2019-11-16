@@ -11,6 +11,7 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
 
+from .vertices import path_lonlat
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
 from ..vectors import deg180, deg360
@@ -599,9 +600,13 @@ class Map:
             return None
 
         vertices = np.transpose(self.xy(*path.vertices.T))
-        codes = path.codes
 
-        return Path(vertices, codes)
+        _path = Path(vertices, path.codes)
+
+        if self._proj == 'lonlat':
+            _path = path_lonlat(_path)
+
+        return _path
 
     def xy_patch(self, patch):
         """Convert patch vertices in map coordinates.
