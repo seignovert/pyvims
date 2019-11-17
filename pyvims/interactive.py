@@ -15,7 +15,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from .misc.maps import bg_map
+from .misc.maps import MAPS
 
 
 def cube_click(cube, index=2.03, figsize=(12, 12)):
@@ -76,7 +76,7 @@ def map_click(cube, index=2.03, figsize=(12, 6),
     fig.subplots_adjust(right=.85)
 
     if bg:
-        bgmap = bg_map(cube.target_name, bg)
+        bgmap = MAPS[f'{cube.target_name}_{bg}']
         ax.imshow(bgmap, extent=[180, -180, -90, 90])
         ax.imshow(bgmap, extent=[180 + 360, -180 + 360, -90, 90])
 
