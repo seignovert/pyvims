@@ -457,7 +457,7 @@ class VIMSPixels:
         """Cached collection of pixels."""
         if self.__pixels is None:
             self.__pixels = np.array([
-                self._cube[s, l]
+                VIMSPixel(self._cube, s, l)
                 for l in range(1, self.NL + 1)
                 for s in range(1, self.NS + 1)
             ])

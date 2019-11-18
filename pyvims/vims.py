@@ -15,7 +15,7 @@ from .flyby import FLYBYS
 from .img import rgb, save_img
 from .isis import ISISCube, hex2double
 from .misc import great_circle_patch
-from .pixel import VIMSPixel, VIMSPixels
+from .pixel import VIMSPixels
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
@@ -127,7 +127,7 @@ class VIMS:
             if len(val) == 2:
                 if isinstance(val[0], float) and isinstance(val[1], float):
                     return self.get_pixel(*val)
-                return VIMSPixel(self, *val)
+                return self.pixels[val]
 
             if len(val) == 3:
                 return self._rgb(*val)
@@ -1600,7 +1600,7 @@ class VIMS:
         dist = self.dist_pt(lon_w, lat)
         i, j = np.unravel_index(np.argmin(dist), dist.shape)
         s, l = self._sl[:, i, j]
-        pixel = self[int(s), int(l)]
+        pixel = self.pixels[int(s), int(l)]
 
         if (lon_w, lat) in pixel:
             return pixel
@@ -1608,8 +1608,8 @@ class VIMS:
         # Loop over all the pixels. Exit on the first match.
         for l in range(1, self.NL + 1):
             for s in range(1, self.NS + 1):
-                if (lon_w, lat) in self[s, l]:
-                    return self[s, l]
+                if (lon_w, lat) in self.pixels[s, l]:
+                    return self.pixels[s, l]
         return None
 
     @property
@@ -1619,7 +1619,7 @@ class VIMS:
             pixels = []
             for l in range(1, self.NL + 1):
                 for s in range(1, self.NS + 1):
-                    pixel = self[s, l]
+                    pixel = self.pixels[s, l]
                     if pixel.is_specular:
                         pixels.append(pixel)
             self.__spec_pix = pixels
@@ -1641,9 +1641,9 @@ class VIMS:
         three pixel fall all into the same pixel.
 
         """
-        first = self[1, 1]
-        middle = self[self.NS // 2, self.NL // 2]
-        last = self[self.NS, self.NL]
+        first = self.pixels[1, 1]
+        middle = self.pixels[self.NS // 2, self.NL // 2]
+        last = self.pixels[self.NS, self.NL]
 
         if (first.specular_lonlat not in self.contour
                 and middle.specular_lonlat not in self.contour
@@ -1675,8 +1675,8 @@ class VIMS:
         if self.__spec_pts is None:
             pts = []
             for l in range(1, self.NL + 1):
-                pts.append(self[1, l].specular_pt)
-                pts.append(self[self.NS, l].specular_pt)
+                pts.append(self.pixels[1, l].specular_pt)
+                pts.append(self.pixels[self.NS, l].specular_pt)
             self.__spec_pts = np.transpose(pts)
         return self.__spec_pts
 
@@ -1721,7 +1721,7 @@ class VIMS:
     def specular_mid_pt(self):
         """Specular mid point."""
         if self.__spec_mid_pt is None:
-            mid_pixel = self[self.NS // 2, self.NL // 2]
+            mid_pixel = self.pixels[self.NS // 2, self.NL // 2]
             angle = mid_pixel.specular_angle if mid_pixel.specular_angle else np.nan
 
             self.__spec_mid_pt = {
