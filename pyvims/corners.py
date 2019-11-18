@@ -2,12 +2,13 @@
 
 import numpy as np
 
-from matplotlib.patches import PathPatch
 from matplotlib.path import Path
+from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
 
+from .img import rgb
+from .misc.vertices import area
 from .projections.lambert import xy as lambert
-from .vertices import area, path_cross_180, path_cross_360, path_pole_180, path_pole_360
-from .vectors import deg180, deg360
 
 
 class VIMSPixelCorners:
@@ -86,13 +87,6 @@ class VIMSPixelCorners:
         """Corners vertices."""
         return np.vstack([self.lonlat.T, self.lonlat[:, 0]])
 
-    @property
-    def vertices_e(self):
-        """Corners vertices in east longitude."""
-        lon_w, lat = self.vertices.T
-        lon_e = deg180(-lon_w)
-        return np.vstack([lon_e, lat]).T
-
     def _lambert(self, lonlat):
         """Lambert azimuthal equal-area projection in mean sub-spacecraft plane."""
         return lambert(*lonlat, *self._cube.sc)
@@ -161,75 +155,13 @@ class VIMSPixelCorners:
         return (0, -90) in self
 
     @property
-    def is_180(self):
-        """Check if the pixel cross the change of date meridian (180°)."""
-        lon_e = deg180(-self.lonlat[0])
-        return lon_e.max() - lon_e.min() > 180
-
-    @property
-    def is_360(self):
-        """Check if the pixel cross the prime meridian (360°)."""
-        lon_w = deg360(self.lonlat[0])
-        return lon_w.max() - lon_w.min() > 180
-
-    @property
-    def path_180(self):
-        """Polygon path in ]-180°, 180°] equirectangular projection."""
-        if self.limb:
-            return None
-
-        if self.is_npole:
-            verts, codes = path_pole_180(self.vertices_e, npole=True)
-
-        elif self.is_spole:
-            verts, codes = path_pole_180(self.vertices_e, npole=False)
-
-        elif self.is_180:
-            verts, codes = path_cross_180(self.vertices_e)
-
-        else:
-            verts, codes = self.vertices_e, self.CODES
-
-        return Path(verts, codes)
-
-    @property
-    def path_360(self):
-        """Polygon path in [0°, 360°[ equirectangular projection."""
-        if self.limb:
-            return None
-
-        if self.is_npole:
-            verts, codes = path_pole_360(self.vertices, npole=True)
-
-        elif self.is_spole:
-            verts, codes = path_pole_360(self.vertices, npole=False)
-
-        elif self.is_360:
-            verts, codes = path_cross_360(self.vertices)
-
-        else:
-            verts, codes = self.vertices, self.CODES
-
-        return Path(verts, codes)
-
-    def patch_180(self, **kwargs):
-        """Ground corners matplotlib patch in ]-180°, 180°] equirectangular projection."""
-        return PathPatch(self.path_180, **kwargs) if self.ground else \
-            PathPatch([[0, 0], [0, 0]])
-
-    def patch_360(self, **kwargs):
-        """Ground corners matplotlib patch in [0°, 360°[ equirectangular projection."""
-        return PathPatch(self.path_360, **kwargs) if self.ground else \
-            PathPatch([[0, 0], [0, 0]])
-
-    @property
     def path(self):
         """Ground corners matplotlib path."""
-        return self.path_360
+        return Path(self.vertices, self.CODES) if self.ground else None
 
     def patch(self, **kwargs):
         """Ground corners matplotlib patch."""
-        return self.patch_360(**kwargs)
+        return PathPatch(self.path, **kwargs)
 
     @property
     def area(self):
@@ -242,7 +174,7 @@ class VIMSPixelCorners:
         return area(self._lambert_path.vertices) * self._cube.target_radius ** 2
 
 
-class VIMSPixelFootpint(VIMSPixelCorners):
+class VIMSPixelFootprint(VIMSPixelCorners):
     """VIMS footprint object.
 
     Parameters
@@ -279,3 +211,88 @@ class VIMSPixelFootpint(VIMSPixelCorners):
     def vertices(self):
         """Footprint vertices."""
         return self.lonlat.T
+
+
+class VIMSPixelsCorners:
+    """VIMS pixels corners collection.
+
+    Parameters
+    ----------
+    pixels: pyvims.VIMSPixels
+        Parent VIMS cube pixels.
+
+    """
+
+    def __init__(self, pixels):
+        self._pixels = pixels
+        self.corners = [pix.corners for pix in pixels]
+        self.__paths = None
+
+    def __str__(self):
+        return f'{self._pixels}-Corners'
+
+    def __repr__(self):
+        return '\n - '.join([
+            f'<{self.__class__.__name__}> {self}',
+            f'Vertices shape: {self.vertices.shape}'
+        ])
+
+    def __len__(self):
+        return len(self.corners)
+
+    def __iter__(self):
+        return iter(self.corners)
+
+    @property
+    def vertices(self):
+        """Corners vertices."""
+        return np.array([c.vertices for c in self])
+
+    @property
+    def ground(self):
+        """Check if at least one corner is on the ground."""
+        return np.array([c.ground for c in self])
+
+    @property
+    def paths(self):
+        """List of corners paths."""
+        if self.__paths is None:
+            self.__paths = np.ma.array([c.path for c in self],
+                                       mask=~self.ground,
+                                       fill_value=None)
+        return self.__paths
+
+    def collection(self, index='surface', facecolors=None, edgecolors='None', **kwargs):
+        """Get the collection of all the corners patches on the ground."""
+        patches = [PathPatch(path) for path in self.paths.data]
+
+        if facecolors is None:
+            data = self._pixels._cube[index]  # pylint: disable=protected-access
+
+            if np.ndim(data) == 2:
+                data = rgb(data, data, data)
+
+            facecolors = np.reshape(data, (self._pixels.NP, 3)) / 255
+
+        return PatchCollection(patches,
+                               edgecolors='None',
+                               facecolors=facecolors,
+                               **kwargs)
+
+
+class VIMSPixelsFootprint(VIMSPixelsCorners):
+    """VIMS pixels footprint collection.
+
+    Parameters
+    ----------
+    pixels: pyvims.VIMSPixels
+        Parent VIMS cube pixels.
+
+    """
+
+    def __init__(self, pixels):
+        super().__init__(pixels)
+        self.corners = [pix.footprint for pix in self._pixels]
+
+    def __str__(self):
+        return f'{self._pixels}-Footprint'

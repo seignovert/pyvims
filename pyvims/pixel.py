@@ -4,12 +4,13 @@ import numpy as np
 
 from .angles import DEC, RA
 from .coordinates import salt, slat, slon
-from .corners import VIMSPixelCorners, VIMSPixelFootpint
+from .corners import (VIMSPixelCorners, VIMSPixelFootprint,
+                      VIMSPixelsCorners, VIMSPixelsFootprint)
 from .errors import VIMSError
+from .misc.vertices import area
 from .projections.lambert import xy as lambert
 from .specular import specular_footprint, specular_location
 from .vectors import hav_dist, lonlat
-from .vertices import area
 
 
 class VIMSPixel:
@@ -304,7 +305,7 @@ class VIMSPixel:
     @property
     def footprint(self):
         """VIMS pixel footprint."""
-        return VIMSPixelFootpint(self)
+        return VIMSPixelFootprint(self)
 
     def plot(self, **kwargs):
         """Plot spectrum."""
@@ -392,3 +393,126 @@ class VIMSPixel:
         """Sun footprint area on the ground (km^2)."""
         vertices = lambert(*self.sun_footprint, *self._cube.sc).T
         return area(vertices) * self.target_radius ** 2
+
+
+class VIMSPixels:
+    """VIMS pixels collection.
+
+    Parameters
+    ----------
+    cube: pyvims.VIMS
+        Parent VIMS cube.
+
+    """
+
+    def __init__(self, cube):
+        self._cube = cube
+
+        self.__pixels = None
+        self.__corners = None
+        self.__footprint = None
+
+    def __str__(self):
+        return f'{self._cube}-Pixels'
+
+    def __repr__(self):
+        return '\n - '.join([
+            f'<{self.__class__.__name__}> {self}',
+            f'Nb pixels: {len(self)}',
+            f'Cube size: {self.NS, self.NL}',
+        ])
+
+    def __len__(self):
+        return len(self.pixels)
+
+    def __iter__(self):
+        return iter(self.pixels)
+
+    def __getitem__(self, val):
+        if len(val) == 2:
+            return self.get_pixel(*val)
+
+        raise VIMSError('\n - '.join([
+            f'Invalid format. Use:',
+            '[INT, INT] -> Sample, Line pixel',
+        ]))
+
+    @property
+    def NS(self):
+        """Number of samples."""
+        return self._cube.NS
+
+    @property
+    def NL(self):
+        """Number of lines."""
+        return self._cube.NL
+
+    @property
+    def NP(self):
+        """Number of pixels."""
+        return self._cube.NP
+
+    @property
+    def pixels(self):
+        """Cached collection of pixels."""
+        if self.__pixels is None:
+            self.__pixels = np.array([
+                self._cube[s, l]
+                for l in range(1, self.NL + 1)
+                for s in range(1, self.NS + 1)
+            ])
+
+            self.__corners = None
+            self.__footprint = None
+
+        return self.__pixels
+
+    def get_pixel(self, s, l):
+        """Get pixel object from pixel array.
+
+        Parameters
+        ----------
+        s: int
+            Pixel sample value between ``1`` and ``NS``.
+        l: int
+            Pixel line value between ``1`` and ``NL``.
+
+        Returns
+        -------
+        VIMSPixel
+            Pixel at [S, L] coordinates.
+
+        Raises
+        ------
+        TypeError
+            If the provided type is invalid.
+        ValueError
+            If the sample or line provided does not match the cube dimension.
+
+        """
+        for i, imax, name in zip([s, l], [self.NS, self.NL], ['Sample', 'Line']):
+            if not isinstance(i, (int, np.int64)):
+                raise TypeError(f'{name} must be an `integer`.')
+            if not 1 <= i <= imax:
+                raise ValueError(f'{name} must be between `1` and `{imax}`.')
+
+        k = int(s - 1 + (l - 1) * self.NL)
+        return self.pixels[k]
+
+    @property
+    def corners(self):
+        """Pixel corners collection."""
+        if self.__corners is None:
+            self.__corners = VIMSPixelsCorners(self)
+        return self.__corners
+
+    @property
+    def footprint(self):
+        """Pixel footprints collection."""
+        if self.__footprint is None:
+            self.__footprint = VIMSPixelsFootprint(self)
+        return self.__footprint
+
+    def collection(self, *args, **kwargs):
+        """Pixels corners collection."""
+        return self.corners.collection(*args, **kwargs)

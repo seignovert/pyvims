@@ -5,22 +5,17 @@ import re
 
 import numpy as np
 
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
-from matplotlib.collections import PatchCollection
-
 from requests import HTTPError
 
 from .camera import VIMSCamera
 from .cassini import img_id
 from .contour import VIMSContour
-from .corners import VIMSPixelCorners, VIMSPixelFootpint
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
 from .isis import ISISCube, hex2double
 from .misc import great_circle_patch
-from .pixel import VIMSPixel
+from .pixel import VIMSPixel, VIMSPixels
 from .plot import plot_cube
 from .projections import ortho_proj
 from .quaternions import m2q, q_mult, q_rot, q_rot_t
@@ -207,8 +202,6 @@ class VIMS:
         self.__spec_pts = None
         self.__spec_mid_pt = None
         self.__pixels = None
-        self.__corners = None
-        self.__footprints = None
 
     @property
     def filename(self):
@@ -630,8 +623,6 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
-            self.__corners = None
-            self.__footprints = None
         return self.__camera
 
     def _cassini_pointing(self, et):
@@ -714,8 +705,6 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
-            self.__corners = None
-            self.__footprints = None
         return self.__j2000
 
     @property
@@ -739,8 +728,6 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
-            self.__corners = None
-            self.__footprints = None
         return self.__sky
 
     @property
@@ -871,8 +858,6 @@ class VIMS:
             self.__spec_pts = None
             self.__spec_mid_pt = None
             self.__pixels = None
-            self.__corners = None
-            self.__footprints = None
         return self.__xyz
 
     @property
@@ -1141,14 +1126,7 @@ class VIMS:
     def pixels(self):
         """Cube collection of all the pixels."""
         if self.__pixels is None:
-            self.__pixels = np.array([
-                self[s, l]
-                for l in range(1, self.NL + 1)
-                for s in range(1, self.NS + 1)
-            ])
-
-            self.__corners = None
-            self.__footprints = None
+            self.__pixels = VIMSPixels(self)
         return self.__pixels
 
     # ============
@@ -1293,7 +1271,6 @@ class VIMS:
             self.__rlonlat = None
             self.__rlimb = None
             self.__pixels = None
-            self.__corners = None
         return self.__rxyz
 
     @property
@@ -1323,47 +1300,6 @@ class VIMS:
     def rground(self):
         """Is at least one pixel corner on the ground."""
         return ~self.rlimb
-
-    @property
-    def corners(self):
-        """Get all cube corners."""
-        return np.array([pix.corners for pix in self.pixels])
-
-    @property
-    def corners_ground(self):
-        """Check if corners are on the ground."""
-        return np.array([c.ground for c in self.corners])
-
-    @property
-    def corners_vertices(self):
-        """Get all corners vertices in the cube."""
-        return [
-            c.vertices if g else None
-            for c, g in zip(self.corners, self.corners_ground)
-        ]
-
-    @property
-    def corners_patches(self):
-        """Get all corner patches."""
-        if self.__corners is None:
-            codes = VIMSPixelCorners.CODES
-            self.__corners = [
-                PathPatch(None) if vertices is None else PathPatch(Path(vertices, codes))
-                for vertices in self.corners_vertices
-            ]
-        return self.__corners
-
-    def corners_collection(self, index='surface', **kwargs):
-        """Get collection of all corners patches."""
-        data = self[index]
-        if np.ndim(data) == 2:
-            data = rgb(data, data, data)
-
-        colors = np.reshape(data, (self.NP, 3)) / 255
-        return PatchCollection(self.corners_patches,
-                               edgecolors='None',
-                               facecolors=colors,
-                               **kwargs)
 
     # ==========
     # FOOTPRINT
@@ -1429,7 +1365,6 @@ class VIMS:
             self.__flonlat = None
             self.__flimb = None
             self.__pixels = None
-            self.__footprints = None
         return self.__fxyz
 
     @property
@@ -1459,48 +1394,6 @@ class VIMS:
     def fground(self):
         """Is at least one pixel footpoint point on the ground."""
         return ~self.flimb
-
-    @property
-    def footprints(self):
-        """Get all cube footprints."""
-        return np.array([pix.footprint for pix in self.pixels])
-
-    @property
-    def footprints_ground(self):
-        """Check if footprints are on the ground."""
-        return np.array([c.ground for c in self.footprints])
-
-    @property
-    def footprints_vertices(self):
-        """Get all footprints vertices in the cube."""
-        return [
-            c.vertices if g else None
-            for c, g in zip(self.footprints, self.footprints_ground)
-        ]
-
-    @property
-    def footprints_patches(self):
-        """Get all footprint patches."""
-        if self.__footprints is None:
-            codes = VIMSPixelFootpint.CODES
-            self.__footprints = [
-                PathPatch(None) if vertices is None
-                else PathPatch(Path(vertices, codes))
-                for vertices in self.footprints_vertices
-            ]
-        return self.__footprints
-
-    def footprints_collection(self, index='surface', **kwargs):
-        """Get collection of all footprints patches."""
-        data = self[index]
-        if np.ndim(data) == 2:
-            data = rgb(data, data, data)
-
-        colors = np.reshape(data, (self.NP, 3)) / 255
-        return PatchCollection(self.footprints_patches,
-                               edgecolors='None',
-                               facecolors=colors,
-                               **kwargs)
 
     # =====
     # PLOT
