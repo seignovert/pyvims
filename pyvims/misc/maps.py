@@ -662,7 +662,7 @@ class Map:
         )
 
     def lons(self, lon_min=None, lon_max=None, npts=None):
-        """Get longitude grid.
+        """Get longitude ticks.
 
         Parameters
         ----------
@@ -682,7 +682,7 @@ class Map:
 
         """
         if self._proj == 'stereo':
-            return []
+            return [0]
 
         lons = np.linspace(
             min(self.data_extent[:2]) if lon_min is None else lon_min,
@@ -696,7 +696,7 @@ class Map:
         return lons
 
     def lats(self, lat_min=None, lat_max=None, npts=None):
-        """Get latitude grid.
+        """Get latitude ticks.
 
         Parameters
         ----------
@@ -716,13 +716,83 @@ class Map:
 
         """
         if self._proj == 'stereo':
-            return []
+            return [0]
 
         return np.linspace(
             min(self.data_extent[2:]) if lat_min is None else lat_min,
             max(self.data_extent[2:]) if lat_max is None else lat_max,
             7 if npts is None else npts,
         )
+
+    def lonlabels(self, lon_min=None, lon_max=None, npts=None, precision=0):
+        """Get longitude labels.
+
+        Parameters
+        ----------
+        lon_min: float, optional
+            Minimal longitude. Use ``data_extent`` min value
+            if ``None`` provided.
+        lon_max: float, optional
+            Minimal longitude. Use ``data_extent`` max value
+            if ``None`` provided.
+        npts: int, optional
+            Number of points to output (default ``13``).
+        precision: int, optional
+            Displayed float precision.
+
+        Returns
+        -------
+        numpy.array
+            List of longitude labels.
+
+        """
+        if self._proj == 'stereo':
+            return ['0°']
+
+        lons = self.lons(lon_min=lon_min, lon_max=lon_max, npts=npts)
+
+        if self.data_extent[0] < self.data_extent[1]:  # East longitude
+            labels = [
+                f'{abs(int(lon))}°' if lon % 180 == 0 else
+                f'{abs(lon):.{precision}f}°{"E" if lon > 0 else "W"}'
+                for lon in deg180(lons)
+            ]
+        else:
+            labels = [f'{lon:.{precision}f}°W' for lon in lons]
+
+        return labels
+
+    def latlabels(self, lat_min=None, lat_max=None, npts=None, precision=0):
+        """Get latitude labels.
+
+        Parameters
+        ----------
+        lat_min: float, optional
+            Minimal latitude. Use ``data_extent`` min value
+            if ``None`` provided.
+        lat_max: float, optional
+            Minimal latitude. Use ``data_extent`` max value
+            if ``None`` provided.
+        npts: int, optional
+            Number of points to output (default ``13``).
+        precision: int, optional
+            Displayed float precision.
+
+        Returns
+        -------
+        numpy.array
+            List of latitude labels.
+
+        """
+        if self._proj == 'stereo':
+            return [f'90°W' if self.n_pole else '270°W']
+
+        lats = self.lats(lat_min=lat_min, lat_max=lat_max, npts=npts)
+
+        return [
+            f'{abs(lat):.{precision}f}°{"" if lat == 0 else "N" if lat > 0 else "S"}'
+            for lat in lats
+        ]
 
     @property
     def xlim(self):
@@ -776,6 +846,7 @@ class MapAxis:
             self.set_bg()
         if ticks:
             self.set_xyticks()
+            self.set_xyticklabels()
         if lim:
             self.set_xylim()
         if grid:
@@ -795,8 +866,10 @@ class MapAxis:
 
     def set_xyticklabels(self, xticklabels=None, yticklabels=None):
         """Set axis X-Y ticklabels."""
-        self.ax.set_xticklabels(self.bg.lons() if xticklabels is None else xticklabels)
-        self.ax.set_yticklabels(self.bg.lats() if yticklabels is None else yticklabels)
+        self.ax.set_xticklabels(
+            self.bg.lonlabels() if xticklabels is None else xticklabels)
+        self.ax.set_yticklabels(
+            self.bg.latlabels() if yticklabels is None else yticklabels)
 
     def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
