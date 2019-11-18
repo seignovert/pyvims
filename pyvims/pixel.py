@@ -496,7 +496,7 @@ class VIMSPixels:
             if not 1 <= i <= imax:
                 raise ValueError(f'{name} must be between `1` and `{imax}`.')
 
-        k = int(s - 1 + (l - 1) * self.NL)
+        k = int(s + (l - 1) * self.NS) - 1
         return self.pixels[k]
 
     @property
