@@ -316,7 +316,7 @@ class MapsDetails(type):
 
         cls.__maps[key] = dict(m)
 
-        print(f'Image `{key}` saved in map registry.')
+        print(f'Image `{key}` saved in MAPS registry.')
 
     @classmethod
     def remove(cls, fname):
@@ -326,6 +326,8 @@ class MapsDetails(type):
         if key in cls.maps().keys():
             remove_from_readme(cls.filename(), key)
             del cls.__maps[key]
+
+            print(f'Image `{key}` removed from MAPS registry.')
 
     @classmethod
     def reload(cls):
@@ -585,7 +587,7 @@ class Map:
 
         """
         if self._proj == 'lonlat':
-            return deg180(-lon_w) if self.xright else deg360(lon_w), lat
+            return deg180(-np.asarray(lon_w)) if self.xright else deg360(lon_w), lat
 
         if self._proj == 'stereo':
             return xy_stereo(lon_w, lat, n_pole=self.n_pole)
