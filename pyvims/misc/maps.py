@@ -352,6 +352,16 @@ class Map:
         Data root folder containing the map.
         If ``None`` is provided (default), the
         package ``maps`` folder will be used.
+    extent: list, required
+        Map extent: [lon_w_0, lon_w_1, lat_1, lat_2]
+    src: str, optional
+        Image source name.
+    url: str, optional
+        Image URL source.
+    projection:
+        Image projection (default: ``equirectangular``).
+    name: str, optional
+        Name of the map (for the registry).
 
     """
 
