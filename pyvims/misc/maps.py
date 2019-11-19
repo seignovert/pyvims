@@ -900,6 +900,10 @@ class MapAxis:
         """Scatter point(s) on the map."""
         self.ax.scatter(*self.bg(lon_w, lat), *args, **kwargs)
 
+    def text(self, lon_w, lat, txt, *args, **kwargs):
+        """Text on the map."""
+        self.ax.text(*self.bg(lon_w, lat), txt, *args, **kwargs)
+
     def add_path(self, path, **kwargs):
         """Add path on the map."""
         self.ax.add_patch(PathPatch(self.bg(path), **kwargs))
