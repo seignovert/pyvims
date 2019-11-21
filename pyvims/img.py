@@ -32,7 +32,7 @@ def _clip(img, imin=None, imax=None):
     return np.uint8(np.clip(255 * (img - imin) / (imax - imin), 0, 255))
 
 
-def rgb(r, g, b):
+def rgb(r, g, b, imin=None, imax=None):
     """Create RGB 8 bits image from 3 channels.
 
     Parameters
@@ -43,6 +43,10 @@ def rgb(r, g, b):
         Green image plane data.
     b: np.array
         Blue image plane data.
+    imin: float, optional
+        Custom minimum clipping value.
+    imax: float, optional
+        Custom maximum clipping value.
 
     Returns
     -------
@@ -51,7 +55,9 @@ def rgb(r, g, b):
 
     """
     return np.moveaxis(np.vstack([
-        [_clip(r)], [_clip(g)], [_clip(b)]
+        [_clip(r, imin=imin, imax=imax)],
+        [_clip(g, imin=imin, imax=imax)],
+        [_clip(b, imin=imin, imax=imax)]
     ]), 0, 2)
 
 

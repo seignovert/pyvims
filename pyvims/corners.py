@@ -262,7 +262,8 @@ class VIMSPixelsCorners:
                                        fill_value=None)
         return self.__paths
 
-    def collection(self, index='surface', facecolors=None, edgecolors='None', **kwargs):
+    def collection(self, index='surface', facecolors=None, edgecolors='None',
+                   vmin=None, vmax=None, **kwargs):
         """Get the collection of all the corners patches on the ground."""
         patches = [PathPatch(path) for path in self.paths.data]
 
@@ -270,7 +271,7 @@ class VIMSPixelsCorners:
             data = self._pixels._cube[index]  # pylint: disable=protected-access
 
             if np.ndim(data) == 2:
-                data = rgb(data, data, data)
+                data = rgb(data, data, data, imin=vmin, imax=vmax)
 
             facecolors = np.reshape(data, (self._pixels.NP, 3)) / 255
 
