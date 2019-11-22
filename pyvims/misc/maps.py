@@ -15,6 +15,7 @@ from .vertices import path_lonlat
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
 from ..vectors import deg180, deg360
+from ..coordinates import slat, slon, slon_w
 
 
 ROOT = root = os.path.join(ROOT_DATA, 'maps')
@@ -928,12 +929,31 @@ class MapAxis:
         self.ax.set_xticks(self.bg.lons() if xticks is None else xticks)
         self.ax.set_yticks(self.bg.lats() if yticks is None else yticks)
 
-    def set_xyticklabels(self, xticklabels=None, yticklabels=None):
-        """Set axis X-Y ticklabels."""
+    def set_xyticklabels(self, lats=[60, 70, 80], lon_w=45,
+                         color='lightgray',
+                         xticklabels=None, yticklabels=None):
+        """Set axis X-Y ticklabels.
+
+        Parameters
+        ----------
+        lats: list, optional
+            Latitudes to display meridian values.
+        lon_w: float, optional
+            West longitude to display meridian values.
+
+        """
         self.ax.set_xticklabels(
             self.bg.lonlabels() if xticklabels is None else xticklabels)
         self.ax.set_yticklabels(
             self.bg.latlabels() if yticklabels is None else yticklabels)
+
+        if (self.bg._proj == 'stereo'
+                and yticklabels is None
+                and yticklabels is None):
+            for lat in lats:
+                self.ax.text(*self.bg(lon_w, lat), slat(lat),
+                             rotation=-lon_w, color=color,
+                             va='baseline')
 
     def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
