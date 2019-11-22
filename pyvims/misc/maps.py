@@ -806,6 +806,68 @@ class Map:
         """Y-axis limits based on image background."""
         return self.extent[2], self.extent[3]
 
+    @staticmethod
+    def paralleles(lat, nlons=181, lon_min=0, lon_max=360):
+        """Paralleles coordinates.
+
+        Parameters
+        ----------
+        lats: int, float or list
+            Parallele latitude(s).
+        nlons: int, optional
+            Number of west longitudes in the parallele(s).
+        lon_min: float, optional
+            Minimum west longitude.
+        lon_max: float, optional
+            Maximum west longitude.
+
+        Returns
+        -------
+        ([float, …], [float, …]) or [[float, float], …]
+            West longitude and latitude of the parallele.
+
+        """
+        lons = np.linspace(lon_min, lon_max, nlons)
+        lats = np.repeat(lat, nlons)
+
+        if isinstance(lat, (list, np.ndarray)):
+            nlats = len(lat)
+            lats = np.repeat(lat, nlons).reshape(nlats, nlons).T
+            lons = np.repeat(lons, nlats).reshape(nlons, nlats)
+
+        return lons, lats
+
+    @staticmethod
+    def meridians(lon, nlats=91, lat_min=-90, lat_max=90):
+        """Meridian coordinates.
+
+        Parameters
+        ----------
+        lons: int, float or list
+            Meridian longitude(s).
+        nlats: int, optional
+            Number of latitudes in the meridian(s).
+        lat_min: float, optional
+            Minimum latitude.
+        lat_max: float, optional
+            Maximum latitude.
+
+        Returns
+        -------
+        ([float, …], [float, …]) or [[float, float], …]
+            West longitude and latitude of the parallele.
+
+        """
+        lats = np.linspace(lat_min, lat_max, nlats)
+        lons = np.repeat(lon, nlats)
+
+        if isinstance(lon, (list, np.ndarray)):
+            nlons = len(lon)
+            lons = np.repeat(lon, nlats).reshape(nlons, nlats).T
+            lats = np.repeat(lats, nlons).reshape(nlats, nlons)
+
+        return lons, lats
+
     def subplots(self, *args, bgshow=True, ticks=True,
                  lim=True, grid=True, **kwargs):
         """Create subplots based on map background."""
@@ -884,9 +946,38 @@ class MapAxis:
             self.ax.set_xlim(xmin, xmax)
             self.ax.set_ylim(ymin, ymax)
 
-    def grid(self, **kwargs):
-        """Set image ticks, limits and grid."""
-        self.ax.grid(**kwargs)
+    def grid(self, lats=[60, 70, 80], lons=[30, 60, 120, 150, 210, 240, 310, 340],
+             lat_min=60, lat_max=80, nlats=21,
+             color='lightgray', lw=.5, **kwargs):
+        """Set image ticks, limits and grid.
+
+        Parameters
+        ----------
+        lats: list, optional
+            List of parallele latitudes in stereographic projection.
+        lons: list, optional
+            List of meridians west longitudes in stereographic projection.
+        lat_min: float, optional
+            Minimum meridian latitude in stereographic projection.
+        lat_max: float, optional
+            Maximum meridian latitude in stereographic projection.
+        nlats: int, optional
+            Number of latitudes points per meridians in stereographic projection.
+        color: str, optional
+            Grid color.
+        lw: float
+            Grid line width.
+
+        """
+        self.ax.grid(color=color, lw=lw, **kwargs)
+
+        if self.bg._proj == 'stereo':
+            p = self.bg.paralleles(lats)
+            m = self.bg.meridians(lons, nlats=nlats,
+                                  lat_min=lat_min, lat_max=lat_max)
+
+            self.plot(*p, color=color, lw=lw)
+            self.plot(*m, color=color, lw=lw)
 
     def set_title(self, *args, **kwargs):
         """Set title on map axis."""
