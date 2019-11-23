@@ -15,7 +15,7 @@ from .vertices import path_lonlat
 from ..projections.stereographic import r_stereo, xy as xy_stereo
 from ..vars import ROOT_DATA
 from ..vectors import deg180, deg360
-from ..coordinates import slat, slon, slon_w
+from ..coordinates import slat, slon_e, slon_w
 
 
 ROOT = root = os.path.join(ROOT_DATA, 'maps')
@@ -750,18 +750,14 @@ class Map:
 
         """
         if self._proj == 'stereo':
-            return ['0°']
+            return [slon_w(0)]
 
         lons = self.lons(lon_min=lon_min, lon_max=lon_max, npts=npts)
 
         if self.data_extent[0] < self.data_extent[1]:  # East longitude
-            labels = [
-                f'{abs(int(lon))}°' if lon % 180 == 0 else
-                f'{abs(lon):.{precision}f}°{"E" if lon > 0 else "W"}'
-                for lon in deg180(lons)
-            ]
+            labels = [slon_e(-lon) for lon in lons]
         else:
-            labels = [f'{lon:.{precision}f}°W' for lon in lons]
+            labels = [slon_w(lon) for lon in lons]
 
         return labels
 
@@ -788,14 +784,11 @@ class Map:
 
         """
         if self._proj == 'stereo':
-            return [f'90°W' if self.n_pole else '270°W']
+            return [slon_w(90) if self.n_pole else slon_w(270)]
 
         lats = self.lats(lat_min=lat_min, lat_max=lat_max, npts=npts)
 
-        return [
-            f'{abs(lat):.{precision}f}°{"" if lat == 0 else "N" if lat > 0 else "S"}'
-            for lat in lats
-        ]
+        return [slat(lat, precision) for lat in lats]
 
     @property
     def xlim(self):
