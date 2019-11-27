@@ -998,11 +998,11 @@ class MapAxis:
 
     def plot(self, lon_w, lat, *args, **kwargs):
         """Plot on the map."""
-        self.ax.plot(*self.bg(lon_w, lat), *args, **kwargs)
+        return self.ax.plot(*self.bg(lon_w, lat), *args, **kwargs)
 
     def scatter(self, lon_w, lat, *args, **kwargs):
         """Scatter point(s) on the map."""
-        self.ax.scatter(*self.bg(lon_w, lat), *args, **kwargs)
+        return self.ax.scatter(*self.bg(lon_w, lat), *args, **kwargs)
 
     def text(self, lon_w, lat, txt, *args, **kwargs):
         """Text on the map."""
