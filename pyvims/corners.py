@@ -267,8 +267,11 @@ class VIMSPixelsCorners:
         """Get the collection of all the corners patches on the ground."""
         patches = [PathPatch(path) for path in self.paths.data]
 
-        if facecolors is None:
-            data = self._pixels._cube[index]  # pylint: disable=protected-access
+        if not isinstance(facecolors, str):
+            if facecolors is None:
+                data = self._pixels._cube[index]  # pylint: disable=protected-access
+            else:
+                data = facecolors
 
             if np.ndim(data) == 2:
                 data = rgb(data, data, data, imin=vmin, imax=vmax)
