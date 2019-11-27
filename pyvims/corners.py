@@ -2,6 +2,7 @@
 
 import numpy as np
 
+import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
@@ -263,7 +264,7 @@ class VIMSPixelsCorners:
         return self.__paths
 
     def collection(self, index='surface', facecolors=None, edgecolors='None',
-                   vmin=None, vmax=None, **kwargs):
+                   vmin=None, vmax=None, cmap=None, **kwargs):
         """Get the collection of all the corners patches on the ground."""
         patches = [PathPatch(path) for path in self.paths.data]
 
@@ -273,14 +274,27 @@ class VIMSPixelsCorners:
             else:
                 data = facecolors
 
-            if np.ndim(data) == 2:
-                data = rgb(data, data, data, imin=vmin, imax=vmax)
+            if cmap is None:
+                if np.ndim(data) == 2:
+                    data = rgb(data, data, data, imin=vmin, imax=vmax)
 
-            facecolors = np.reshape(data, (self._pixels.NP, 3)) / 255
+                facecolors = np.reshape(data, (self._pixels.NP, 3)) / 255
+            else:
+                if vmin is None:
+                    vmin = np.nanmin(data)
+
+                if vmax is None:
+                    vmax = np.nanmax(data)
+
+                data = np.clip((data - vmin) / (vmax - vmin), 0, 1)
+                data = plt.cm.get_cmap(cmap)(data)
+
+                facecolors = np.reshape(data, (self._pixels.NP, 4))
 
         return PatchCollection(patches,
-                               edgecolors='None',
+                               edgecolors=edgecolors,
                                facecolors=facecolors,
+                               cmap=cmap,
                                **kwargs)
 
 
