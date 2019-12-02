@@ -10,13 +10,33 @@ from ..projections.stereographic import stereo_scale, xy as stereo_xy
 from ..vars import ROOT_DATA
 
 
-filename = 'titan_npole_lakes_radar_iss_stereo_60.png'
 lat_min = 60
 threshold = 128
 n_pole = True
-lakes = im.imread(os.path.join(ROOT_DATA, filename)) < threshold
 
-center, scale = stereo_scale(lakes, lat_min, n_pole=n_pole)
+
+def _fname(name=None):
+    """Lakes file based on lake name."""
+    return f'titan_npole_stereo_60_{name}.png'
+
+
+def _load_img(name):
+    """Load lakes file."""
+    return im.imread(os.path.join(ROOT_DATA, _fname(name))) < threshold
+
+
+lakes = {
+    'all': _load_img('all_lakes'),
+    'jingpo': _load_img('jingpo'),
+    'kraken_inf': _load_img('kraken_inf'),
+    'kraken_sup': _load_img('kraken_sup'),
+    'kraken': _load_img('kraken_inf') | _load_img('kraken_sup'),
+    'ligeia': _load_img('ligeia'),
+    'punga_kivu': _load_img('punga_kivu'),
+    'others': _load_img('other_lakes'),
+}
+
+center, scale = stereo_scale(lakes['all'], lat_min, n_pole=n_pole)
 
 
 def xy(lon, lat):
@@ -38,7 +58,7 @@ def xy(lon, lat):
     return stereo_xy(lon, lat, center=(center, center), scale=scale, n_pole=n_pole)
 
 
-def is_lake(lon, lat):
+def is_lake(lon, lat, name='all'):
     """Convert geographic coordinates on the image.
 
     Parameters
@@ -47,6 +67,8 @@ def is_lake(lon, lat):
         Longitude West (degree).
     lat: float
         Latitude North (degree).
+    name:
+        Lake name. Default ``all``.
 
     Returns
     -------
@@ -55,4 +77,4 @@ def is_lake(lon, lat):
 
     """
     x, y = np.clip(np.round(xy(lon, lat)).astype(np.int16), 0, int(2 * center))
-    return lakes[y, x]
+    return lakes[name.lower()][y, x]
