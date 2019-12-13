@@ -353,6 +353,16 @@ class VIMS:
         return self.wvlns
 
     @property
+    def wavenumbers(self):
+        """Cube central wavenumber (cm^-1)."""
+        return 1e4 / self.wvlns
+
+    @property
+    def sigma(self):
+        """Cube central wavenumber (cm^-1) shortcut."""
+        return self.wavenumbers
+
+    @property
     def extent(self):
         """Pyplot imshow cube extent."""
         return [.5, self.NS + .5, self.NL + .5, .5]
