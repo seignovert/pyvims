@@ -156,6 +156,11 @@ class VIMSPixel:
         return self._cube.wvlns
 
     @property
+    def sigma(self):
+        """Pixel central wavenumber (cm^-1)."""
+        return self._cube.sigma
+
+    @property
     def spectrum(self):
         """Get pixel spectrum.
 
