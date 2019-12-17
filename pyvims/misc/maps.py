@@ -946,7 +946,7 @@ class MapAxis:
             for lat in lats:
                 self.ax.text(*self.bg(lon_w, lat), slat(lat),
                              rotation=-lon_w, color=color,
-                             va='baseline')
+                             va='baseline', ha='center')
 
     def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
