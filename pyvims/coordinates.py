@@ -3,7 +3,7 @@
 from .vectors import deg180
 
 
-def slon(lon):
+def slon(lon, precision=0):
     """Longitude string.
 
     Parameters
@@ -26,9 +26,9 @@ def slon(lon):
         return '180°'
 
     if lon_e < 0:
-        return f'{-lon_e:.2f}°W' if isinstance(lon_e, float) else f'{-lon_e}°W'
+        return f'{-lon_e:.{precision}f}°W' if isinstance(lon_e, float) else f'{-lon_e}°W'
 
-    return f'{lon_e:.2f}°E' if isinstance(lon_e, float) else f'{lon_e}°E'
+    return f'{lon_e:.{precision}f}°E' if isinstance(lon_e, float) else f'{lon_e}°E'
 
 
 def slon_w(lon_w, precision=0):
@@ -47,7 +47,6 @@ def slon_w(lon_w, precision=0):
         Formatter West longitude (`360°W|270°W|180°W|90°W|0°`)
 
     """
-
     return '0°' if abs(lon_w) <= 1.e-2 else f'{lon_w:.{precision}f}°W'
 
 

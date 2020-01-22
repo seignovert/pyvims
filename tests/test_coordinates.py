@@ -10,8 +10,8 @@ def test_lon():
     assert slon(90) == slon(-270) == '90°W'
     assert slon(-90) == slon(270) == '90°E'
 
-    assert slon(90.01) == '90.01°W'
-    assert slon(-90.01) == '90.01°E'
+    assert slon(90.01, precision=2) == '90.01°W'
+    assert slon(-90.01, precision=2) == '90.01°E'
 
 
 def test_lon_w():
