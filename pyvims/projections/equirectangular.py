@@ -6,6 +6,7 @@ from scipy.interpolate import griddata
 
 from .orthographic import ortho_grid
 from ..interp import cube_interp, mask
+from ..vectors import areaquad
 
 
 def _cross_180(lons, dlon=180):
@@ -22,14 +23,14 @@ def _cross_180(lons, dlon=180):
 
 
 def equi_contour(contour, sc_lat, dlon=180):
-    """Extented contour in equirectangular geometry.
+    """Extended contour in equirectangular geometry.
 
     Parameters
     ----------
     contour: np.array
         Longitude and latitude contour coordinates.
     sc_lat: float
-        Sub-spacecradt latitude.
+        Sub-spacecraft latitude.
 
     Returns
     -------
@@ -42,11 +43,11 @@ def equi_contour(contour, sc_lat, dlon=180):
 
     for i in _cross_180(clon):
         frac = np.abs(180 - (clon[i] % 360)) / \
-            np.abs(clon[i+1] % 360 - clon[i] % 360)
+            np.abs(clon[i + 1] % 360 - clon[i] % 360)
         edge = 180 * np.sign(clon[i])
-        lat = (clat[i+1] - clat[i]) * frac + clat[i]
-        clon = np.insert(clon, i+1, [edge, edge, -edge, -edge])
-        clat = np.insert(clat, i+1, [lat, pole, pole, lat])
+        lat = (clat[i + 1] - clat[i]) * frac + clat[i]
+        clon = np.insert(clon, i + 1, [edge, edge, -edge, -edge])
+        clat = np.insert(clat, i + 1, [lat, pole, pole, lat])
 
     return clon, clat
 
@@ -61,7 +62,7 @@ def equi_grid(glon, glat, npix=1440):
     glat: np.array
         Ground latitude.
     npix: int, optional
-        Maximum mumber of pixel in X-axis (or half in Y-axis)
+        Maximum number of pixel in X-axis (or half in Y-axis)
 
     Returns
     -------
@@ -104,7 +105,7 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
     r: float
         Target radius (km).
     npix: int, optional
-        Maximum mumber of pixel in X-axis (or half in Y-axis)
+        Maximum number of pixel in X-axis (or half in Y-axis)
     method: str, optional
         Interpolation method
 
@@ -182,7 +183,7 @@ def equi_cube(c, index, ppd=4, n=512, res_min=1, interp='cubic'):
     # Contour positions on the FOV tangent plane
     contour = c.cortho
 
-    # Orthogrpahic resolution
+    # Orthographic resolution
     res = max(np.min(np.max(contour, axis=1) - np.min(contour, axis=1)) / n, res_min)
 
     # Equirectangular resolution at the equator
@@ -196,3 +197,31 @@ def equi_cube(c, index, ppd=4, n=512, res_min=1, interp='cubic'):
 
     # Interpolate data (with mask)
     return equi_interp(pixels, data, res, contour, sc, r, npix=npix, method=interp)
+
+
+def pixel_area(img, r=1):
+    """Pixel area in equirectangular projection.
+
+    Parameters
+    ----------
+    img: array
+        2D or 3D image array in equirectangular projection.
+    r: float, optional
+        Planet radius [km].
+
+    Returns
+    -------
+    array
+        Pixel area [km^2]
+
+    Note
+    ----
+    Broadcast array in 2D:
+        https://stackoverflow.com/a/27593639
+
+    """
+    h, w = np.shape(img)[:2]
+    dlon = 360 / w
+    lats = np.linspace(-90, 90, h + 1)
+    area = areaquad(0, lats[:-1], dlon, lats[1:], r=r)
+    return np.broadcast_arrays(np.ones((1, w)), area[..., None])[1]
