@@ -293,3 +293,31 @@ def hav_dist(lon_1, lat_1, lon_2, lat_2, r=1):
     return 2 * r * np.arcsin(np.sqrt(
         hav(phi_2 - phi_1) + np.cos(phi_1) * np.cos(phi_2) * hav(lambda_2 - lambda_1)
     ))
+
+
+def areaquad(lon_0, lat_0, lon_1, lat_1, r=1):
+    """Calculate the surface area of a quadrangle on a sphere.
+
+    The surface area on a sphere bounded by two meridians and two parallels.
+
+    Parameters
+    ----------
+    lon_0: float or array
+        Start meridians (deg).
+    lon_1: float or array
+        Stop meridians (deg).
+    lat_0: float or array
+        Start parallele (deg).
+    lat_1: float or array
+        Stop parallele (deg).
+    r: float, optional
+        Sphere radius.
+
+    Returns
+    -------
+    The quadrangle surface (in `r` units squared).
+
+    """
+    dlambda = np.radians(lon_1 - lon_0)
+    sin_phi_0, sin_phi_1 = np.sin(np.radians([lat_0, lat_1]))
+    return np.abs(r ** 2 * dlambda * (sin_phi_1 - sin_phi_0))
