@@ -50,6 +50,7 @@ in `develop` mode.
 
     git clone -b dev https://github.com/seignovert/pyvims.git
     cd pyvims
+    pip install -r requirements.txt
     python setup.py develop
 
 
