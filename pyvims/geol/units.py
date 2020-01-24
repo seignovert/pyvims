@@ -97,7 +97,6 @@ class GeolUnits(type):
 
     __img = None
     __lonlat = None
-    __pts = None
     __px_res = None
 
     def __str__(cls):
@@ -193,14 +192,6 @@ class GeolUnits(type):
                 np.linspace(-90, 90, h)[::-1],
                 copy=False)
         return cls.__lonlat
-
-    @property
-    def pts(cls):
-        """Map pixel coordinates."""
-        if cls.__pts is None:
-            lon, lat = cls.lonlat
-            cls.__pts = np.transpose([lon.ravel(), lat.ravel()])
-        return cls.__pts
 
     @property
     def pixel_area(cls):
