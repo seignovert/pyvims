@@ -26,13 +26,20 @@ def grid(img, lon_w, lat):
     h, w = np.shape(img)
 
     if isinstance(lon_w, (list, tuple)):
-        lon_w = np.array(lon_w)
+        lon_w = np.asarray(lon_w)
 
     if isinstance(lat, (list, tuple)):
-        lat = np.array(lat)
+        lat = np.asarray(lat)
 
     i = np.round(-lon_w % 360 * w / 360).astype(int)
     j = np.round((90 - lat) * h / 180).astype(int)
+
+    if isinstance(lon_w, (int, float)):
+        if lon_w == 0:
+            i = w
+    else:
+        i[lon_w == 0] = w
+
     return i, j
 
 
