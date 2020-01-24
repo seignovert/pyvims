@@ -40,10 +40,10 @@ def grid(img, lon_w, lat):
     j = np.round((90 - lat) * h / 180).astype(int)
 
     if isinstance(lon_w, (int, float)):
-        if lon_w == 0:
-            i = w
+        if i >= w:
+            i = w - 1
     else:
-        i[lon_w == 0] = w
+        i[i >= w] = w - 1
 
     return i, j
 
