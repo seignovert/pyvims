@@ -1,6 +1,7 @@
 """Geological units module."""
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 import numpy as np
@@ -300,3 +301,21 @@ class GeolUnits(type):
 
         return units
 
+    def mask(cls, pixel, color='w', alpha=.9, reverse=False, **kwargs):
+        """Create a hole mask patch of the pixel to put on top of the geol. map."""
+        path = cls.pixel_gc_path(pixel)
+        h, w = cls.shape
+
+        bg = [
+            [360, 90],
+            [360, -90],
+            [0, -90],
+            [0, 90],
+            [360, 90],
+        ][::(-1 if reverse else 1)]
+
+        vertices = bg + list(path.vertices)
+
+        codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY] + list(path.codes)
+
+        return PathPatch(Path(vertices, codes), color=color, alpha=alpha, ** kwargs)
