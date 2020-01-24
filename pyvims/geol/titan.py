@@ -22,6 +22,8 @@ class Titan(metaclass=GeolUnits):
 
     """
 
+    R = 2575  # Planet radius [km]
+
     MAP = DATA / 'Titan_geol_map.png'
 
     LEGEND = {

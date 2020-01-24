@@ -1,8 +1,12 @@
 """Geological units module."""
 
 import matplotlib.pyplot as plt
+from matplotlib.path import Path
 
 import numpy as np
+
+from ..misc.vertices import path_gc_lonlat
+from ..projections.equirectangular import pixel_area as equi_pixel_area
 
 
 def grid(img, lon_w, lat):
@@ -84,9 +88,16 @@ def geol_units(img, lon_w, lat, legend=None):
 class GeolUnits(type):
     """Geological map units."""
 
-    MAP = None
-    LEGEND = None
-    IMG = None
+    R = None       # Planet radius [km]
+    MAP = None     # Geol map image
+    LEGEND = None  # Units mapping dict
+
+    NPT = 8        # Great circle interpolation factor
+
+    __img = None
+    __lonlat = None
+    __pts = None
+    __px_res = None
 
     def __str__(cls):
         return cls.__name__
@@ -97,6 +108,9 @@ class GeolUnits(type):
     def __call__(cls, *args, legend=True):
         """Get geological units form image."""
         if len(args) == 1:
+            if hasattr(args[0], 'path'):
+                return cls.pixel_frac(args[0])
+
             img = args[0]
 
             if not hasattr(img, 'lon'):
@@ -107,7 +121,10 @@ class GeolUnits(type):
 
             geol = cls.geol_units(img.lon, img.lat, legend=legend)
 
-            return np.ma.array(geol, mask=img.limb) if hasattr(img, 'limb') else geol
+            if hasattr(img, 'limb') and np.ndim(img.limb) == 2:
+                return np.ma.array(geol, mask=img.limb)
+
+            return geol
 
         if len(args) == 2:
             lon, lat = args
@@ -118,9 +135,9 @@ class GeolUnits(type):
     @property
     def img(cls):
         """Map image data."""
-        if cls.IMG is None:
-            cls.IMG = (plt.imread(str(cls.MAP)) * 255).astype(np.uint8)
-        return cls.IMG
+        if cls.__img is None:
+            cls.__img = (plt.imread(str(cls.MAP)) * 255).astype(np.uint8)
+        return cls.__img
 
     def geol_units(cls, lon_w, lat, legend=True):
         """Get geological units.
@@ -159,3 +176,127 @@ class GeolUnits(type):
             ax.scatter([], [], color=plt.get_cmap(cmap)(key / 255), label=value)
 
         ax.legend(title=title, **kwargs)
+
+    @property
+    def shape(cls):
+        """Image map shape."""
+        return np.shape(cls.img)[:2]
+
+    @property
+    def lonlat(cls):
+        """Map geographic coordinate grid."""
+        if cls.__lonlat is None:
+            h, w = cls.shape
+            cls.__lonlat = np.meshgrid(
+                np.linspace(0, 360, w)[::-1],
+                np.linspace(-90, 90, h)[::-1],
+                copy=False)
+        return cls.__lonlat
+
+    @property
+    def pts(cls):
+        """Map pixel coordinates."""
+        if cls.__pts is None:
+            lon, lat = cls.lonlat
+            cls.__pts = np.transpose([lon.ravel(), lat.ravel()])
+        return cls.__pts
+
+    @property
+    def pixel_area(cls):
+        """Map pixel area."""
+        if cls.__px_res is None:
+            cls.__px_res = equi_pixel_area(cls.img, r=cls.R)
+        return cls.__px_res
+
+    @staticmethod
+    def _get_path(pixel):
+        """Get path from pixel."""
+        if isinstance(pixel, Path):
+            return pixel
+
+        if hasattr(pixel, 'corners'):
+            return pixel.corners.path
+
+        if hasattr(pixel, 'path'):
+            return pixel.path
+
+        raise TypeError('Pixel must be a `Path` or have `corners` attribute.')
+
+    def pixel_gc_path(cls, pixel):
+        """Interpolate path edges on great circles."""
+        return path_gc_lonlat(cls._get_path(pixel), npt=cls.NPT)
+
+    def slice_img_path(cls, path):
+        """Extract the portion of the image and the pixel area inside the path."""
+        imin, jmin = grid(cls.img, *np.max(path.vertices.T, axis=1))
+        imax, jmax = grid(cls.img, *np.min(path.vertices.T, axis=1))
+
+        h, w = cls.shape
+        cond = slice(jmin, min(h, jmax + 1)), slice(imin, min(w, imax + 1))
+
+        _lon, _lat = cls.lonlat
+        lon, lat = _lon[cond], _lat[cond]
+
+        pts = np.transpose([lon.ravel(), lat.ravel()])
+        inside = path.contains_points(pts).reshape(lon.shape)
+
+        return cls.img[cond][inside], cls.pixel_area[cond][inside]
+
+    def slice_img(cls, pixel):
+        """Extract the portion of the image and the pixel area inside a pixel.
+
+        Note
+        ----
+        * The pixel path edges on great circles.
+        * The pixel path is splitted if it constrains multiple polygons before
+        mergening the outputs.
+
+        """
+        path = cls.pixel_gc_path(pixel)
+        verts = path.vertices
+        codes = path.codes
+
+        start = np.where(codes == Path.MOVETO)[0]
+        stop = np.where(codes == Path.CLOSEPOLY)[0] + 1
+
+        if len(start) != len(stop):
+            raise ValueError('Path invalid.')
+
+        if len(start) == 1:
+            return cls.slice_img_path(path)
+
+        # Loop through each individual path.
+        pixel_units = []
+        pixel_area = []
+        for i, j in zip(start, stop):
+            cond = slice(i, j)
+            _path = Path(verts[cond], codes[cond])
+            _pixel_units, _pixel_area = cls.slice_img_path(_path)
+            pixel_units += list(_pixel_units)
+            pixel_area += list(_pixel_area)
+
+        return np.asarray(pixel_units), np.asarray(pixel_area)
+
+    def pixel_frac(cls, pixel, legend=None):
+        """Extract the portion of the image on the pixel."""
+        pixel_units, pixel_area = cls.slice_img(pixel)
+        total_area = np.sum(pixel_area)
+
+        if legend is None:
+            legend = cls.LEGEND
+
+        units = {}
+        for key, name in legend.items():
+            unit = pixel_units == key
+            area = np.sum(pixel_area[unit])
+
+            if area == 0:
+                continue
+
+            if name not in units:
+                units[name] = 0
+
+            units[name] += 100 * area / total_area
+
+        return units
+
