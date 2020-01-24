@@ -4,7 +4,7 @@ import numpy as np
 
 from matplotlib.path import Path
 
-from .greatcircle import great_circle_lat
+from .greatcircle import great_circle_arc, great_circle_lat
 
 
 def _lonlat(path):
@@ -172,3 +172,36 @@ def area(vertices):
     y1 = np.array([*y[1:], y[0]])
     x2 = np.array([*x[2:], *x[:2]])
     return .5 * np.abs(np.sum((x2 - x) * y1))
+
+
+def path_gc_lonlat(path, npt=8):
+    """Redraw path using great circle vertices.
+
+    Parameters
+    ----------
+    path: matplotlib.path.Path
+        Path to redraw.
+    npt: int, optional
+        Number of points in each great circle arc.
+
+    Returns
+    -------
+    matplotlib.path.Path
+        New path in equirectangular projection.
+
+    Raises
+    ------
+    ValueError
+        If the vertice cross more than 2 times the spit meridian.
+
+    """
+    lon, lat = path.vertices.T
+    nv = len(lon) - 1
+
+    gc = [great_circle_arc(lon[i], lat[i], lon[i + 1], lat[i + 1], npt=npt)
+          for i in range(nv)]
+
+    vertices = np.reshape(np.stack(gc, axis=1), (2, nv * npt)).T
+    codes = [Path.MOVETO] + [Path.LINETO] * (nv * npt - 2) + [Path.CLOSEPOLY]
+
+    return path_lonlat(Path(vertices, codes))
