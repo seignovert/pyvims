@@ -290,7 +290,7 @@ class GeolUnits(type):
 
             units[name] += 100 * area / total_area
 
-        return units
+        return {k: v for k, v, in sorted(units.items(), key=lambda x: x[1], reverse=True)}
 
     def mask(cls, pixel, color='w', alpha=.9, reverse=False, **kwargs):
         """Create a hole mask patch of the pixel to put on top of the geol. map."""
