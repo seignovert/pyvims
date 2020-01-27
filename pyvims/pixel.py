@@ -495,7 +495,7 @@ class VIMSPixels:
         ------
         TypeError
             If the provided type is invalid.
-        ValueError
+        VIMSError
             If the sample or line provided does not match the cube dimension.
 
         """
@@ -503,7 +503,7 @@ class VIMSPixels:
             if not isinstance(i, (int, np.int64)):
                 raise TypeError(f'{name} must be an `integer`.')
             if not 1 <= i <= imax:
-                raise ValueError(f'{name} must be between `1` and `{imax}`.')
+                raise VIMSError(f'{name} must be between `1` and `{imax}`.')
 
         k = int(s + (l - 1) * self.NS) - 1
         return self.pixels[k]
