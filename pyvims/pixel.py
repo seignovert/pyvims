@@ -442,6 +442,10 @@ class VIMSPixels:
             '[INT, INT] -> Sample, Line pixel',
         ]))
 
+    def __call__(self, *args, **kwargs):
+        """Return pixels collection."""
+        return self.collection(*args, **kwargs)
+
     @property
     def NS(self):
         """Number of samples."""
