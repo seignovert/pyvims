@@ -11,7 +11,7 @@ class Titan(metaclass=GeolUnits):
 
     Sources
     -------
-    [1] Lopes et al. (2019) - Nat. Astro.
+    [1] Lopes et al. (2019) - Nat. Astro. doi:10.1038/s41550-019-0917-6
     [2] Combination of:
             * Titan Radar stereographic view of the North-Pole (PIA17655_).
             * Titan ISS equirectangular maps (PIA22770_).
