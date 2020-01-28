@@ -109,7 +109,7 @@ class GeolUnits(type):
         """Get geological units form image."""
         if len(args) == 1:
             if hasattr(args[0], 'path'):
-                return cls.pixel_frac(args[0])
+                return cls.pixel_frac(args[0], legend=legend)
 
             img = args[0]
 
@@ -269,12 +269,12 @@ class GeolUnits(type):
 
         return np.asarray(pixel_units), np.asarray(pixel_area)
 
-    def pixel_frac(cls, pixel, legend=None):
+    def pixel_frac(cls, pixel, legend=True):
         """Extract the portion of the image on the pixel."""
         pixel_units, pixel_area = cls.slice_img(pixel)
         total_area = np.sum(pixel_area)
 
-        if legend is None:
+        if legend and isinstance(legend, bool):
             legend = cls.LEGEND
 
         units = {}
