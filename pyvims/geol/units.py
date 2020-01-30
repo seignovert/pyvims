@@ -93,7 +93,8 @@ class GeolUnits(type):
     MAP = None     # Geol map image
     LEGEND = None  # Units mapping dict
 
-    NPT = 8        # Great circle interpolation factor
+    EXTENT = [360, 0, -90, 90]  # Map extent
+    NPT = 8                     # Great circle interpolation factor
 
     __img = None
     __lonlat = None

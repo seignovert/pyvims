@@ -1,9 +1,8 @@
 """Titan geological data module."""
 
+from .cmap import UnitsColormap
 from .data import DATA
 from .units import GeolUnits
-
-from matplotlib.colors import ListedColormap
 
 
 class Titan(metaclass=GeolUnits):
@@ -32,35 +31,33 @@ class Titan(metaclass=GeolUnits):
     MAP = DATA / 'Titan_geol_map.png'
 
     LEGEND = {
-        0: 'Bassins',       # Bassins [1]
-        10: 'Minor_lakes',  # Minor lakes [3]
-        11: 'Jingpo',       # Jingpo [3]
-        12: 'Punga_Kivu',   # Punga and Kivu [3]
-        13: 'Ligeia',       # Ligeia [3]
-        14: 'Kraken_inf',   # Kraken-inf [3]
-        15: 'Kraken_sup',   # Kraken-sup [3]
-        25: 'Evaporites',   # Evaporites [2]
-        50: 'Craters',      # Craters [1]
-        100: 'Dunes',       # Dunes [1]
-        150: 'Labyrinth',   # Labyrinth [1]
-        200: 'Hummocky',    # Hummocky [1]
-        255: 'Plains',      # Plains [1]
+        0: 'Bassins',       # [1] Ba
+        10: 'Minor_lakes',  # [3]
+        11: 'Jingpo',       # [3]
+        12: 'Punga_Kivu',   # [3]
+        13: 'Ligeia',       # [3]
+        14: 'Kraken_inf',   # [3]
+        15: 'Kraken_sup',   # [3]
+        25: 'Evaporites',   # [2]
+        50: 'Craters',      # [1] Cr
+        100: 'Dunes',       # [1] Dn
+        150: 'Labyrinth',   # [1] Lb
+        200: 'Hummocky',    # [1] Mt
+        255: 'Plains',      # [1] Pl
     }
 
-    LOPES2019 = {
-        0: 'Ba',           # Lakes [1]
-        50: 'Cr',          # Craters [1]
-        100: 'Dn',         # Dunes [1]
-        150: 'Lb',         # Labyrinth [1]
-        200: 'Mt',         # Hummocky [1]
-        255: 'Pl',         # Plains [1]
-    }
-
-    LOPES2019_CMAP = ListedColormap([
-        '#0f5cd7',
-        '#f10017',
-        '#8a00a8',
-        '#fd00c2',
-        '#ffab24',
-        '#00e7a9',
-    ])
+    CMAP = UnitsColormap({
+        0: '#0f5cd7',    # Bassins
+        10: '#002d9b',   # Minor lakes
+        11: '#002996',   # Jingpo
+        12: '#002591',   # Punga and Kivu
+        13: '#00228b',   # Ligeia
+        14: '#001e86',   # Kraken-inf
+        15: '#001a81',   # Kraken-sup
+        25: '#ff8a81',   # Evaporites
+        50: '#f10017',   # Craters
+        100: '#8a00a8',  # Dunes
+        150: '#fd00c2',  # Labyrinth
+        200: '#ffab24',  # Hummocky
+        255: '#00e7a9',  # Plains
+    }, name='titan_geol')
