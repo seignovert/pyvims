@@ -104,7 +104,10 @@ class GeolUnits(type):
         return cls.__name__
 
     def __repr__(cls):
-        return f'<{cls.__class__.__name__}> {cls}'
+        return '\n - '.join([
+            f'<{cls.__class__.__name__}> {cls} | Units:',
+            *cls.LEGEND.values()
+        ])
 
     def __call__(cls, *args, legend=True):
         """Get geological units form image."""
