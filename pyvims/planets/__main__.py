@@ -21,7 +21,7 @@ class Planets(type):
         return iter(cls.__planets)
 
     def __getitem__(cls, item):
-        for planet in cls:
+        for planet in cls:  # pylint: disable=not-an-iterable
             if planet == item:
                 return planet
 

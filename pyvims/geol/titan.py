@@ -3,6 +3,7 @@
 from .cmap import UnitsColormap
 from .data import DATA
 from .units import GeolUnits
+from ..planets import Titan as _Titan
 
 
 class Titan(metaclass=GeolUnits):
@@ -26,7 +27,7 @@ class Titan(metaclass=GeolUnits):
 
     """
 
-    R = 2575  # Planet radius [km]
+    R = _Titan.radius  # Planet radius [km]
 
     MAP = DATA / 'Titan_geol_map.png'
 
