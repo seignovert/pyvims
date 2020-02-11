@@ -2,6 +2,10 @@
 
 import numpy as np
 
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
+
 
 class Projection:
     """Abstract projection object.
@@ -36,9 +40,23 @@ class Projection:
     def __repr__(self):
         return f'<{self}> {self.target}\n\tProj4: `{self.proj4}`'
 
-    def __call__(self, lon_w, lat, invert=False):
+    def __call__(self, *args, invert=False):
         """Project geographic point in X-Y coordinates (or reverse)."""
-        return self.lonlat(lon_w, lat) if invert else self.xy(lon_w, lat)
+        if len(args) == 1:
+            if isinstance(args[0], PatchCollection):
+                return self.xy_collection(args[0])
+
+            if isinstance(args[0], PathPatch):
+                return self.xy_patch(args[0])
+
+            if isinstance(args[0], Path):
+                return self.xy_path(args[0])
+
+        if len(args) == 2:
+            return self.lonlat(args[0], args[1]) if invert else self.xy(args[0], args[1])
+
+        raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
+                         'or (lon_w, lat) attributes are required.')
 
     @property
     def lat_0(self):
@@ -181,3 +199,71 @@ class Projection:
 
         """
         raise NotImplementedError
+
+    def xy_path(self, path):
+        """Convert path vertices in map coordinates.
+
+        Parameters
+        ----------
+        path: matplotlib.path.Path
+            Matplotlib path in west-longitude and latitude coordinates.
+
+        Returns
+        -------
+        matplotlib.path.Path
+            Path in map coordinates.
+
+        """
+        if path is None:
+            return None
+
+        vertices = np.transpose(self.xy(*path.vertices.T))
+        return Path(vertices, path.codes)
+
+    def xy_patch(self, patch):
+        """Convert patch vertices in map coordinates.
+
+        Parameters
+        ----------
+        patch: matplotlib.patches.Patch
+            Matplotlib patch in west-longitude and latitude coordinates.
+
+        Returns
+        -------
+        matplotlib.patches.Patch
+            Patch in map coordinates.
+
+        Note
+        ----
+        Only face and edge colors are preserved.
+
+        """
+        return PathPatch(
+            self.xy_path(patch.get_path()),
+            facecolor=patch.get_fc(),
+            edgecolor=patch.get_ec(),
+        )
+
+    def xy_collection(self, collection):
+        """Convert collection vertices in map coordinates.
+
+        Parameters
+        ----------
+        collection: matplotlib.collections.PatchCollection
+            Matplotlib collection in west-longitude and latitude coordinates.
+
+        Returns
+        -------
+        matplotlib.collections.PatchCollection
+            collection in map coordinates.
+
+        Note
+        ----
+        Only face and edge colors are preserved.
+
+        """
+        return PatchCollection(
+            [PathPatch(self.xy_path(path)) for path in collection.get_paths()],
+            facecolors=collection.get_facecolors(),
+            edgecolors=collection.get_edgecolors(),
+        )

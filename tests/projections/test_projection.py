@@ -2,6 +2,9 @@
 
 import numpy as np
 
+from matplotlib.patches import PathPatch
+from matplotlib.collections import PatchCollection
+
 from pyvims.projections.__main__ import Projection
 from pyvims.planets import Titan
 
@@ -27,3 +30,15 @@ def test_projection():
     assert proj.target == 'Titan'
     assert proj.radius == Titan.radius
     assert proj.r == Titan.radius * 1e3
+
+def test_projection_path_patch_collection():
+    """Test stereographic projection on Path, Patch and Collection."""
+    proj = Projection()
+
+    assert proj.xy_path(None) is None
+
+    _patch = PathPatch(None, facecolor='r', edgecolor='b', alpha=.5)
+    _coll = PatchCollection([_patch])
+
+    assert proj(_patch).get_path() is None
+    assert proj(_coll).get_paths()[0] is None
