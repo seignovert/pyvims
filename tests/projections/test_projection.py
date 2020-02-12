@@ -15,8 +15,8 @@ def test_projection():
     """Test stereographic projection."""
     proj = Projection(lon_w_0=30, target=Titan)
 
-    assert proj.EPSILON == 1e-10
     assert str(proj) == 'Projection'
+    assert proj.EPSILON == 1e-10
 
     assert proj.lat_0 == 0
     assert proj.lon_w_0 == 30

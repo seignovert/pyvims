@@ -20,8 +20,8 @@ def proj():
 
 def test_stere(proj):
     """Test stereographic projection."""
-    assert proj.PROJ4 == 'stere'
     assert str(proj) == 'Stereographic'
+    assert proj.PROJ4 == 'stere'
 
     assert proj.target == 'Titan'
     assert proj.radius == Titan.radius
@@ -38,7 +38,7 @@ def test_stere(proj):
         'PROJCS["PROJCS_Titan_Stereographic",'
         'GEOGCS["GCS_Titan",'
         'DATUM["D_Titan",'
-        'SPHEROID["Titan_MEAN_SPHERE", 2574730, 0]],'
+        'SPHEROID["Titan_Mean_Sphere", 2574730, 0]],'
         'PRIMEM["Greenwich",0],'
         'UNIT["Degree",0.017453292519943295]],'
         'PROJECTION["Stereographic"],'

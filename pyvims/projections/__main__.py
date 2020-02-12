@@ -146,7 +146,7 @@ class Projection:
             f'PROJCS["PROJCS_{self.target}_{self}",'
             f'GEOGCS["GCS_{self.target}",'
             f'DATUM["D_{self.target}",'
-            f'SPHEROID["{self.target}_MEAN_SPHERE", {int(self.r)}, 0]],'
+            f'SPHEROID["{self.target}_Mean_Sphere", {int(self.r)}, 0]],'
             'PRIMEM["Greenwich",0],'
             'UNIT["Degree",0.017453292519943295]],'
             f'PROJECTION["{self}"],'

@@ -6,7 +6,7 @@ from .__main__ import Projection
 
 
 class Stereographic(Projection):
-    """Abstract projection object.
+    """Stereographic projection object.
 
     Parameters
     ----------
@@ -22,6 +22,7 @@ class Stereographic(Projection):
 
     Source
     ------
+    https://proj.org/operations/projections/stere.html
     https://github.com/proj4js/proj4js/blob/master/lib/projections/stere.js
 
     """
