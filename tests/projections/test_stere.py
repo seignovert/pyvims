@@ -90,49 +90,76 @@ def test_stere_lonlat(proj):
         decimal=0)
 
 
-def test_stere_path_patch_collection(proj):
-    """Test stereographic projection on Path, Patch and Collection."""
-    _vertices = [
+def test_stere_path(proj):
+    """Test stereographic projection on Path."""
+    path = proj(Path([
         (0, 80),
         (90, 80),
         (180, 80),
         (270, 80),
-    ]
-    _path = Path(_vertices)
-    _patch = PathPatch(_path, facecolor='r', edgecolor='b', alpha=.5)
-    _coll = PatchCollection([_patch], facecolors='r', edgecolors='b', alpha=.5)
+    ]))
 
-    path = proj(_path)
-
-    assert len(path.vertices) == len(_vertices)
+    assert len(path.vertices) == 5
 
     assert_array(path.vertices, [
         [0, -450519],
         [-450519, 0],
         [0, 450519],
         [450519, 0],
+        [0, -450519],  # Added
     ], decimal=0)
 
-    patch = proj(_patch)
+    assert_array(
+        path.codes,
+        [Path.MOVETO] + 3 * [Path.LINETO] + [Path.CLOSEPOLY]
+    )
+
+
+def test_stere_patch(proj):
+    """Test stereographic projection on Patch."""
+    patch = proj(PathPatch(
+        Path([
+            (0, 80),
+            (90, 80),
+            (180, 80),
+            (270, 80),
+        ]),
+        facecolor='r',
+        edgecolor='b',
+        alpha=.5
+    ))
 
     assert_array(patch.get_verts(), [
         [0, -450519],
         [-450519, 0],
         [0, 450519],
         [450519, 0],
-        [0, -450519],  # auto-close the polygon
+        [0, -450519],
     ], decimal=0)
 
     assert patch.get_facecolor() == (1, 0, 0, .5)
     assert patch.get_edgecolor() == (0, 0, 1, .5)
 
-    coll = proj(_coll)
+
+def test_stere_collection(proj):
+    """Test stereographic projection on Collection."""
+    coll = proj(PatchCollection(
+        [PathPatch(Path([
+            (0, 80),
+            (90, 80),
+            (180, 80),
+            (270, 80),
+        ]))],
+        facecolors='r',
+        edgecolors='b',
+        alpha=.5))
 
     assert_array(coll.get_paths()[0].vertices, [
         [0, -450519],
         [-450519, 0],
         [0, 450519],
         [450519, 0],
+        [0, -450519],
     ], decimal=0)
     assert_array(coll.get_facecolors()[0], (1, 0, 0, .5))
     assert_array(coll.get_edgecolors()[0], (0, 0, 1, .5))
