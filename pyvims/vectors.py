@@ -246,6 +246,13 @@ def vdot(v1, v2):
 def angle(v1, v2):
     """Angular separation between two vectors."""
     dot = vdot(hat(v1), hat(v2))
+
+    if np.ndim(dot) == 1 and dot > 1:
+        return 0
+
+    if np.ndim(dot) > 1:
+        dot[dot > 1] = 1
+
     return np.degrees(np.arccos(dot))
 
 
