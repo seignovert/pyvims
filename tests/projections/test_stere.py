@@ -7,7 +7,6 @@ from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
 
 from pyvims.projections import Stereographic
-from pyvims.planets import Titan
 
 from pytest import fixture
 
@@ -15,17 +14,13 @@ from pytest import fixture
 @fixture
 def proj():
     """Stereographic projection on Titan surface."""
-    return Stereographic(target=Titan)
+    return Stereographic(target='Titan')
 
 
 def test_stere(proj):
     """Test stereographic projection."""
     assert str(proj) == 'Stereographic'
     assert proj.PROJ4 == 'stere'
-
-    assert proj.target == 'Titan'
-    assert proj.radius == Titan.radius
-    assert proj.r == Titan.radius * 1e3
 
     assert proj.lat_0 == 90
     assert proj.lon_w_0 == 0

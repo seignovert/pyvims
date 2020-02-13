@@ -13,7 +13,7 @@ from pytest import approx
 
 def test_projection():
     """Test stereographic projection."""
-    proj = Projection(lon_w_0=30, target=Titan)
+    proj = Projection(lon_w_0=30)
 
     assert str(proj) == 'Projection'
     assert proj.EPSILON == 1e-10
@@ -27,9 +27,24 @@ def test_projection():
     assert proj.clon0 == approx(np.sqrt(3) / 2)
     assert proj.slon0 == approx(.5)
 
+
+def test_projection_radius():
+    """Test stereographic projection."""
+    proj = Projection()
+
+    assert proj.r == approx(57.295, abs=1e-3)
+
+    proj = Projection(radius=10)
+
+    assert proj.r == approx(1e4, abs=1e-3)
+
+    proj = Projection(target='Titan')
+
     assert proj.target == 'Titan'
+    assert proj.target == Titan
     assert proj.radius == Titan.radius
     assert proj.r == Titan.radius * 1e3
+
 
 def test_projection_path_patch_collection():
     """Test stereographic projection on Path, Patch and Collection."""

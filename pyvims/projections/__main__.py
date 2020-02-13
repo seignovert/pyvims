@@ -6,6 +6,8 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
 
+from ..planets import PLANETS
+
 
 class Projection:
     """Abstract projection object.
@@ -28,7 +30,7 @@ class Projection:
 
     PROJ4 = None  # Proj4 projection key
 
-    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=1):
+    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=None):
         self.lon_w_0 = lon_w_0
         self.lat_0 = lat_0
         self.target = target
@@ -106,6 +108,16 @@ class Projection:
         return self.__slon0
 
     @property
+    def target(self):
+        """Planet target."""
+        return self.__target
+
+    @target.setter
+    def target(self, name):
+        """Set target name."""
+        self.__target = name if name is None or name not in PLANETS else PLANETS[name]
+
+    @property
     def radius(self):
         """Target planet radius [km]."""
         return self.__r * 1e-3
@@ -114,7 +126,10 @@ class Projection:
     def radius(self, value_km):
         """Set radius and convert from [km] to [m]."""
         if self.target is None or isinstance(self.target, str):
-            self.__r = value_km * 1e3
+            if value_km is None:
+                self.__r = 180 / np.pi  # Unitary degree representation
+            else:
+                self.__r = value_km * 1e3
         else:
             self.__r = self.target.radius * 1e3
 

@@ -1,6 +1,5 @@
 """Test equirectangular projection module."""
 
-import numpy as np
 from numpy.testing import assert_array_almost_equal as assert_array
 
 from matplotlib.path import Path
@@ -13,13 +12,13 @@ from pytest import fixture, raises
 @fixture
 def proj():
     """Equirectangular projection on degree unit surface centered at 180°."""
-    return Equirectangular(radius=(180e-3 / np.pi))
+    return Equirectangular()
 
 
 @fixture
 def proj_0():
     """Equirectangular projection on degree unit surface centered at 0°."""
-    return Equirectangular(lon_w_0=0, radius=(180e-3 / np.pi))
+    return Equirectangular(lon_w_0=0)
 
 
 def test_equi_path_closed(proj):

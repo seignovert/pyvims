@@ -44,3 +44,7 @@ class Planet(type):
     def c(cls):
         """Planet c-axis radius [km]."""
         return cls.RADII[2][0]
+
+    def lower(cls):
+        """Planet name in lowercase."""
+        return str(cls).lower()

@@ -3,7 +3,6 @@
 from numpy.testing import assert_array_almost_equal as assert_array
 
 from pyvims.projections import Equirectangular
-from pyvims.planets import Titan
 
 from pytest import approx, fixture
 
@@ -11,17 +10,13 @@ from pytest import approx, fixture
 @fixture
 def proj():
     """Equirectangular projection on Titan surface."""
-    return Equirectangular(target=Titan)
+    return Equirectangular(target='Titan')
 
 
 def test_equi(proj):
     """Test equirectangular projection."""
     assert str(proj) == 'Equirectangular'
     assert proj.PROJ4 == 'eqc'
-
-    assert proj.target == 'Titan'
-    assert proj.radius == Titan.radius
-    assert proj.r == Titan.radius * 1e3
 
     assert proj.lat_0 == 0
     assert proj.lon_w_0 == 180
@@ -113,7 +108,7 @@ def test_equi_lonlat(proj):
 
 def test_equi_lon_w_0():
     """Test equirectangular projection values centered on 0."""
-    proj = Equirectangular(lon_w_0=0, target=Titan)
+    proj = Equirectangular(lon_w_0=0, target='Titan')
 
     assert_array(proj(0, 0), (0, 0))
     assert_array(proj(0, 90), (0, 4044376), decimal=0)

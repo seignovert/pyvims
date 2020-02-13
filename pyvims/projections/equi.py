@@ -35,7 +35,7 @@ class Equirectangular(Projection):
 
     PROJ4 = 'eqc'  # Proj4 projection key
 
-    def __init__(self, lon_w_0=180, lat_0=0, lat_ts=0, target=None, radius=1):
+    def __init__(self, lon_w_0=180, lat_0=0, lat_ts=0, target=None, radius=None):
         self.lon_w_0 = lon_w_0
         self.lat_0 = lat_0
         self.target = target

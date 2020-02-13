@@ -29,7 +29,7 @@ class Stereographic(Projection):
 
     PROJ4 = 'stere'  # Proj4 projection key
 
-    def __init__(self, lon_w_0=0, lat_0=90, target=None, radius=1):
+    def __init__(self, lon_w_0=0, lat_0=90, target=None, radius=None):
         self.lon_w_0 = lon_w_0
         self.lat_0 = lat_0
         self.target = target
