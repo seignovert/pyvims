@@ -15,10 +15,12 @@ from .polar import polar_cube
 from .sky import sky_cube
 
 # New projections
+from .equi import Equirectangular
 from .stere import Stereographic
 
 
 __all__ = [
+    'Equirectangular',
     'Stereographic',
     'ortho_proj',
     'ortho_cube',
