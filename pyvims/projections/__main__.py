@@ -40,7 +40,8 @@ class Projection:
         return self.__class__.__name__
 
     def __repr__(self):
-        return f'<{self}> {self.target}\n\tProj4: `{self.proj4}`'
+        return (f'<{self}> Target: {self.target}'
+                f'\n\tProj4: `{self.proj4}`')
 
     def __call__(self, *args, invert=False):
         """Project geographic point in X-Y coordinates (or reverse)."""
@@ -115,7 +116,8 @@ class Projection:
     @target.setter
     def target(self, name):
         """Set target name."""
-        self.__target = name if name is None or name not in PLANETS else PLANETS[name]
+        self.__target = 'Undefined' if name is None \
+            else name if name not in PLANETS else PLANETS[name]
 
     @property
     def radius(self):
@@ -125,7 +127,7 @@ class Projection:
     @radius.setter
     def radius(self, value_km):
         """Set radius and convert from [km] to [m]."""
-        if self.target is None or isinstance(self.target, str):
+        if isinstance(self.target, str):
             if value_km is None:
                 self.__r = 180 / np.pi  # Unitary degree representation
             else:

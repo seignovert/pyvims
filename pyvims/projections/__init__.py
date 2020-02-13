@@ -16,11 +16,13 @@ from .sky import sky_cube
 
 # New projections
 from .equi import Equirectangular
+from .equi_gc import Equirectangular as EquirectangularGC
 from .stere import Stereographic
 
 
 __all__ = [
     'Equirectangular',
+    'EquirectangularGC',
     'Stereographic',
     'ortho_proj',
     'ortho_cube',
