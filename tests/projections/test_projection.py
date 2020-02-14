@@ -32,7 +32,8 @@ def test_projection_radius():
     """Test stereographic projection."""
     proj = Projection()
 
-    assert proj.r == approx(57.295, abs=1e-3)
+    assert proj.r == 1          # in [m]
+    assert proj.radius == 1e-3  # in [km]
 
     proj = Projection(radius=10)
 

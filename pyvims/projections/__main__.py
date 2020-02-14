@@ -27,6 +27,7 @@ class Projection:
     """
 
     EPSILON = 1e-10
+    DEFAULT_RADIUS_KM = 1e-3
 
     PROJ4 = None  # Proj4 projection key
 
@@ -129,7 +130,7 @@ class Projection:
         """Set radius and convert from [km] to [m]."""
         if isinstance(self.target, str):
             if value_km is None:
-                self.__r = 180 / np.pi  # Unitary degree representation
+                self.__r = self.DEFAULT_RADIUS_KM * 1e3
             else:
                 self.__r = value_km * 1e3
         else:

@@ -33,6 +33,8 @@ class Equirectangular(Projection):
 
     """
 
+    DEFAULT_RADIUS_KM = 180e-3 / np.pi   # Unitary degree representation
+
     PROJ4 = 'eqc'  # Proj4 projection key
 
     def __init__(self, lon_w_0=180, lat_0=0, lat_ts=0, target=None, radius=None):

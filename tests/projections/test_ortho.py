@@ -13,7 +13,7 @@ from pytest import fixture
 @fixture
 def proj():
     """Orthographic projection on Titan surface."""
-    return Orthographic(radius=1e-3)
+    return Orthographic()
 
 
 def test_ortho():

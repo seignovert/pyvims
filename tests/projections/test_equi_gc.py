@@ -15,8 +15,10 @@ def proj():
     return EquirectangularGC(npt_gc=3)
 
 
-def test_equi(proj):
+def test_equi():
     """Test equirectangular projection."""
+    proj = EquirectangularGC(radius=1)
+
     assert str(proj) == 'Equirectangular'
     assert proj.PROJ4 == 'eqc'
 
@@ -24,18 +26,18 @@ def test_equi(proj):
     assert proj.lon_w_0 == 180
     assert proj.lat_ts == 0
     assert proj.rc == 1
-    assert proj.xc == approx(180, abs=1)
-    assert proj.yc == approx(90, abs=1)
+    assert proj.xc == approx(3141, abs=1)  # 1000 * π
+    assert proj.yc == approx(1570, abs=1)  # 1000 * π / 2
 
     assert proj.proj4 == (
         '+proj=eqc +lat_0=0 +lon_0=180 +lat_ts=0 +x_0=0 +y_0=0 '
-        '+a=57.29577951308232 +b=57.29577951308232 +units=m +no_defs')
+        '+a=1000.0 +b=1000.0 +units=m +no_defs')
 
     assert proj.wkt == (
         'PROJCS["PROJCS_Undefined_Equirectangular",'
         'GEOGCS["GCS_Undefined",'
         'DATUM["D_Undefined",'
-        'SPHEROID["Undefined_Mean_Sphere", 57, 0]],'
+        'SPHEROID["Undefined_Mean_Sphere", 1000, 0]],'
         'PRIMEM["Greenwich",0],'
         'UNIT["Degree",0.017453292519943295]],'
         'PROJECTION["Equirectangular"],'

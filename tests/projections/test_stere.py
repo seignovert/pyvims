@@ -44,6 +44,7 @@ def test_stere(proj):
         'PARAMETER["latitude_of_origin", 90],'
         'UNIT["Meter", 1]]')
 
+    assert proj.r == 2574730
 
 def test_stere_xy(proj):
     """Test stereographic projection values."""
