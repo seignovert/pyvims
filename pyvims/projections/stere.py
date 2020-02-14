@@ -53,10 +53,10 @@ class Stereographic(Projection):
         """
         if np.ndim(lat) == 0 and np.ndim(lon_w) == 0 \
                 and np.abs(lat + self.lat_0) <= self.EPSILON:
-            return None, None  # Origin point
+            return None, None  # Anti-origin point
 
-        (clat, slat) = self._cs(lat)
-        (cdlon, sdlon) = self._cs(np.subtract(self.lon_w_0, lon_w))
+        clat, slat = self._cs(lat)
+        cdlon, sdlon = self._cs(np.subtract(self.lon_w_0, lon_w))
 
         r = 2 * self.r / (1 + self.slat0 * slat + self.clat0 * clat * cdlon)
         x = r * clat * sdlon
@@ -94,13 +94,13 @@ class Stereographic(Projection):
 
         lat = np.arcsin(cosc * self.slat0 + y / rh * sinc * self.clat0)
         if self.clat0 < self.EPSILON:
-            lon_w = -np.arctan2(x, np.invert(y) if self.lat_0 > 0 else y)
+            lon_w = np.arctan2(x, np.invert(y) if self.lat_0 > 0 else y)
         else:
-            lon_w = -np.arctan2(x * sinc, rh * self.clat0 * cosc - y * self.slat0 * sinc)
+            lon_w = np.arctan2(sinc * x, rh * self.clat0 * cosc - self.slat0 * sinc * y)
 
         if np.ndim(rh) > 0:
             cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh)) | np.isnan(rh)
             lon_w[cond] = 0
             lat[cond] = np.radians(self.lat_0)
 
-        return (self.lon_w_0 + np.degrees(lon_w)) % 360, np.degrees(lat)
+        return (self.lon_w_0 - np.degrees(lon_w)) % 360, np.degrees(lat)

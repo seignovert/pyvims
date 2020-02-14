@@ -48,6 +48,7 @@ def test_stere(proj):
 def test_stere_xy(proj):
     """Test stereographic projection values."""
     assert_array(proj(0, 90), (0, 0))
+    assert proj(0, -90) == (None, None)  # Anti-origin point
 
     assert_array(
         proj([0, 90, 180, -90], 80),
