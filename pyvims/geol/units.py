@@ -8,44 +8,7 @@ import numpy as np
 
 from ..misc.vertices import path_gc_lonlat
 from ..projections.equirectangular import pixel_area as equi_pixel_area
-
-
-def grid(img, lon_w, lat):
-    """Convert geographic coordinates as image coordinates.
-
-    Parameters
-    ----------
-    img: 2d-array
-        2D geol map image centered at 180°.
-    lon_w: float or array
-        Point west longitude(s).
-    lat: float or array
-        Point latitude(s).
-
-    Returns
-    -------
-    int or array, int or array
-        Array closest coordinates on the image.
-
-    """
-    h, w = np.shape(img)
-
-    if isinstance(lon_w, (list, tuple)):
-        lon_w = np.asarray(lon_w)
-
-    if isinstance(lat, (list, tuple)):
-        lat = np.asarray(lat)
-
-    i = np.round(-lon_w % 360 * w / 360).astype(int)
-    j = np.round((90 - lat) * h / 180).astype(int)
-
-    if isinstance(lon_w, (int, float)):
-        if i >= w:
-            i = w - 1
-    else:
-        i[i >= w] = w - 1
-
-    return i, j
+from ..projections.img import index
 
 
 def geol_units(img, lon_w, lat, legend=None):
@@ -68,8 +31,7 @@ def geol_units(img, lon_w, lat, legend=None):
         Geological unit(s).
 
     """
-    i, j = grid(img, lon_w, lat)
-    units = img[j, i]
+    units = img[index(img, lon_w, lat)]
 
     if not isinstance(legend, dict):
         return units
@@ -227,8 +189,8 @@ class GeolUnits(type):
 
     def slice_img_path(cls, path):
         """Extract the portion of the image and the pixel area inside the path."""
-        imin, jmin = grid(cls.img, *np.max(path.vertices.T, axis=1))
-        imax, jmax = grid(cls.img, *np.min(path.vertices.T, axis=1))
+        jmin, imin = index(cls.img, *np.max(path.vertices.T, axis=1))
+        jmax, imax = index(cls.img, *np.min(path.vertices.T, axis=1))
 
         h, w = cls.shape
         cond = slice(jmin, min(h, jmax + 1)), slice(imin, min(w, imax + 1))
