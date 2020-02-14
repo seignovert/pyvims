@@ -22,6 +22,7 @@ from .equi import Equirectangular
 from .equi_gc import Equirectangular as EquirectangularGC
 from .ortho import Orthographic
 from .stere import Stereographic
+from .globe import globe
 
 
 __all__ = [
@@ -32,6 +33,7 @@ __all__ = [
     'ortho_proj',
     'ortho_cube',
     'equi_cube',
+    'globe',
     'polar_cube',
     'sky_cube',
 ]
