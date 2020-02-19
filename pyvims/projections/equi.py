@@ -4,10 +4,10 @@ import numpy as np
 
 from matplotlib.path import Path
 
-from .__main__ import Projection
+from .__main__ import GroundProjection
 
 
-class Equirectangular(Projection):
+class Equirectangular(GroundProjection):
     """Equirectangular projection object.
 
     a.k.a. `Plate Carrée` and `Equidistant Cylindrical`.

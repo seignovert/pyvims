@@ -10,39 +10,12 @@ from ..planets import PLANETS
 
 
 class Projection:
-    """Abstract projection object.
-
-    Parameters
-    ----------
-    lon_w_0: float, optional
-        Center west longitude.
-    lat_0: float, optional
-        Center latitude.
-    target: str or pyvims.planets.Planet
-        Planet name.
-    radius: float, optional
-        Planet radius [km]. Use the target mean radius if
-        the target is a `Planet` object.
-
-    """
+    """Abstract ground projection object."""
 
     EPSILON = 1e-10
-    DEFAULT_RADIUS_KM = 1e-3
-
-    PROJ4 = None  # Proj4 projection key
-
-    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=None):
-        self.lon_w_0 = lon_w_0
-        self.lat_0 = lat_0
-        self.target = target
-        self.radius = radius
 
     def __str__(self):
         return self.__class__.__name__
-
-    def __repr__(self):
-        return (f'<{self}> Target: {self.target}'
-                f'\n\tProj4: `{self.proj4}`')
 
     def __call__(self, *args, invert=False):
         """Project geographic point in X-Y coordinates (or reverse)."""
@@ -61,120 +34,6 @@ class Projection:
 
         raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
                          'or (lon_w, lat) attributes are required.')
-
-    @property
-    def lat_0(self):
-        """Latitude of origin [degree]."""
-        return self.__lat_0
-
-    @lat_0.setter
-    def lat_0(self, value):
-        """Set latitude of origin value."""
-        self.__lat_0 = value
-        self.__clat0, self.__slat0 = self._cs(value)
-
-    @property
-    def clat0(self):
-        """Cosine of latitude of origin."""
-        return self.__clat0
-
-    @property
-    def slat0(self):
-        """Sine of latitude of origin."""
-        return self.__slat0
-
-    @property
-    def lon_w_0(self):
-        """West central meridian [degree]."""
-        return self.__lon_w_0
-
-    @lon_w_0.setter
-    def lon_w_0(self, value):
-        """Set west central meridian value."""
-        self.__lon_w_0 = value
-        self.__clon0, self.__slon0 = self._cs(value)
-
-    @property
-    def lon_0(self):
-        """East central meridian [degree]."""
-        return ((-self.lon_w_0 + 180) % 360 - 180) if np.abs(self.lon_w_0) != 180 else 180
-
-    @property
-    def clon0(self):
-        """Cosine of west central meridian."""
-        return self.__clon0
-
-    @property
-    def slon0(self):
-        """Sine of west central meridian."""
-        return self.__slon0
-
-    @property
-    def target(self):
-        """Planet target."""
-        return self.__target
-
-    @target.setter
-    def target(self, name):
-        """Set target name."""
-        self.__target = 'Undefined' if name is None \
-            else name if name not in PLANETS else PLANETS[name]
-
-    @property
-    def radius(self):
-        """Target planet radius [km]."""
-        return self.__r * 1e-3
-
-    @radius.setter
-    def radius(self, value_km):
-        """Set radius and convert from [km] to [m]."""
-        if isinstance(self.target, str):
-            if value_km is None:
-                self.__r = self.DEFAULT_RADIUS_KM * 1e3
-            else:
-                self.__r = value_km * 1e3
-        else:
-            self.__r = self.target.radius * 1e3
-
-    @property
-    def r(self):
-        """Target planet radius [m]."""
-        return self.__r
-
-    @property
-    def proj4(self):
-        """Proj4 definition."""
-        return ' '.join([
-            f'+proj={self.PROJ4}',
-            f'+lat_0={self.lat_0}',
-            f'+lon_0={self.lon_0}',
-            '+k=1',
-            '+x_0=0',
-            '+y_0=0',
-            f'+a={self.r}',
-            f'+b={self.r}',
-            '+units=m',
-            '+no_defs',
-        ])
-
-    @property
-    def wkt(self):
-        """WKT definition."""
-        return (
-            f'PROJCS["PROJCS_{self.target}_{self}",'
-            f'GEOGCS["GCS_{self.target}",'
-            f'DATUM["D_{self.target}",'
-            f'SPHEROID["{self.target}_Mean_Sphere", {int(self.r)}, 0]],'
-            'PRIMEM["Greenwich",0],'
-            'UNIT["Degree",0.017453292519943295]],'
-            f'PROJECTION["{self}"],'
-            'PARAMETER["false_easting", 0],'
-            'PARAMETER["false_northing", 0],'
-            'PARAMETER["scale_factor", 1],'
-            f'PARAMETER["central_meridian", {self.lon_0}],'
-            f'PARAMETER["latitude_of_origin", {self.lat_0}],'
-            'UNIT["Meter", 1]]'
-        )
 
     @staticmethod
     def _cs(angle):
@@ -314,4 +173,150 @@ class Projection:
             [PathPatch(self.xy_path(path)) for path in collection.get_paths()],
             facecolors=collection.get_facecolors(),
             edgecolors=collection.get_edgecolors(),
+        )
+
+
+class GroundProjection(Projection):
+    """Abstract ground projection object.
+
+    Parameters
+    ----------
+    lon_w_0: float, optional
+        Center west longitude.
+    lat_0: float, optional
+        Center latitude.
+    target: str or pyvims.planets.Planet
+        Planet name.
+    radius: float, optional
+        Planet radius [km]. Use the target mean radius if
+        the target is a `Planet` object.
+
+    """
+
+    DEFAULT_RADIUS_KM = 1e-3
+
+    PROJ4 = None  # Proj4 projection key
+
+    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=None):
+        self.lon_w_0 = lon_w_0
+        self.lat_0 = lat_0
+        self.target = target
+        self.radius = radius
+
+    def __repr__(self):
+        return (f'<{self}> Target: {self.target}'
+                f'\n\tProj4: `{self.proj4}`')
+
+    @property
+    def lat_0(self):
+        """Latitude of origin [degree]."""
+        return self.__lat_0
+
+    @lat_0.setter
+    def lat_0(self, value):
+        """Set latitude of origin value."""
+        self.__lat_0 = value
+        self.__clat0, self.__slat0 = self._cs(value)
+
+    @property
+    def clat0(self):
+        """Cosine of latitude of origin."""
+        return self.__clat0
+
+    @property
+    def slat0(self):
+        """Sine of latitude of origin."""
+        return self.__slat0
+
+    @property
+    def lon_w_0(self):
+        """West central meridian [degree]."""
+        return self.__lon_w_0
+
+    @lon_w_0.setter
+    def lon_w_0(self, value):
+        """Set west central meridian value."""
+        self.__lon_w_0 = value
+        self.__clon0, self.__slon0 = self._cs(value)
+
+    @property
+    def lon_0(self):
+        """East central meridian [degree]."""
+        return ((-self.lon_w_0 + 180) % 360 - 180) if np.abs(self.lon_w_0) != 180 else 180
+
+    @property
+    def clon0(self):
+        """Cosine of west central meridian."""
+        return self.__clon0
+
+    @property
+    def slon0(self):
+        """Sine of west central meridian."""
+        return self.__slon0
+
+    @property
+    def target(self):
+        """Planet target."""
+        return self.__target
+
+    @target.setter
+    def target(self, name):
+        """Set target name."""
+        self.__target = 'Undefined' if name is None \
+            else name if name not in PLANETS else PLANETS[name]
+
+    @property
+    def radius(self):
+        """Target planet radius [km]."""
+        return self.__r * 1e-3
+
+    @radius.setter
+    def radius(self, value_km):
+        """Set radius and convert from [km] to [m]."""
+        if isinstance(self.target, str):
+            if value_km is None:
+                self.__r = self.DEFAULT_RADIUS_KM * 1e3
+            else:
+                self.__r = value_km * 1e3
+        else:
+            self.__r = self.target.radius * 1e3
+
+    @property
+    def r(self):
+        """Target planet radius [m]."""
+        return self.__r
+
+    @property
+    def proj4(self):
+        """Proj4 definition."""
+        return ' '.join([
+            f'+proj={self.PROJ4}',
+            f'+lat_0={self.lat_0}',
+            f'+lon_0={self.lon_0}',
+            '+k=1',
+            '+x_0=0',
+            '+y_0=0',
+            f'+a={self.r}',
+            f'+b={self.r}',
+            '+units=m',
+            '+no_defs',
+        ])
+
+    @property
+    def wkt(self):
+        """WKT definition."""
+        return (
+            f'PROJCS["PROJCS_{self.target}_{self}",'
+            f'GEOGCS["GCS_{self.target}",'
+            f'DATUM["D_{self.target}",'
+            f'SPHEROID["{self.target}_Mean_Sphere", {int(self.r)}, 0]],'
+            'PRIMEM["Greenwich",0],'
+            'UNIT["Degree",0.017453292519943295]],'
+            f'PROJECTION["{self}"],'
+            'PARAMETER["false_easting", 0],'
+            'PARAMETER["false_northing", 0],'
+            'PARAMETER["scale_factor", 1],'
+            f'PARAMETER["central_meridian", {self.lon_0}],'
+            f'PARAMETER["latitude_of_origin", {self.lat_0}],'
+            'UNIT["Meter", 1]]'
         )

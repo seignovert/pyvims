@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
 
-from pyvims.projections.__main__ import Projection
+from pyvims.projections.__main__ import GroundProjection
 from pyvims.planets import Titan
 
 from pytest import approx
@@ -13,9 +13,9 @@ from pytest import approx
 
 def test_projection():
     """Test stereographic projection."""
-    proj = Projection(lon_w_0=30)
+    proj = GroundProjection(lon_w_0=30)
 
-    assert str(proj) == 'Projection'
+    assert str(proj) == 'GroundProjection'
     assert proj.EPSILON == 1e-10
 
     assert proj.lat_0 == 0
@@ -30,16 +30,16 @@ def test_projection():
 
 def test_projection_radius():
     """Test stereographic projection."""
-    proj = Projection()
+    proj = GroundProjection()
 
     assert proj.r == 1          # in [m]
     assert proj.radius == 1e-3  # in [km]
 
-    proj = Projection(radius=10)
+    proj = GroundProjection(radius=10)
 
     assert proj.r == approx(1e4, abs=1e-3)
 
-    proj = Projection(target='Titan')
+    proj = GroundProjection(target='Titan')
 
     assert proj.target == 'Titan'
     assert proj.target == Titan
@@ -49,7 +49,7 @@ def test_projection_radius():
 
 def test_projection_path_patch_collection():
     """Test stereographic projection on Path, Patch and Collection."""
-    proj = Projection()
+    proj = GroundProjection()
 
     assert proj.xy_path(None) is None
 

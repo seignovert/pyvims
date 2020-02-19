@@ -2,10 +2,10 @@
 
 import numpy as np
 
-from .__main__ import Projection
+from .__main__ import GroundProjection
 
 
-class Orthographic(Projection):
+class Orthographic(GroundProjection):
     """Orthographic projection object.
 
     Parameters

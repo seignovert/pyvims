@@ -4,11 +4,11 @@ import numpy as np
 
 from matplotlib.path import Path
 
-from .equi import Equirectangular as Projection
+from .equi import Equirectangular as EquirectangularProjection
 from ..misc.greatcircle import great_circle_arc
 
 
-class Equirectangular(Projection):
+class Equirectangular(EquirectangularProjection):
     """Equirectangular projection with great circle object.
 
     a.k.a. `Plate Carrée` and `Equidistant Cylindrical`.
@@ -30,7 +30,7 @@ class Equirectangular(Projection):
     See Also
     --------
     pyvims.projections.equi.Equirectangular
-    pyvims.projections.__main__.Projection
+    pyvims.projections.__main__.GroundProjection
 
     """
 
