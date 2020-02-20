@@ -29,8 +29,8 @@ class Projection:
             if isinstance(args[0], Path):
                 return self.xy_path(args[0])
 
-        if len(args) == 2:
-            return self.lonlat(args[0], args[1]) if invert else self.xy(args[0], args[1])
+        if len(args) == 2 or (len(args) == 3 and self.PROJ4 == 'ortho'):
+            return self.lonlat(*args) if invert else self.xy(*args)
 
         raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
                          'or (lon_w, lat) attributes are required.')
@@ -193,7 +193,7 @@ class GroundProjection(Projection):
 
     """
 
-    DEFAULT_RADIUS_KM = 1e-3
+    DEFAULT_RADIUS_KM = 1e-3  # = 1 [m]
 
     PROJ4 = None  # Proj4 projection key
 

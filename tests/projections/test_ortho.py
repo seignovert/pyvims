@@ -49,53 +49,153 @@ def test_ortho():
 def test_ortho_xy(proj):
     """Test orthographic projection values."""
     assert_array(proj(0, 0), (0, 0))
-    assert_array(proj(90, 0), (-1, 0), decimal=0)
-    assert_array(proj(-90, 0), (1, 0), decimal=0)
-    assert_array(proj(271, 0), (1, 0), decimal=0)
-    assert_array(proj(0, 90), (0, 1), decimal=0)
-    assert_array(proj(0, -90), (0, -1), decimal=0)
+    assert_array(proj(90, 0), (-1, 0), decimal=1)
+    assert_array(proj(-90, 0), (1, 0), decimal=1)
+    assert_array(proj(271, 0), (1, 0), decimal=1)
+    assert_array(proj(0, 90), (0, 1), decimal=1)
+    assert_array(proj(0, -90), (0, -1), decimal=1)
     assert proj(180, 0) == (None, None)
 
     assert_array(
         proj([0, 90, 180, -90], 0),
         ([0, -1, np.nan, 1], [0, 0, np.nan, 0]),
-        decimal=0)
+        decimal=1)
+
+    assert_array(
+        proj(0, [0, 90, -90]),
+        ([0, 0, 0], [0, 1, -1]),
+        decimal=1)
 
     assert_array(
         proj([0, 90], [90, 0]),
         ([0, -1], [1, 0]),
-        decimal=0)
+        decimal=1)
 
     assert_array(
         proj([[0], [90]], [[90], [0]]),
         ([[0], [-1]], [[1], [0]]),
-        decimal=0)
+        decimal=1)
+
+
+def test_ortho_xy_alt(proj):
+    """Test orthographic projection values with altitude (km)."""
+    assert_array(proj(0, 0, 0), (0, 0))
+    assert_array(proj(90, 0, 0), (-1, 0), decimal=1)
+    assert_array(proj(90, 0, 1e-3), (-2, 0), decimal=1)
+    assert_array(proj(0, 90, 1e-3), (0, 2), decimal=1)
+
+    assert proj(180, 0, 0) == (None, None)
+
+    assert_array(
+        proj([0, 90, 180, -90], 0, 0),
+        ([0, -1, np.nan, 1], [0, 0, np.nan, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([0, 90, 180, -90], 0, 1e-3),
+        ([0, -2, np.nan, 2], [0, 0, np.nan, 0]),
+        decimal=1)
+
+    assert_array(
+        proj(0, [0, 90, -90], 0),
+        ([0, 0, 0], [0, 1, -1]),
+        decimal=1)
+
+    assert_array(
+        proj(90, 0, [0, 1e-3, 2e-3]),
+        ([-1, -2, -3], [0, 0, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([0, 90], [90, 0], 0),
+        ([0, -1], [1, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([0, 90], [90, 0], 1e-3),
+        ([0, -2], [2, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([0, 90], [90, 0], [1e-3, 2e-3]),
+        ([0, -3], [2, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([[0], [90]], [[90], [0]], 0),
+        ([[0], [-1]], [[1], [0]]),
+        decimal=1)
+
+    assert_array(
+        proj([[0], [90]], [[90], [0]], 1e-3),
+        ([[0], [-2]], [[2], [0]]),
+        decimal=1)
+
+    assert_array(
+        proj([[0], [90]], [[90], [0]], [[1e-3], [2e-3]]),
+        ([[0], [-3]], [[2], [0]]),
+        decimal=1)
 
 
 def test_ortho_lonlat(proj):
     """Test orthographic projection reverse values."""
     assert_array(proj(0, 0, invert=True), (0, 0))
-    assert_array(proj(-1, 0, invert=True), (90, 0), decimal=0)
-    assert_array(proj(1, 0, invert=True), (270, 0), decimal=0)
-    assert_array(proj(0, 1, invert=True), (0, 90), decimal=0)
-    assert_array(proj(0, -1, invert=True), (0, -90), decimal=0)
+    assert_array(proj(-1, 0, invert=True), (90, 0), decimal=1)
+    assert_array(proj(1, 0, invert=True), (270, 0), decimal=1)
+    assert_array(proj(0, 1, invert=True), (0, 90), decimal=1)
+    assert_array(proj(0, -1, invert=True), (0, -90), decimal=1)
 
     assert proj(1, 1, invert=True) == (None, None)
 
     assert_array(
         proj([-1, 1], 0, invert=True),
         ([90, 270], [0, 0]),
-        decimal=0)
+        decimal=1)
 
     assert_array(
         proj([0, -1, 1], [1, 0, 1], invert=True),
         ([0, 90, np.nan], [90, 0, np.nan]),
-        decimal=0)
+        decimal=1)
 
     assert_array(
         proj([[0], [-1]], [[1], [0]], invert=True),
         ([[0], [90]], [[90], [0]]),
-        decimal=0)
+        decimal=1)
+
+
+def test_ortho_lonlat_alt(proj):
+    """Test orthographic projection reverse values with altitude."""
+    assert_array(proj(0, 0, True, invert=True), (0, 0, 0))
+    assert_array(proj(-1, 0, True, invert=True), (90, 0, 0), decimal=1)
+    assert_array(proj(-2, 0, True, invert=True), (90, 0, 1e-3), decimal=1)
+    assert_array(proj(0, 2, True, invert=True), (0, 90, 1e-3), decimal=1)
+    assert_array(proj(1, 1, True, invert=True),
+                 (270, 45, (np.sqrt(2) - 1) * 1e-3), decimal=1)
+
+    assert_array(
+        proj([-1, 1], 0, True, invert=True),
+        ([90, 270], [0, 0], [0, 0]),
+        decimal=1)
+
+    assert_array(
+        proj([-2, 3], 0, True, invert=True),
+        ([90, 270], [0, 0], [1e-3, 2e-3]),
+        decimal=1)
+
+    assert_array(
+        proj(0, [2, -3], True, invert=True),
+        ([0, 0], [90, -90], [1e-3, 2e-3]),
+        decimal=1)
+
+    assert_array(
+        proj([0, -2, 3], [1, 0, 0], True, invert=True),
+        ([0, 90, 270], [90, 0, 0], [0, 1e-3, 2e-3]),
+        decimal=1)
+
+    assert_array(
+        proj([[-2], [0]], [[0], [3]], True, invert=True),
+        ([[90], [0]], [[0], [90]], [[1e-3], [2e-3]]),
+        decimal=1)
 
 
 def test_ortho_path(proj):
@@ -115,7 +215,7 @@ def test_ortho_path(proj):
         [1, 0],
         [0, -1],
         [-1, 0],  # Added
-    ], decimal=0)
+    ], decimal=1)
 
     assert_array(
         path.codes,

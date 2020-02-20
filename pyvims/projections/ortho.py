@@ -37,7 +37,7 @@ class Orthographic(GroundProjection):
         self.target = target
         self.radius = radius
 
-    def xy(self, lon_w, lat):
+    def xy(self, lon_w, lat, alt=None):
         """Convert latitude/longitude coordinates in map coordinates.
 
         Parameters
@@ -46,6 +46,8 @@ class Orthographic(GroundProjection):
             West longitude [degree].
         lat: float or array
             Latitude [degree].
+        alt: float or array, optional
+            Point altitude in [km].
 
         Returns
         -------
@@ -58,20 +60,25 @@ class Orthographic(GroundProjection):
 
         g = self.slat0 * slat + self.clat0 * clat * cdlon
 
-        if np.ndim(g) == 0 and g < self.EPSILON:
+        if np.ndim(g) == 0 and g < 0:
             return None, None  # Far-side
 
         x = self.r * clat * sdlon
         y = self.r * (self.clat0 * slat - self.slat0 * clat * cdlon)
 
         if np.ndim(g) > 0:
-            cond = np.less(g, self.EPSILON, where=~np.isnan(g)) | np.isnan(g)
+            cond = np.less(g, 0, where=~np.isnan(g)) | np.isnan(g)
             x[cond] = None
             y[cond] = None
 
+        if alt is not None:
+            r = 1 + np.divide(alt, self.radius)
+            x = np.multiply(x, r)
+            y = np.multiply(y, r)
+
         return x, y
 
-    def lonlat(self, x, y):
+    def lonlat(self, x, y, alt=False):
         """Convert map coordinates in latitude/longitude coordinates.
 
         Parameters
@@ -80,25 +87,31 @@ class Orthographic(GroundProjection):
             X-coordinate on the map [m].
         y: float or array
             Y-coordinate on the map [m].
+        alt: bool, optional
+            Retrieve point altitude in [km].
 
         Returns
         -------
         float or array, float or array
-            West longitude and latitude [degree].
+            West longitude and latitude [degree] if ``alt`` is ``FALSE`` (default).
+        float or array, float or array, float or array
+            West longitude, latitude [degrees] and altitude [km] if ``alt`` is ``TRUE``.
 
         """
         rh = np.sqrt(np.power(x, 2) + np.power(y, 2))
         if np.ndim(rh) == 0 and rh <= self.EPSILON:
-            return self.lon_w_0, self.lat_0
+            return (self.lon_w_0, self.lat_0, 0) if alt else (self.lon_w_0, self.lat_0)
 
-        if np.ndim(rh) == 0 and rh > 1:
-            return None, None
+        if np.ndim(rh) == 0:
+            if rh > self.r and not alt:
+                return None, None
 
-        if np.ndim(rh) > 0:
-            limb = rh > 1
-            rh[limb] = self.r
+            c = np.pi / 2 if rh > self.r else np.arcsin(rh / self.r)
+        else:
+            limb = rh > self.r
+            c = np.pi / 2 * np.ones(np.shape(rh))
+            c[~limb] = np.arcsin(rh[~limb] / self.r)
 
-        c = np.arcsin(rh / self.r)
         cosc, sinc = np.cos(c), np.sin(c)
 
         lat = np.arcsin(cosc * self.slat0 + y / rh * sinc * self.clat0)
@@ -108,12 +121,26 @@ class Orthographic(GroundProjection):
         else:
             lon_w = np.arctan2(sinc * x, rh * self.clat0 * cosc - self.slat0 * sinc * y)
 
+        lon_w = (self.lon_w_0 - np.degrees(lon_w)) % 360
+        lat = np.degrees(lat)
+
         if np.ndim(rh) > 0:
             cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh)) | np.isnan(rh)
-            lon_w[cond] = 0
-            lat[cond] = np.radians(self.lat_0)
-            # Remove limb data
-            lon_w[limb] = np.nan
-            lat[limb] = np.nan
+            lon_w[cond] = self.lon_w_0
+            lat[cond] = self.lat_0
 
-        return (self.lon_w_0 - np.degrees(lon_w)) % 360, np.degrees(lat)
+            # Remove limb data
+            if not alt:
+                lon_w[limb] = np.nan
+                lat[limb] = np.nan
+
+        if not alt:
+            return lon_w, lat
+
+        if np.ndim(rh) == 0:
+            alt = 0 if rh <= self.r else (rh / self.r - 1) * self.radius
+        else:
+            alt = np.zeros(np.shape(rh))
+            alt[limb] = (rh[limb] / self.r - 1) * self.radius
+
+        return lon_w, lat, alt

@@ -8,7 +8,7 @@ from matplotlib.collections import PatchCollection
 from pyvims.projections.__main__ import GroundProjection
 from pyvims.planets import Titan
 
-from pytest import approx
+from pytest import approx, raises
 
 
 def test_projection():
@@ -26,6 +26,15 @@ def test_projection():
     assert proj.slat0 == 0
     assert proj.clon0 == approx(np.sqrt(3) / 2)
     assert proj.slon0 == approx(.5)
+
+    with raises(NotImplementedError):
+        _ = proj(0, 0)
+
+    with raises(NotImplementedError):
+        _ = proj(0, 0, invert=True)
+
+    with raises(ValueError):
+        _ = proj(0, 0, 0, invert=True)
 
 
 def test_projection_radius():
