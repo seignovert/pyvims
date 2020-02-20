@@ -24,6 +24,7 @@ from .ortho import Orthographic
 from .sky import Sky
 from .stere import Stereographic
 from .globe import globe
+from .path3d import Path3D
 
 
 __all__ = [
@@ -32,6 +33,7 @@ __all__ = [
     'Orthographic',
     'Sky',
     'Stereographic',
+    'Path3D',
     'ortho_proj',
     'ortho_cube',
     'equi_cube',
