@@ -16,11 +16,12 @@ New projection are based on PROJ project:
 from .equirectangular import equi_cube
 from .orthographic import ortho_cube, ortho_proj
 from .polar import polar_cube
-from .sky import sky_cube
+from .sky_old import sky_cube
 # New projections
 from .equi import Equirectangular
 from .equi_gc import Equirectangular as EquirectangularGC
 from .ortho import Orthographic
+from .sky import Sky
 from .stere import Stereographic
 from .globe import globe
 
@@ -29,6 +30,7 @@ __all__ = [
     'Equirectangular',
     'EquirectangularGC',
     'Orthographic',
+    'Sky',
     'Stereographic',
     'ortho_proj',
     'ortho_cube',
