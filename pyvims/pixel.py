@@ -92,6 +92,10 @@ class VIMSPixel:
     def __eq__(self, item):
         return str(self) == str(item)
 
+    def __call__(self, **kwargs):
+        """Pixel corners patch shortcut."""
+        return self.patch(**kwargs)
+
     @property
     def s(self):
         """Pixel sample position."""

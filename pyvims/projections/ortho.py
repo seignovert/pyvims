@@ -2,6 +2,8 @@
 
 import numpy as np
 
+from matplotlib.path import Path
+
 from .__main__ import GroundProjection
 
 
@@ -144,3 +146,38 @@ class Orthographic(GroundProjection):
             alt[limb] = (rh[limb] / self.r - 1) * self.radius
 
         return lon_w, lat, alt
+
+    def _vc(self, path):
+        """Get projected vertices and codes (and close the polygon if needed).
+
+        Parameters
+        ----------
+        path: matplotlib.path.Path
+            Matplotlib path in west-longitude and latitude coordinates.
+
+        Returns
+        -------
+        [float], [float], [int]
+            X and Y vertices and path code.
+
+        """
+        x, y = self.xy(*path.vertices.T, alt=path.alt) if hasattr(path, 'alt') else \
+            self.xy(*path.vertices.T)
+
+        # Add codes if missing
+        if path.codes is None:
+            codes = [Path.MOVETO] + [Path.LINETO] * (len(x) - 2) + [Path.CLOSEPOLY]
+        else:
+            codes = path.codes
+
+        # Close the path
+        if x[0] != x[-1] or y[0] != y[-1]:
+            x = np.concatenate([x, [x[0]]])
+            y = np.concatenate([y, [y[0]]])
+
+            if codes[-1] == Path.CLOSEPOLY:
+                codes = np.concatenate([codes[:-1], [Path.LINETO, Path.CLOSEPOLY]])
+            else:
+                codes = np.concatenate([codes, [Path.CLOSEPOLY]])
+
+        return np.transpose([x, y]), codes
