@@ -387,16 +387,14 @@ class VIMS:
     @property
     def bticks(self):
         """Cube bands ticks."""
-        b = self.bands
-        bi = [b[k * self.NB // 6 - 1] for k in range(1, 6)]
-        return [b[0], *bi, b[-1]]
+        return [97, 150, 200, 250, 300, 352] if self._is_ir else \
+            [1, 25, 50, 75, 96]
 
     @property
     def wticks(self):
         """Cube wvlns ticks."""
-        w = self.wvlns
-        wi = [w[k * self.NB // 6 - 1] for k in range(1, 6)]
-        return [w[0], *wi, w[-1]]
+        return np.arange(1, 5.5, .5) if self._is_ir else \
+            np.arange(.4, 1.2, .2)
 
     @property
     def slabel(self):
