@@ -85,6 +85,11 @@ class VIMSPixelCorners:
         return self._cube.rground[self.j, self.i]
 
     @property
+    def radec(self):
+        """Corners RA/DEC."""
+        return self._cube.rsky[:, self.j, self.i, :]
+
+    @property
     def ground_lonlat(self):
         """Corners west longitude and latitude (deg)."""
         return self.lonlat if self.ground else None
@@ -167,13 +172,19 @@ class VIMSPixelCorners:
         return Path(self.vertices, self.CODES) if self.ground else None
 
     @property
-    def path3d(self):
+    def path_alt(self):
         """Ground corners matplotlib path."""
         return Path3D(self.vertices, codes=self.CODES, alt=[*self.alt, self.alt[0]])
 
-    def patch(self, alt=False, **kwargs):
+    @property
+    def path_sky(self):
+        """Ground sky corners matplotlib path."""
+        return Path(np.vstack([self.radec.T, self.radec[:, 0]]), codes=self.CODES)
+
+    def patch(self, alt=False, sky=False, **kwargs):
         """Ground corners matplotlib patch."""
-        return PathPatch(self.path3d if alt else self.path, **kwargs)
+        return PathPatch(
+            self.path_alt if alt else self.path_sky if sky else self.path, **kwargs)
 
     @property
     def area(self):
@@ -225,14 +236,24 @@ class VIMSPixelFootprint(VIMSPixelCorners):
         return self._cube.fground[self.j, self.i]
 
     @property
+    def radec(self):
+        """Footprint corners RA/DEC."""
+        return self._cube.fsky[:, self.j, self.i, :]
+
+    @property
     def vertices(self):
         """Footprint vertices."""
         return self.lonlat.T
 
     @property
-    def path3d(self):
+    def path_alt(self):
         """Ground corners matplotlib path."""
         return Path3D(self.vertices, codes=self.CODES, alt=self.alt)
+
+    @property
+    def path_sky(self):
+        """Ground sky corners matplotlib path."""
+        return Path(self.radec.T, codes=self.CODES)
 
 
 class VIMSPixelsCorners:
@@ -249,7 +270,8 @@ class VIMSPixelsCorners:
         self._pixels = pixels
         self.corners = [pix.corners for pix in pixels]
         self.__paths = None
-        self.__paths3d = None
+        self.__paths_alt = None
+        self.__paths_sky = None
 
     def __str__(self):
         return f'{self._pixels}-Corners'
@@ -286,16 +308,27 @@ class VIMSPixelsCorners:
         return self.__paths
 
     @property
-    def paths3d(self):
+    def paths_alt(self):
         """List of corners paths 3D (with altitude)."""
-        if self.__paths3d is None:
-            self.__paths3d = [c.path3d for c in self]
-        return self.__paths3d
+        if self.__paths_alt is None:
+            self.__paths_alt = [c.path_alt for c in self]
+        return self.__paths_alt
+
+    @property
+    def paths_sky(self):
+        """List of corners paths on the sky (RA/DEC)."""
+        if self.__paths_sky is None:
+            self.__paths_sky = [c.path_sky for c in self]
+        return self.__paths_sky
 
     def collection(self, index='surface', facecolors=None, edgecolors='None',
-                   vmin=None, vmax=None, cmap=None, alt=False, **kwargs):
+                   vmin=None, vmax=None, cmap=None, alt=False, sky=False, **kwargs):
         """Get the collection of all the corners patches on the ground."""
-        patches = [PathPatch(path) for path in (self.paths3d if alt else self.paths.data)]
+        patches = [
+            PathPatch(path)
+            for path in (self.paths_alt if alt else
+                         self.paths_sky if sky else
+                         self.paths.data)]
 
         if not isinstance(facecolors, str):
             if facecolors is None:

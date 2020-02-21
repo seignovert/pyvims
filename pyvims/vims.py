@@ -188,11 +188,13 @@ class VIMS:
         self.__ill = None
         self.__cxyz = None
         self.__contour = None
+        self.__rsky = None
         self.__rxyz = None
         self.__rlonlat = None
         self.__rlimb = None
         self.__rpath_180 = None
         self.__rpath_360 = None
+        self.__fsky = None
         self.__fxyz = None
         self.__flonlat = None
         self.__flimb = None
@@ -623,9 +625,11 @@ class VIMS:
             self.__ill = None
             self.__cxyz = None
             self.__contour = None
+            self.__rsky = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
+            self.__fsky = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
@@ -705,9 +709,11 @@ class VIMS:
             self.__ill = None
             self.__cxyz = None
             self.__contour = None
+            self.__rsky = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
+            self.__fsky = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
@@ -728,9 +734,11 @@ class VIMS:
             self.__ill = None
             self.__cxyz = None
             self.__contour = None
+            self.__rsky = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
+            self.__fsky = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
@@ -858,9 +866,11 @@ class VIMS:
             self.__ill = None
             self.__cxyz = None
             self.__contour = None
+            self.__rsky = None
             self.__rxyz = None
             self.__rlonlat = None
             self.__rlimb = None
+            self.__fsky = None
             self.__fxyz = None
             self.__flonlat = None
             self.__flimb = None
@@ -1165,12 +1175,12 @@ class VIMS:
 
     @property
     def csky(self):
-        """Camera contour pixel pointing direction in J2000 frame."""
+        """Camera contour pixel pointing direction in RA/DEC frame."""
         return radec(self.cpixels)
 
     @property
     def _cxyz(self):
-        """Camera pixels intersect with main traget frame (ref: J2000).
+        """Camera pixels intersect with main target frame (ref: J2000).
 
         Intersection between the line-of-sight and the main target
         body.
@@ -1256,6 +1266,13 @@ class VIMS:
         """
         q = q_mult(self._q_inst, self._cassini_pointing(self.ret))
         return q_rot_t(q, np.reshape(self.camera.rpixels, (3, 4 * self.NP)))
+
+    @property
+    def rsky(self):
+        """Camera corner pixel pointing direction in RA/DEC frame."""
+        if self.__rsky is None:
+            self.__rsky = radec(self.rpixels).reshape((2, self.NL, self.NS, 4))
+        return self.__rsky
 
     @property
     def _rxyz(self):
@@ -1350,6 +1367,13 @@ class VIMS:
         q = q_mult(self._q_inst, self._cassini_pointing(self.fet))
         pixels = np.reshape(self.camera.fpixels, (3, 9 * self.NP))
         return q_rot_t(q, pixels)
+
+    @property
+    def fsky(self):
+        """Camera footprint pixel pointing direction in RA/DEC frame."""
+        if self.__fsky is None:
+            self.__fsky = radec(self.fpixels).reshape((2, self.NL, self.NS, 9))
+        return self.__fsky
 
     @property
     def _fxyz(self):
