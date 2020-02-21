@@ -246,3 +246,22 @@ def test_ortho_path3d(proj):
         path.codes,
         [Path.MOVETO] + 3 * [Path.LINETO] + [Path.CLOSEPOLY]
     )
+
+
+def test_ortho_meridians(proj):
+    """Test orthographic meridians."""
+    meridians = proj.meridians(exclude=0, nlat=25, dlon=10)
+
+    assert np.shape(meridians) == (2, 25, 35)
+
+def test_ortho_parallels(proj):
+    """Test orthographic parallels."""
+    parallels = proj.parallels(exclude=0, nlon=25, dlat=10)
+
+    assert np.shape(parallels) == (2, 25, 16)
+
+def test_ortho_limb(proj):
+    """Test orthographic limb."""
+    limb = proj.limb(npt=25)
+
+    assert np.shape(limb) == (2, 25)

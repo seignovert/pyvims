@@ -2,6 +2,7 @@
 
 import numpy as np
 
+import matplotlib.pyplot as plt
 from matplotlib.path import Path
 
 from .__main__ import GroundProjection
@@ -181,3 +182,62 @@ class Orthographic(GroundProjection):
                 codes = np.concatenate([codes, [Path.CLOSEPOLY]])
 
         return np.transpose([x, y]), codes
+
+    def meridians(self, lons=None, exclude=None,
+                  lon_min=0, lon_max=359, dlon=30,
+                  lat_min=-80, lat_max=80, nlat=50):
+        """Orthographic meridians grid."""
+        if lons is None:
+            lons = np.arange(lon_min, lon_max, dlon)
+        elif isinstance(lons, (int, float)):
+            lons = [lons]
+
+        if exclude is None or isinstance(exclude, (int, float)):
+            exclude = [] if exclude is None else [exclude]
+
+        return np.moveaxis([
+            self(lon, np.linspace(lat_min, lat_max, nlat)) for lon in lons
+            if lon not in exclude
+        ], 0, 2)
+
+    def parallels(self, lats=None, exclude=None,
+                  lat_min=-80, lat_max=80, dlat=10,
+                  lon_min=0, lon_max=360, nlon=50):
+        """Orthographic parallels grid."""
+        if lats is None:
+            lats = np.arange(lat_min, lat_max + dlat, dlat)
+        elif isinstance(lats, (int, float)):
+            lats = [lats]
+
+        if exclude is None or isinstance(exclude, (int, float)):
+            exclude = [] if exclude is None else [exclude]
+
+        return np.moveaxis([
+            self(np.linspace(lon_min, lon_max, nlon), lat) for lat in lats
+            if lat not in exclude
+        ], 0, 2)
+
+    def limb(self, npt=181):
+        """Orthographic limb contour."""
+        theta = np.linspace(0, 2 * np.pi, npt)
+        return self.r * np.cos(theta), self.r * np.sin(theta)
+
+    def grid(self, ax=None, color='gray',
+             lw=.25, color_2='red', lw_2=.5,
+             ticks=False):
+        """Draw orthographic grid."""
+        if ax is None:
+            ax = plt.gca()
+
+        ax.plot(*self.parallels(exclude=0), color=color, lw=lw)
+        ax.plot(*self.parallels(0), color=color_2, lw=lw_2)
+
+        ax.plot(*self.meridians(exclude=0), color=color, lw=lw)
+        ax.plot(*self.meridians(0, lat_min=-90, lat_max=90), color=color_2, lw=lw_2)
+
+        ax.plot(*self.limb(), color=color, lw=lw)
+
+        if not ticks:
+            ax.set_xticks([])
+            ax.set_yticks([])
+            ax.axis('off')
