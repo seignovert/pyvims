@@ -75,6 +75,9 @@ class QUB:
         if isinstance(val, (int, slice)):
             return self.get_spectrum(val)
 
+        if isinstance(val, str):
+            return self.core[val]
+
         raise ValueError('\n - '.join([
             f'Invalid format (1-index). Use:',
             'INT -> Band image',
