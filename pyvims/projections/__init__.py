@@ -20,6 +20,7 @@ from .sky_old import sky_cube
 # New projections
 from .equi import Equirectangular
 from .equi_gc import Equirectangular as EquirectangularGC
+from .mollweide import Mollweide
 from .ortho import Orthographic
 from .sky import Sky
 from .stere import Stereographic
@@ -30,6 +31,7 @@ from .path3d import Path3D
 __all__ = [
     'Equirectangular',
     'EquirectangularGC',
+    'Mollweide',
     'Orthographic',
     'Sky',
     'Stereographic',
