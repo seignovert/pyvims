@@ -40,6 +40,11 @@ class Orthographic(GroundProjection):
         self.target = target
         self.radius = radius
 
+    @property
+    def extent(self):
+        """Image full extent."""
+        return [-self.r, self.r, -self.r, self.r]
+
     def xy(self, lon_w, lat, alt=None):
         """Convert latitude/longitude coordinates in map coordinates.
 

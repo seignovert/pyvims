@@ -46,6 +46,12 @@ def test_ortho():
         'PARAMETER["latitude_of_origin", 0],'
         'UNIT["Meter", 1]]')
 
+    assert_array(proj.extent, [
+        -2574730,
+        2574730,
+        -2574730,
+        2574730,
+    ], decimal=0)
 
 def test_ortho_xy(proj):
     """Test orthographic projection values."""
