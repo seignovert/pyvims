@@ -175,6 +175,40 @@ class Projection:
             edgecolors=collection.get_edgecolors(),
         )
 
+    def meridians(self, lons=None, exclude=None,
+                  lon_min=0, lon_max=359, dlon=30,
+                  lat_min=-80, lat_max=80, nlat=50):
+        """Projected meridians grid."""
+        if lons is None:
+            lons = np.arange(lon_min, lon_max, dlon)
+        elif isinstance(lons, (int, float)):
+            lons = [lons]
+
+        if exclude is None or isinstance(exclude, (int, float)):
+            exclude = [] if exclude is None else [exclude]
+
+        return np.moveaxis([
+            self(lon, np.linspace(lat_min, lat_max, nlat)) for lon in lons
+            if lon not in exclude
+        ], 0, 2)
+
+    def parallels(self, lats=None, exclude=None,
+                  lat_min=-80, lat_max=80, dlat=10,
+                  lon_min=0, lon_max=360, nlon=50):
+        """Orthographic parallels grid."""
+        if lats is None:
+            lats = np.arange(lat_min, lat_max + dlat, dlat)
+        elif isinstance(lats, (int, float)):
+            lats = [lats]
+
+        if exclude is None or isinstance(exclude, (int, float)):
+            exclude = [] if exclude is None else [exclude]
+
+        return np.moveaxis([
+            self(np.linspace(lon_min, lon_max, nlon), lat) for lat in lats
+            if lat not in exclude
+        ], 0, 2)
+
 
 class GroundProjection(Projection):
     """Abstract ground projection object.
