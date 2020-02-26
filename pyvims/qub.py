@@ -341,6 +341,11 @@ class QUB:
         return (self.nl, self.ns + self.ss)
 
     @property
+    def shape_back_planes(self):
+        """Back plane size (bytes)."""
+        return (self.nl, self.sb, self.ns + self.ss, self.b_sample_suffix)
+
+    @property
     def dtype_back_plane(self):
         """Data type back plane."""
         return self.bin_type('BAND_SUFFIX')
@@ -394,8 +399,9 @@ class QUB:
         cube = np.frombuffer(cube, dtype=self.dtype_cube)
         cube = cube.reshape(self.shape_cube)
 
-        back_plane = raw_back_plane.reshape(self.b_back_plane)
-        back_plane = np.frombuffer(back_plane, dtype=self.dtype_back_plane)
+        back_plane = raw_back_plane.reshape(self.shape_back_planes)
+        back_plane = np.moveaxis(back_plane, 1, 2)
+        back_plane = np.frombuffer(back_plane.ravel(), dtype=self.dtype_back_plane)
         back_plane = back_plane.reshape(self.shape_back_plane)
 
         side_plane = raw_side_plane.reshape(self.b_side_plane)
