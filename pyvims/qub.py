@@ -232,14 +232,16 @@ class QUB:
         """Tag byte format."""
         _type = self.item_type(tag)
         _bytes = self.item_bytes(tag)
+        _names = self.name(tag)
 
         is_list = isinstance(_type, list)
         if not is_list:
             _type = [_type]
             _bytes = [_bytes]
+            _names = [_names]
 
         out = []
-        for t, b in zip(_type, _bytes):
+        for name, t, b in zip(_names, _type, _bytes):
             arch = '>' if t == 'SUN_INTEGER' else '<'  # Big | Little endian
 
             if b == 2:
@@ -249,9 +251,9 @@ class QUB:
             else:
                 raise ValueError('Invalid `ITEM_BYTES`')
 
-            out.append(arch + byte)
+            out.append((name, arch + byte))
 
-        return np.dtype(', '.join(out))
+        return np.dtype(out)
 
     def base(self, tag):
         """Tag base."""
@@ -381,7 +383,7 @@ class QUB:
         raw_side_plane = bands[:, :, self.b_samples:]
 
         cube = np.frombuffer(cube.ravel(), dtype=self.dtype_cube)
-        cube = cube.reshape(self.shape_cube)
+        cube = cube.reshape(self.shape_cube)[self.name('CORE')]
 
         back_plane = raw_back_plane.reshape(self.shape_back_planes)
         back_plane = np.moveaxis(back_plane, 1, 2)
