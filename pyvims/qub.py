@@ -76,6 +76,12 @@ class QUB:
             return self.get_spectrum(val)
 
         if isinstance(val, str):
+            if val in self.back_plane.dtype.names:
+                return self.back_plane[val]
+
+            if val in self.side_plane.dtype.names:
+                return self.side_plane[val]
+
             return self.core[val]
 
         raise ValueError('\n - '.join([
@@ -547,7 +553,7 @@ class QUB:
     def background(self):
         """Side plane background."""
         return np.broadcast_to(
-            self.side_plane['BACKGROUND'][:, :, None],
+            self['BACKGROUND'][:, :, None],
             self.shape_cube,
         )
 
@@ -555,6 +561,6 @@ class QUB:
     def median_background(self):
         """Side plane median background."""
         return np.broadcast_to(
-            np.median(self.side_plane['BACKGROUND'], axis=0)[None, :, None],
+            np.median(self['BACKGROUND'], axis=0)[None, :, None],
             self.shape_cube,
         )
