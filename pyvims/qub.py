@@ -419,14 +419,14 @@ class QUB:
     def back_plane(self):
         """Cube back plane (NL, NS + SS)."""
         if self.__back_plane is None:
-            self.load_data()
+            self._load_data()
         return self.__back_plane
 
     @property
     def side_plane(self):
         """Cube side plane (NL, NB)."""
         if self.__side_plane is None:
-            self.load_data()
+            self._load_data()
         return self.__side_plane
 
     @property
