@@ -542,3 +542,19 @@ class QUB:
     def duration(self):
         """Acquisition dureation."""
         return self.stop - self.start
+
+    @property
+    def background(self):
+        """Side plane background."""
+        return np.broadcast_to(
+            self.side_plane['BACKGROUND'][:, :, None],
+            self.shape_cube,
+        )
+
+    @property
+    def median_background(self):
+        """Side plane median background."""
+        return np.broadcast_to(
+            np.median(self.side_plane['BACKGROUND'], axis=0)[None, :, None],
+            self.shape_cube,
+        )
