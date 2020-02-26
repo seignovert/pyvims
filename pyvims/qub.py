@@ -316,11 +316,6 @@ class QUB:
         return self.nl * self.b_line
 
     @property
-    def b_cube(self):
-        """Cube size (bytes)."""
-        return np.product(self.shape_cube) * self.b_sample
-
-    @property
     def shape_cube(self):
         """Cube shape."""
         return (self.nl, self.nb, self.ns)
@@ -329,11 +324,6 @@ class QUB:
     def dtype_cube(self):
         """Data type cube."""
         return self.bin_type('CORE')
-
-    @property
-    def b_back_plane(self):
-        """Back plane size (bytes)."""
-        return np.product(self.shape_back_plane) * self.b_band_suffix
 
     @property
     def shape_back_plane(self):
@@ -349,11 +339,6 @@ class QUB:
     def dtype_back_plane(self):
         """Data type back plane."""
         return self.bin_type('BAND_SUFFIX')
-
-    @property
-    def b_side_plane(self):
-        """Side plane size (bytes)."""
-        return np.product(self.shape_side_plane) * self.b_samples_suffix
 
     @property
     def shape_side_plane(self):
@@ -395,8 +380,7 @@ class QUB:
         cube = bands[:, :, :self.b_samples]
         raw_side_plane = bands[:, :, self.b_samples:]
 
-        cube = cube.reshape(self.b_cube)
-        cube = np.frombuffer(cube, dtype=self.dtype_cube)
+        cube = np.frombuffer(cube.ravel(), dtype=self.dtype_cube)
         cube = cube.reshape(self.shape_cube)
 
         back_plane = raw_back_plane.reshape(self.shape_back_planes)
@@ -404,8 +388,7 @@ class QUB:
         back_plane = np.frombuffer(back_plane.ravel(), dtype=self.dtype_back_plane)
         back_plane = back_plane.reshape(self.shape_back_plane)
 
-        side_plane = raw_side_plane.reshape(self.b_side_plane)
-        side_plane = np.frombuffer(side_plane, dtype=self.dtype_side_plane)
+        side_plane = np.frombuffer(raw_side_plane.ravel(), dtype=self.dtype_side_plane)
         side_plane = side_plane.reshape(self.shape_side_plane)
 
         # Cache cube data and clear arrays
