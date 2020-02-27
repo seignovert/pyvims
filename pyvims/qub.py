@@ -40,7 +40,7 @@ class QUB:
 
     def __init__(self, fname, root=None):
         self.img_id = img_id(fname)
-        self.root = root
+        self.root = str(root)
 
         if not self.is_file:
             raise FileNotFoundError(f'File `{self.filename}` not found.')
@@ -276,7 +276,8 @@ class QUB:
     @property
     def b_band_suffix(self):
         """Band suffix size (bytes)."""
-        return np.sum(self.item_bytes('BAND_SUFFIX'))
+        return np.sum(self.item_bytes('BAND_SUFFIX')) \
+            if 'BAND_SUFFIX_ITEM_BYTES' in self.core else 0
 
     @property
     def b_bands_suffix(self):
@@ -391,10 +392,13 @@ class QUB:
         cube = np.frombuffer(cube.ravel(), dtype=self.dtype_cube)
         cube = cube.reshape(self.shape_cube)[self.name('CORE')]
 
-        back_plane = raw_back_plane.reshape(self.shape_back_planes)
-        back_plane = np.moveaxis(back_plane, 1, 2)
-        back_plane = np.frombuffer(back_plane.ravel(), dtype=self.dtype_back_plane)
-        back_plane = back_plane.reshape(self.shape_back_plane)
+        if self.b_band_suffix:
+            back_plane = raw_back_plane.reshape(self.shape_back_planes)
+            back_plane = np.moveaxis(back_plane, 1, 2)
+            back_plane = np.frombuffer(back_plane.ravel(), dtype=self.dtype_back_plane)
+            back_plane = back_plane.reshape(self.shape_back_plane)
+        else:
+            back_plane = np.array([], dtype=[('', '?')])
 
         side_plane = np.frombuffer(raw_side_plane.ravel(), dtype=self.dtype_side_plane)
         side_plane = side_plane.reshape(self.shape_side_plane)
@@ -407,7 +411,7 @@ class QUB:
 
     @property
     def data(self):
-        """Cube data (NS, NB, NL)."""
+        """Cube data (NL, NB, NS)."""
         if self.__cube is None:
             self._load_data()
         return self.__cube
