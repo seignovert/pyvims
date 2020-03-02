@@ -94,7 +94,7 @@ class Stereographic(GroundProjection):
 
         lat = np.arcsin(cosc * self.slat0 + y / rh * sinc * self.clat0)
         if self.clat0 < self.EPSILON:
-            lon_w = np.arctan2(x, np.invert(y) if self.lat_0 > 0 else y)
+            lon_w = np.arctan2(x, np.multiply(-1, y) if self.lat_0 > 0 else y)
         else:
             lon_w = np.arctan2(sinc * x, rh * self.clat0 * cosc - self.slat0 * sinc * y)
 
