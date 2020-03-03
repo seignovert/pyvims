@@ -555,7 +555,7 @@ class QUB:
 
     @property
     def background(self):
-        """Side plane background."""
+        """Expended side plane background (NL, NB, NS)."""
         return np.broadcast_to(
             self['BACKGROUND'][:, :, None],
             self.shape_cube,
@@ -563,18 +563,8 @@ class QUB:
 
     @property
     def median_background(self):
-        """Side plane median background."""
+        """Expended side plane median background (NL, NB, NS)."""
         return np.broadcast_to(
             np.median(self['BACKGROUND'], axis=0)[None, :, None],
             self.shape_cube,
         )
-
-    @property
-    def dn(self):
-        """RAW data number with background re-added."""
-        null = self.null('CORE')
-        dn = np.ones(self.shape_cube, dtype=self.dtype_cube)[self.name('CORE')]
-        np.multiply(null, dn, out=dn)
-        np.subtract(self.data.data, self.background, out=dn,
-                    where=self.data.data != null)
-        return dn

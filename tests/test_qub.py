@@ -36,9 +36,21 @@ def test_qub_loader(qub):
     assert qub.data.shape == (4, 352, 16)
     assert qub.back_plane.shape == (4, 17)
     assert qub.side_plane.shape == (4, 352)
-    assert qub.dn.shape == (4, 352, 16)
+
+    assert qub['BACKGROUND'].shape == (4, 352)
+    assert qub.background.shape == (4, 352, 16)
+    assert qub.median_background.shape == (4, 352, 16)
 
     assert 'BAND_SUFFIX_ITEM_BYTES' in qub.core
+
+
+def test_qub_data_mask(qub):
+    """Test QUB masked data on NULL."""
+    assert qub.data.data[0, 0, 0] == qub.null('CORE')
+    assert qub.data.mask[0, 0, 0]
+
+    assert qub.data.data[0, 96, 0] != qub.null('CORE')
+    assert not qub.data.mask[0, 96, 0]
 
 
 def test_qub_with_no_back(qub_no_back):
@@ -54,4 +66,6 @@ def test_qub_with_no_back(qub_no_back):
     assert qub_no_back.data.shape == (12, 352, 12)
     assert qub_no_back.back_plane.shape == (0,)
     assert qub_no_back.side_plane.shape == (12, 352)
-    assert qub_no_back.dn.shape == (12, 352, 12)
+
+    assert qub_no_back['BACKGROUND'].shape == (12, 352)
+    assert qub_no_back.background.shape == (12, 352, 12)
