@@ -531,7 +531,7 @@ class QUB:
     @property
     def sampling_mode_vis(self):
         """Cube VIS spatial and spatial sampling modes."""
-        return self.sampling_mode_id[1:]
+        return self.sampling_mode_id[1]
 
     @property
     def target(self):
