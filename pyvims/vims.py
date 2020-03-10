@@ -151,6 +151,10 @@ class VIMS:
             args = ['surface' if self._is_ir else 75]
         return self.plot(*args, **kwargs)
 
+    def __eq__(self, other):
+        """Compare two cubes."""
+        return str(self) == str(other)
+
     @property
     def root(self):
         """Data root folder."""
