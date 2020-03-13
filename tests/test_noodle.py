@@ -22,9 +22,14 @@ def cubes():
 
 
 @fixture
-def noodle(cubes):
-    """Default noodle object."""
-    return VIMSNoodle(cubes, root=DATA)
+def v_noodle(cubes):
+    """Vertical noodle object."""
+    return VIMSNoodle(cubes, root=DATA, vstack=True)
+
+@fixture
+def h_noodle(cubes):
+    """Vertical noodle object."""
+    return VIMSNoodle(cubes, root=DATA, vstack=False)
 
 
 def test_noodle_cubes(cubes):
@@ -80,21 +85,35 @@ def test_noodle_cubes_err():
         _ = VIMSNoodle('1540484434_1_001', '1540484434_1_002', root=[DATA])
 
 
-def test_noodle_attr(cubes, noodle):
+def test_noodle_attr(v_noodle, h_noodle):
     """Test noodle attributes."""
-    assert len(noodle) == 3
-    assert noodle.NS == 21
-    assert noodle.NL == 3
-    assert noodle.NP == 63
-    assert noodle.shape == (256, 3, 21)
-    assert noodle.vstack
+    assert len(v_noodle) == 3
+    assert v_noodle.NS == 21
+    assert v_noodle.NL == 3
+    assert v_noodle.NP == 63
+    assert v_noodle.shape == (256, 3, 21)
+    assert v_noodle.vstack
 
-    # Horizontal noodle
-    noodle = VIMSNoodle(cubes, root=DATA, vstack=False)
+    assert len(h_noodle) == 3
+    assert h_noodle.NS == 63
+    assert h_noodle.NL == 1
+    assert h_noodle.NP == 63
+    assert h_noodle.shape == (256, 1, 63)
+    assert not h_noodle.vstack
 
-    assert len(noodle) == 3
-    assert noodle.NS == 63
-    assert noodle.NL == 1
-    assert noodle.NP == 63
-    assert noodle.shape == (256, 1, 63)
-    assert not noodle.vstack
+
+def test_noodle_data(v_noodle, h_noodle):
+    """Test noodle data stacking."""
+    assert v_noodle.data.shape == (256, 3, 21)
+    assert v_noodle.data[0, 0, 0] == v_noodle.cubes[0].data[0, 0, 0]
+    assert v_noodle.data[1, 0, 0] == v_noodle.cubes[0].data[1, 0, 0]
+    assert v_noodle.data[0, 1, 0] == v_noodle.cubes[1].data[0, 0, 0]
+    assert v_noodle.data[0, 0, 1] == v_noodle.cubes[0].data[0, 0, 1]
+    assert v_noodle.data[-1, -1, -1] == v_noodle.cubes[-1].data[-1, -1, -1]
+
+    assert h_noodle.data.shape == (256, 1, 63)
+    assert h_noodle.data[0, 0, 0] == h_noodle.cubes[0].data[0, 0, 0]
+    assert h_noodle.data[1, 0, 0] == h_noodle.cubes[0].data[1, 0, 0]
+    assert h_noodle.data[0, 0, 1] == h_noodle.cubes[0].data[0, 0, 1]
+    assert h_noodle.data[0, 0, 21] == h_noodle.cubes[1].data[0, 0, 0]
+    assert h_noodle.data[-1, -1, -1] == h_noodle.cubes[-1].data[-1, -1, -1]

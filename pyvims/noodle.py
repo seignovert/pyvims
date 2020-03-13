@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import numpy as np
+
 from .vims import VIMS
 from .errors import VIMSError
 
@@ -29,16 +31,21 @@ class VIMSNoodle:
         Cube file extension(s).
     vstack: bool, optional
         Vertical stacking (default).
+    verbose: bool, optional
+        Enbale/disable verbose outputs.
 
     """
 
     def __init__(self, *cubes,
-                 root=None, channel='ir', prefix='C', suffix='', ext='cub',
-                 vstack=True):
+                 root=None, channel='ir',
+                 prefix='C', suffix='', ext='cub',
+                 vstack=True, verbose=True):
         self.channel = channel.upper()
         self.vstack = vstack
+        self.verbose = verbose
 
         self.cubes = (cubes, root, prefix, suffix, ext)
+        self.__data = None
 
     def __str__(self):
         return '\n - '.join([
@@ -137,3 +144,31 @@ class VIMSNoodle:
     def shape(self):
         """Data shape."""
         return (self.NB, self.NL, self.NS)
+
+    @property
+    def data(self):
+        """Data cube."""
+        if self.__data is None:
+            self.__data = self._load_data()
+        return self.__data
+
+    def _load_data(self):
+        """Load data cube from all cube list."""
+        if self.verbose:
+            print('Loading data…')
+
+        data = np.zeros(self.shape)
+
+        k = 0
+        for cube in self.cubes:
+            if self.vstack:
+                data[:, k: k + self.NL, :cube.NS] = cube.data
+                k += cube.NL
+            else:
+                data[:, :cube.NL, k: k + cube.NS] = cube.data
+                k += cube.NS
+
+        if self.verbose:
+            print('Done!')
+
+        return data
