@@ -100,7 +100,7 @@ class VIMSNoodle:
             VIMS(
                 _cubes[i],
                 root=_root[i],
-                channel=self.channel,
+                channel=self.channel.lower(),
                 prefix=_prefix[i],
                 suffix=_suffix[i],
                 ext=_ext[i],
