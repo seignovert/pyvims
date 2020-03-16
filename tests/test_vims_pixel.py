@@ -41,7 +41,7 @@ def test_pixel_err(cube):
     with raises(VIMSError):
         _ = cube[100, 1]
 
-    with raises(VIMSError):
+    with raises(TypeError):
         _ = cube[1.1, 1]
 
     # Invalid line value
@@ -51,7 +51,7 @@ def test_pixel_err(cube):
     with raises(VIMSError):
         _ = cube[1, 100]
 
-    with raises(VIMSError):
+    with raises(TypeError):
         _ = cube[1, 1.1]
 
 def test_pixel_properties(pixel):
