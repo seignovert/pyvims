@@ -4,3 +4,4 @@ mock
 pbr
 pytest
 pytest-cov
+nbval
