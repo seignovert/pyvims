@@ -184,7 +184,7 @@ class VIMSPixel:
     @property
     def j2000(self):
         """Pixel pointing direction in J2000 frame."""
-        return self._cube.pixels_j2000[:, self.j, self.i]
+        return self._cube.j2000[:, self.j, self.i]
 
     @property
     def ra(self):

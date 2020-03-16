@@ -79,8 +79,8 @@ def test_pixel_properties(pixel):
     assert not pixel.limb
     assert pixel.ground
 
-    assert pixel.slon == '136.97°W'
-    assert pixel.slat == '80.37°N'
+    assert pixel.slon == '137°W'
+    assert pixel.slat == '80°N'
     assert pixel.salt == '0 km (Ground pixel)'
 
     assert pixel.inc == approx(67.1, abs=.1)
@@ -124,8 +124,8 @@ def test_limb_pixel_properties_limb(limb_pixel):
     assert limb_pixel.limb
     assert not limb_pixel.ground
 
-    assert limb_pixel.slon == '108.99°E'
-    assert limb_pixel.slat == '41.17°N'
+    assert limb_pixel.slon == '109°E'
+    assert limb_pixel.slat == '41°N'
     assert limb_pixel.salt == '1894 km (Limb pixel)'
 
     assert limb_pixel.inc == approx(61.4, abs=.1)
