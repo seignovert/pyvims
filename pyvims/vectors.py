@@ -238,7 +238,7 @@ def vdot(v1, v2):
         return np.dot(np.transpose(v1), v2)
 
     if np.shape(v1)[1:] == np.shape(v2)[1:]:
-        return np.sum(np.multiply(np.transpose(v1), np.transpose(v2)), axis=1)
+        return np.sum(np.multiply(np.transpose(v1), np.transpose(v2)), axis=-1)
 
     raise ValueError('The two vectors must have the same number of points.')
 
@@ -247,10 +247,10 @@ def angle(v1, v2):
     """Angular separation between two vectors."""
     dot = vdot(hat(v1), hat(v2))
 
-    if np.ndim(dot) == 1 and dot > 1:
+    if np.ndim(dot) == 0 and dot > 1:
         return 0
 
-    if np.ndim(dot) > 1:
+    if np.ndim(dot) > 0:
         dot[dot > 1] = 1
 
     return np.degrees(np.arccos(dot))
