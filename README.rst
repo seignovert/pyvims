@@ -5,7 +5,7 @@ PyVIMS
 
 |Conda| |PyPI| |Docker| |Binder|
 
-.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=master
+.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=dev
         :target: https://travis-ci.org/seignovert/pyvims
 .. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
         :target: https://pypi.org/project/pyvims
