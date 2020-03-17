@@ -139,8 +139,8 @@ def dt_doy(time):
 
     # Reformat string for datetime parser.
     t = [dt.strptime(
-        f'{_t[0]:04d}-{_t[1]:03d}T{_t[2]:02d}:{_t[3]:02d}:{_t[4]:02d}.{_t[5]:06d}',
-        '%Y-%jT%H:%M:%S.%f') for _t in t]
+        f'{_t[0]:04d}-{_t[1]:03d}T{_t[2]:02d}:{_t[3]:02d}:{_t[4]:02d}.{_t[5]:06d}+0000',
+        '%Y-%jT%H:%M:%S.%f%z') for _t in t]
 
     return t[0] if len(t) == 1 else t
 
@@ -194,8 +194,8 @@ def dt_date(time, eod=False):
         raise ValueError(f'Invalid date pattern `{time}`.')
 
     t = [dt.strptime(
-        ' '.join([*_t[1:], '23:59:59' if eod or _t[0] != '' else '00:00:00']),
-        '%b %d %Y %H:%M:%S') for _t in times]
+        ' '.join([*_t[1:], '23:59:59' if eod or _t[0] != '' else '00:00:00']) + '+0000',
+        '%b %d %Y %H:%M:%S%z') for _t in times]
 
     return t[0] if len(t) == 1 else t
 
