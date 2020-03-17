@@ -1,9 +1,7 @@
 PyVIMS
 ======
 
-|Build| |Python| |Status| |Version| |License|
-
-|Conda| |PyPI| |Docker| |Binder|
+|Build| |License| |Binder|
 
 .. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=dev
         :target: https://travis-ci.org/seignovert/pyvims
@@ -109,5 +107,5 @@ where more examples of usage are provided. You can also try this
 
 Disclaimer
 ----------
-This project is not supported or endorsed by either JPL, NAIF or NASA.
+This project is not supported or endorsed by either JPL or NASA.
 The code is provided "as is", use at your own risk.
