@@ -9,16 +9,16 @@ from pytest import approx, raises
 
 def test_dt_iso():
     """Test parsing ISO time pattern."""
-    assert str(dt_iso('2005-02-14T18:02:29.123')) == '2005-02-14 18:02:29.123000'
-    assert str(dt_iso('2005-02-14 18:02:29')) == '2005-02-14 18:02:29'
-    assert str(dt_iso('2005-02-14:18:02')) == '2005-02-14 18:02:00'
-    assert str(dt_iso('2005-02-14')) == '2005-02-14 00:00:00'
+    assert str(dt_iso('2005-02-14T18:02:29.123')) == '2005-02-14 18:02:29.123000+00:00'
+    assert str(dt_iso('2005-02-14 18:02:29')) == '2005-02-14 18:02:29+00:00'
+    assert str(dt_iso('2005-02-14:18:02')) == '2005-02-14 18:02:00+00:00'
+    assert str(dt_iso('2005-02-14')) == '2005-02-14 00:00:00+00:00'
 
     times = dt_iso('from 2005-02-14T18:02:29 to 2005-02-14T18:03')
 
     assert len(times) == 2
-    assert str(times[0]) == '2005-02-14 18:02:29'
-    assert str(times[1]) == '2005-02-14 18:03:00'
+    assert str(times[0]) == '2005-02-14 18:02:29+00:00'
+    assert str(times[1]) == '2005-02-14 18:03:00+00:00'
 
     with raises(ValueError):
         _ = dt_iso('2005-045')
@@ -62,7 +62,7 @@ def test_pds_time():
     """Test PDS time parsing."""
     assert str(pds_time('May 17, 2007')) == '2007-05-17 00:00:00'
     assert str(pds_time('2010-274T00:00:00')) == '2010-10-01 00:00:00'
-    assert str(pds_time('2011-10-01T00:02:04.244')) == '2011-10-01 00:02:04.244000'
+    assert str(pds_time('2011-10-01T00:02:04.244')) == '2011-10-01 00:02:04.244000+00:00'
 
     t0, t1 = pds_time('… May 17, 2007 through Jun 30, 2007')
     assert str(t0) == '2007-05-17 00:00:00'
@@ -73,8 +73,8 @@ def test_pds_time():
     assert str(t1) == '2010-12-31 23:59:59'
 
     t0, t1 = pds_time('… 2011-10-01T00:02:04.244 through 2011-12-31T12:28:45.128')
-    assert str(t0) == '2011-10-01 00:02:04.244000'
-    assert str(t1) == '2011-12-31 12:28:45.128000'
+    assert str(t0) == '2011-10-01 00:02:04.244000+00:00'
+    assert str(t1) == '2011-12-31 12:28:45.128000+00:00'
 
     t0, t1 = pds_time('2005015T175855_2005016T184233/')
     assert str(t0) == '2005-01-15 17:58:55'
@@ -109,8 +109,8 @@ def test_utc2cassini():
     times = utc2cassini('May 17, 2007 through Jun 30, 2007')
 
     assert len(times) == 2
-    assert times[0] == approx(1558049638.579, abs=1e-3)
-    assert times[1] == approx(1561937662.855, abs=1e-3)
+    assert times[0] == approx(1558078438.766, abs=1e-3)
+    assert times[1] == approx(1561966463.043, abs=1e-3)
 
 
 def test_pds_folder():
