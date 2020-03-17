@@ -219,7 +219,8 @@ def plot_img(c, index, ax=None, title=None,
     return ax
 
 
-def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
+def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
+                  as_sigma=False, ax=None,
                   title=None, ticks=True, labels=True, label=None,
                   figsize=(12, 6), **kwargs):
     """Plot VIMS cube spectrum.
@@ -238,6 +239,8 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
         Spectrum line color.
     as_bands: bool, optional
         Display as bands on X-axis.
+    as_sigma: bool, optional
+        Display as wavenumbers on X-axis.
     ax: matplotlib.axis, optional
         Optional matplotlib axis object.
     title: str, optional
@@ -259,6 +262,10 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
         x = c.bands
         xticks = c.bticks
         xlabel = c.blabel
+    elif as_sigma:
+        x = c.sigma
+        xticks = c.nticks
+        xlabel = c.nlabel
     else:
         x = c.wvlns
         xticks = c.wticks
@@ -281,6 +288,9 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False, ax=None,
     if labels:
         ax.set_xlabel(xlabel)
         ax.set_ylabel(c.ilabel)
+
+    if as_sigma:
+        ax.set_xlim(4250, 1900)
 
     return ax
 

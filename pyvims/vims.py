@@ -401,6 +401,11 @@ class VIMS:
             np.arange(.4, 1.2, .2)
 
     @property
+    def nticks(self):
+        """Cube wavenumbers ticks."""
+        return np.arange(2000, 12000, 500) if self._is_ir else []
+
+    @property
     def slabel(self):
         """Cube sample label."""
         return 'Samples'
@@ -419,6 +424,11 @@ class VIMS:
     def wlabel(self):
         """Cube wavelength label."""
         return 'Wavelength (µm)'
+
+    @property
+    def nlabel(self):
+        """Cube wavenumber label."""
+        return r'Wavenumber (cm$^{-1}$)'
 
     @property
     def ilabel(self):
