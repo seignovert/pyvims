@@ -26,22 +26,28 @@ PyVIMS
 Python package to manipulate the Cassini VIMS data.
 
 
-Install
--------
+Pre-requirements
+----------------
 
-From the sources
-~~~~~~~~~~~~~~~~
-
-If `pyvims` was already install, it is recommended to create a new
-python environnement. For example with conda:
-
+- If `pyvims` was already install, it is recommended to create a
+  new python environnement. For example with conda:
 
 .. code:: bash
 
     conda create -n pyvims-dev python=3.6
     conda activate pyvims-dev
 
-Then clone the sources from the `dev` branch and install them
+
+- Git-LFS_ must be install on the system if you need to use the
+  embeded `maps` and `titan.lakes` functions.
+
+.. _Git-LFS: https://git-lfs.github.com/
+
+
+Install
+-------
+
+Clone the sources from the `dev` branch and install them
 in `develop` mode.
 
 .. code:: bash
@@ -51,22 +57,6 @@ in `develop` mode.
     pip install -r requirements.txt
     python setup.py develop
 
-
-With ``pip``
-~~~~~~~~~~~~
-
-**Not available yet…** (use the `master` branch if needed)
-
-With ``conda``
-~~~~~~~~~~~~~~
-
-**Not available yet…** (use the `master` branch if needed)
-
-
-With ``docker``
-~~~~~~~~~~~~~~~
-
-**Not available yet…** (use the `master` branch if needed)
 
 Examples
 --------
