@@ -1,17 +1,15 @@
 """Titan lakes module."""
 
-import os
-
 import numpy as np
 
-from scipy import misc as im
+import matplotlib.pyplot as plt
 
 from ..projections.stereographic import stereo_scale, xy as stereo_xy
 from ..vars import ROOT_DATA
 
 
 lat_min = 60
-threshold = 128
+threshold = .5
 n_pole = True
 
 
@@ -22,7 +20,7 @@ def _fname(name=None):
 
 def _load_img(name):
     """Load lakes file."""
-    return im.imread(os.path.join(ROOT_DATA, _fname(name))) < threshold
+    return plt.imread(ROOT_DATA / _fname(name)) < threshold
 
 
 lakes = {
