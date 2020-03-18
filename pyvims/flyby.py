@@ -1,7 +1,5 @@
 """VIMS flyby module."""
 
-import os
-
 from datetime import datetime as dt
 
 import numpy as np
@@ -12,7 +10,7 @@ from .vars import ROOT_DATA
 class MetaFlybys(type):
     """Metaclass for the Cassini flybys."""
 
-    CSV = os.path.join(ROOT_DATA, 'flybys.csv')
+    CSV = ROOT_DATA / 'flybys.csv'
 
     __flybys = None
 
@@ -48,16 +46,16 @@ class MetaFlybys(type):
     @property
     def _is_file(cls):
         """Check if the flybys csv file exist."""
-        return os.path.exists(cls.CSV)
+        return cls.CSV.exists()
 
     @classmethod
     def _load(cls):
         """Load the list of all the flybys."""
         if not cls._is_file:
-            raise FileNotFoundError(f'Flybys data list not found in {cls.CSV}')
+            raise FileNotFoundError(f'Flybys data list not found in {cls.CSV.name}')
 
         flybys = []
-        with open(cls.CSV) as f:
+        with cls.CSV.open() as f:
             for flyby in f.readlines()[1:]:
                 flybys.append(Flyby(flyby))
 

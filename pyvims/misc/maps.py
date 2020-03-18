@@ -18,7 +18,7 @@ from ..vectors import deg180, deg360
 from ..coordinates import slat, slon_e, slon_w
 
 
-ROOT = root = os.path.join(ROOT_DATA, 'maps')
+ROOT = ROOT_DATA / 'maps'
 
 
 def parse(rexp, line):
@@ -264,10 +264,10 @@ class MapsDetails(type):
             If the file is missing.
 
         """
-        filename = os.path.join(ROOT, 'README.md')
+        filename = ROOT / 'README.md'
 
-        if not os.path.exists(filename):
-            with open(filename, 'w') as f:
+        if not filename.exists():
+            with filename.open('w') as f:
                 f.write('\n'.join([
                     'List of maps available',
                     '======================\n',
@@ -279,7 +279,7 @@ class MapsDetails(type):
                     '* Projection: `equirectangular`\n',
                 ]))
 
-        return filename
+        return str(filename)
 
     @classmethod
     def register(cls, m, update=False):
@@ -370,7 +370,7 @@ class Map:
 
     def __init__(self, fname, root=None, extent=None, src=None, url=None,
                  projection=None, name=None):
-        self.root = root if root else ROOT
+        self.root = root if root else str(ROOT)
         self.fname = fname
 
         self.data_extent = list(extent)
@@ -382,7 +382,7 @@ class Map:
             '.'.join(self.fname.split('.')[:-1])
 
     def __str__(self):
-        return self.fname if self.root == ROOT else self.filename
+        return self.fname if self.root == str(ROOT) else self.filename
 
     def __repr__(self):
         return '\n - '.join([
