@@ -1,3 +1,6 @@
+git:
+  depth: 1
+
 language: python
 
 python:
@@ -6,10 +9,9 @@ python:
   - "3.8"
 
 install:
-  - pip install -r requirements.txt
-  - python setup.py develop
+  - pip install .
   - python -c 'from pyvims import VIMS'
-  - pip install -r tests/requirements.txt
 script:
+  - pip install -r tests/requirements.txt
   - pytest tests/
   - pytest --nbval-lax notebooks/pyvims.ipynb

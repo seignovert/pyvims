@@ -1,1 +1,1 @@
-git+git://github.com/seignovert/pyvims@dev#egg=pyvims
+https://github.com/seignovert/pyvims/archive/dev.zip

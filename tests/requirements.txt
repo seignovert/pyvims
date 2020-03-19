@@ -1,8 +1,5 @@
-coverage
 flake8
-mock
-requests-mock
-pbr
 pytest
 pytest-cov
+requests-mock
 nbval

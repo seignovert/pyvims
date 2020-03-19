@@ -14,12 +14,11 @@ requirements:
   build:
     - python {{ python }}
     - pip 19.*
-    - pbr
   run:
     - python {{ python }}
-    - pbr
     - numpy
     - matplotlib
+    - Pillow
     - scipy
     - tqdm
     - requests

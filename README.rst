@@ -1,7 +1,7 @@
 PyVIMS
 ======
 
-|Build| |License| |Binder|
+|Build| |License| |Docker| |Binder|
 
 .. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=dev
         :target: https://travis-ci.org/seignovert/pyvims
@@ -29,8 +29,8 @@ Python package to manipulate the Cassini VIMS data.
 Pre-requirements
 ----------------
 
-- If `pyvims` was already install, it is recommended to create a
-  new python environnement. For example with conda:
+If `pyvims` was already install, it is recommended to create a
+new python environnement. For example with conda:
 
 .. code:: bash
 
@@ -38,24 +38,20 @@ Pre-requirements
     conda activate pyvims-dev
 
 
-- Git-LFS_ must be install on the system if you need to use the
-  embeded `maps` and `titan.lakes` functions.
-
-.. _Git-LFS: https://git-lfs.github.com/
-
-
 Install
 -------
 
-Clone the sources from the `dev` branch and install them
-in `develop` mode.
+.. code:: bash
+
+    pip install --user https://github.com/seignovert/pyvims/archive/dev.zip
+
+
+Upgrade
+-------
 
 .. code:: bash
 
-    git clone -b dev https://github.com/seignovert/pyvims.git
-    cd pyvims
-    pip install -r requirements.txt
-    python setup.py develop
+    pip install --upgrade --user https://github.com/seignovert/pyvims/archive/dev.zip
 
 
 Examples

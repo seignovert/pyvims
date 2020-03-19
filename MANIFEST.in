@@ -1,0 +1,20 @@
+include LICENSE.md
+include README.rst
+
+include pyvims/data/flybys.csv
+include pyvims/data/README.md
+include pyvims/data/titan_npole_stereo_60_all_lakes.png
+include pyvims/data/titan_npole_stereo_60_jingpo.png
+include pyvims/data/titan_npole_stereo_60_kraken_inf.png
+include pyvims/data/titan_npole_stereo_60_kraken_sup.png
+include pyvims/data/titan_npole_stereo_60_ligeia.png
+include pyvims/data/titan_npole_stereo_60_other_lakes.png
+include pyvims/data/titan_npole_stereo_60_punga_kivu.png
+include pyvims/data/maps/Titan_VIMS_ISS.jpg
+include pyvims/geol/data/Titan_geol_map.png
+
+include tests/data/C1540484434_1_001_ir.cub
+include tests/data/C1540484434_1_002_ir.cub
+include tests/data/C1540484434_1_003_ir.cub
+include tests/data/v1477479472_1.qub
+include tests/data/v1815243432_1.qub
