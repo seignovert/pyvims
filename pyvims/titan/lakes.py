@@ -20,7 +20,7 @@ def _fname(name=None):
 
 def _load_img(name):
     """Load lakes file."""
-    return plt.imread(ROOT_DATA / _fname(name)) < threshold
+    return plt.imread(str(ROOT_DATA / _fname(name))) < threshold
 
 
 lakes = {
