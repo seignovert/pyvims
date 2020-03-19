@@ -17,10 +17,10 @@ PyVIMS
         :target: https://anaconda.org/seignovert/pyvims
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white
         :target: https://pypi.org/project/pyvims
-.. |Docker| image:: https://badgen.net/badge/docker|seignovert/pyvims/blue?icon=docker
+.. |Docker| image:: https://img.shields.io/badge/docker-seignovert/pyvims-blue.svg?logo=docker&logoColor=white
         :target: https://hub.docker.com/r/seignovert/pyvims
 .. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
-        :target: https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=playground.ipynb
+        :target: https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb
 
 
 Python package to manipulate the Cassini VIMS data.
@@ -88,7 +88,17 @@ To use, simply do:
 For more details, take a look to the
 `static Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/dev/notebooks/pyvims.ipynb>`_
 where more examples of usage are provided. You can also try this
-`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=playground.ipynb>`_.
+`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb>`_.
+
+
+Docker
+------
+
+PyVIMS can be use directly with Docker (without python install):
+
+.. code:: bash
+
+    docker run -it --rm seignovert/pyvims:dev
 
 
 Disclaimer
