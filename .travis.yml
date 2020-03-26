@@ -14,4 +14,4 @@ install:
 script:
   - pip install -r tests/requirements.txt
   - pytest tests/
-  - pytest --nbval-lax notebooks/pyvims.ipynb
+  - pytest --nbval-lax notebooks/pyvims.ipynb notebooks/VIMS_wvlns.ipynb

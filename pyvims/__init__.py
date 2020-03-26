@@ -2,8 +2,11 @@
 
 from .vims import VIMS
 from .qub import QUB
+from .wvlns import VIMS_IR, VIMS_VIS
 
 __all__ = [
-    VIMS,
-    QUB,
+    'QUB',
+    'VIMS',
+    'VIMS_IR',
+    'VIMS_VIS',
 ]
