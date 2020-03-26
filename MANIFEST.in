@@ -2,6 +2,8 @@ include LICENSE.md
 include README.rst
 
 include pyvims/data/flybys.csv
+include pyvims/data/wvlns_std.csv
+include pyvims/data/wvlns_ir_shift.csv
 include pyvims/data/README.md
 include pyvims/data/titan_npole_stereo_60_all_lakes.png
 include pyvims/data/titan_npole_stereo_60_jingpo.png
