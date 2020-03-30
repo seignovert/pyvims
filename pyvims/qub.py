@@ -52,6 +52,8 @@ class QUB:
         self.__cube = None
         self.__back_plane = None
         self.__side_plane = None
+        self.__raw_back_plane = None
+        self.__raw_side_plane = None
 
     def __str__(self):
         return self.img_id
@@ -404,10 +406,12 @@ class QUB:
         side_plane = side_plane.reshape(self.shape_side_plane)
 
         # Cache cube data and clear arrays
-        del raw, lines, bands, raw_back_plane, raw_side_plane
+        del raw, lines, bands
         self.__cube = np.ma.array(cube, mask=(cube < 0), fill_value=0)
         self.__back_plane = back_plane
         self.__side_plane = side_plane
+        self.__raw_back_plane = raw_back_plane
+        self.__raw_side_plane = raw_side_plane
 
     @property
     def data(self):
@@ -429,6 +433,20 @@ class QUB:
         if self.__side_plane is None:
             self._load_data()
         return self.__side_plane
+
+    @property
+    def raw_back_plane(self):
+        """Raw back plane."""
+        if self.__raw_back_plane is None:
+            self._load_data()
+        return self.__raw_back_plane
+
+    @property
+    def raw_side_plane(self):
+        """Raw side plane."""
+        if self.__raw_side_plane is None:
+            self._load_data()
+        return self.__raw_side_plane
 
     @property
     def extent(self):

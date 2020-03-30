@@ -36,6 +36,8 @@ def test_qub_loader(qub):
     assert qub.data.shape == (4, 352, 16)
     assert qub.back_plane.shape == (4, 17)
     assert qub.side_plane.shape == (4, 352)
+    assert qub.raw_back_plane.shape == (4, 272)
+    assert qub.raw_side_plane.shape == (4, 352, 4)
 
     assert qub['BACKGROUND'].shape == (4, 352)
     assert qub.background.shape == (4, 352, 16)
