@@ -28,6 +28,10 @@ class QUB:
         first or the local directory otherwise.
         You can manually force the local directory
         with ``root='.'``.
+    prefix: str, optional
+        Filename prefix (default: `v`).
+    suffix: str, optional
+        Filename suffix (default: ``).
 
     Raises
     ------
@@ -38,9 +42,11 @@ class QUB:
 
     """
 
-    def __init__(self, fname, root=None):
+    def __init__(self, fname, root=None, prefix='v', suffix=''):
         self.img_id = img_id(fname)
         self.root = str(root)
+        self.suffix = suffix
+        self.prefix = prefix
 
         if not self.is_file:
             raise FileNotFoundError(f'File `{self.filename}` not found.')
@@ -113,7 +119,7 @@ class QUB:
     @property
     def fname(self):
         """QUB filename."""
-        return f'v{self}.qub'
+        return f'{self.prefix}{self}{self.suffix}.qub'
 
     @property
     def filename(self):
