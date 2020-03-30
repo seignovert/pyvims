@@ -36,14 +36,18 @@ def test_qub_loader(qub):
     assert qub.data.shape == (4, 352, 16)
     assert qub.back_plane.shape == (4, 17)
     assert qub.side_plane.shape == (4, 352)
-    assert qub.raw_back_plane.shape == (4, 272)
-    assert qub.raw_side_plane.shape == (4, 352, 4)
 
     assert qub['BACKGROUND'].shape == (4, 352)
     assert qub.background.shape == (4, 352, 16)
     assert qub.median_background.shape == (4, 352, 16)
 
     assert 'BAND_SUFFIX_ITEM_BYTES' in qub.core
+
+    # Get raw attributes
+    assert len(qub.raw_header) == 23552
+    assert qub.raw_header[:40] == b'CCSD3ZF0000100000001NJPL3IF0PDS200000001'
+    assert qub.raw_back_plane.shape == (4, 272)
+    assert qub.raw_side_plane.shape == (4, 352, 4)
 
 
 def test_qub_data_mask(qub):

@@ -449,6 +449,12 @@ class QUB:
         return self.__raw_side_plane
 
     @property
+    def raw_header(self):
+        """RAW binary header."""
+        with open(self.filename, 'rb') as f:
+            return f.read(self.b_header)
+
+    @property
     def extent(self):
         """Pyplot imshow cube extent."""
         return [.5, self.ns + .5, self.nl + .5, .5]
