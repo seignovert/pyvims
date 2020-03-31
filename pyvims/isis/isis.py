@@ -256,7 +256,8 @@ class ISISCube:
     @property
     def wvlns(self):
         """Cube central wavelengths (um)."""
-        return np.array(self._bands['Center'])
+        return np.array([float(w[:-1]) if isinstance(w, str) else w
+                         for w in self._bands['Center']])
 
     @property
     def _inst(self):
