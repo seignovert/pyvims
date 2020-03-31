@@ -8,7 +8,7 @@ def img_id(fname):
 
     Parameters
     ----------
-    fname: str
+    fname: str or pathlib.Path
         Input filename.
 
     Returns
@@ -34,7 +34,7 @@ def img_id(fname):
     '1487096932_1_001'
 
     """
-    img_ids = re.findall(r'\d{10}_\d+(?:_\d+)?', fname)
+    img_ids = re.findall(r'\d{10}_\d+(?:_\d+)?', str(fname))
 
     if not img_ids:
         raise ValueError(f'File `{fname}` name does not '
