@@ -103,6 +103,12 @@ class Flyby:
     def __sub__(self, other):
         return (self.ca - other).total_seconds()
 
+    def __lt__(self, other):
+        if not isinstance(other, type(self)):
+            raise TypeError(f"'<' not supported between instances "
+                            f"of '{type(self)}' and '{type(other)}'")
+        return self.ca < other.ca
+
     @property
     def rev(self):
         return int(self.__data[0])
