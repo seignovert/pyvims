@@ -4,7 +4,10 @@ import numpy as np
 
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from pyvims.wvlns import CHANNELS, FWHM, SHIFT, VIMS_IR, VIMS_VIS, WLNS, YEARS
+from pyvims.vars import ROOT_DATA
+from pyvims.wvlns import (BAD_IR_PIXELS, CHANNELS, FWHM, SHIFT,
+                          VIMS_IR, VIMS_VIS, WLNS, YEARS,
+                          bad_ir_pixels)
 
 from pytest import approx, raises
 
@@ -123,3 +126,31 @@ def test_vims_vis():
     assert np.isnan(VIMS_VIS(band=0))
     assert np.isnan(VIMS_VIS(band=97, fwhm=True))
     assert np.isnan(VIMS_VIS(band=353, sigma=True))
+
+
+def test_bad_ir_pixels():
+    """Test bad IR pixels list."""
+    csv = np.loadtxt(ROOT_DATA / 'wvlns_std.csv',
+                     delimiter=',', usecols=(0, 1, 2, 3),
+                     dtype=str, skiprows=98)
+
+    # Extract bad pixels
+    wvlns = np.transpose([
+        (int(channel), float(wvln) - .5 * float(fwhm), float(fwhm))
+        for channel, wvln, fwhm, comment in csv
+        if comment
+    ])
+
+    # Group bad pixels
+    news = [True] + list((wvlns[0, 1:] - wvlns[0, :-1]) > 1.5)
+    bads = []
+    for i, new in enumerate(news):
+        if new:
+            bads.append(list(wvlns[1:, i]))
+        else:
+            bads[-1][1] += wvlns[2, i]
+
+    assert_array(BAD_IR_PIXELS, bads)
+
+    coll = bad_ir_pixels()
+    assert len(coll.get_paths()) == len(bads)

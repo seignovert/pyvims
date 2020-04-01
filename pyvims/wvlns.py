@@ -2,6 +2,9 @@
 
 import numpy as np
 
+from matplotlib.patches import Rectangle
+from matplotlib.collections import PatchCollection
+
 from .vars import ROOT_DATA
 
 
@@ -134,3 +137,22 @@ def VIMS_VIS(band=None, year=None, fwhm=False, sigma=False):
             out = 1e4 / (wvlns - out / 2) - 1e4 / (wvlns + out / 2)
 
     return out
+
+
+# VIMS-IR order-sorting and poor noisy channels
+BAD_IR_PIXELS = [
+    (1.5980515, 0.050319),  # Bands: 141-143 (order-sorting filter change)
+    (2.9554120, 0.044147),  # Bands: 223-225 (order-sorting filter change)
+    (3.8540530, 0.039533),  # Bands: 277-278 (order-sorting filter change)
+    (4.7623325, 0.015955),  # Bands: 331 (hot pixel)
+    (4.9279810, 0.017740),  # Bands: 341 (slightly noiser, 1.5x at low signal)
+    (5.0806185, 0.020883),  # Bands: 350 (slightly noiser, 2x at low signal)
+]
+
+
+def bad_ir_pixels(ymin=-1, ymax=1, color='grey', alpha=.25, **kwargs):
+    """VIMS-IR order-sorting and poor signal/noise channels collection."""
+    return PatchCollection([
+        Rectangle((w_left, ymin), width, ymax - ymin)
+        for (w_left, width) in BAD_IR_PIXELS
+    ], color=color, alpha=alpha, **kwargs)
