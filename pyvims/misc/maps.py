@@ -992,6 +992,14 @@ class MapAxis:
             self.plot(*p, color=color, lw=lw)
             self.plot(*m, color=color, lw=lw)
 
+    def set_xlabel(self, *args, **kwargs):
+        """Set x-label on map axis."""
+        self.ax.set_xlabel(*args, **kwargs)
+
+    def set_ylabel(self, *args, **kwargs):
+        """Set y-label on map axis."""
+        self.ax.set_ylabel(*args, **kwargs)
+
     def set_title(self, *args, **kwargs):
         """Set title on map axis."""
         self.ax.set_title(*args, **kwargs)
