@@ -903,7 +903,7 @@ class VIMS:
     def lon(self):
         """Planetocentric West longitude.
 
-        Longitude in degrees between ``[0ºW; 360ºW[``.
+        Longitude in degrees between ``[0°W; 360°W[``.
 
         """
         return self.lonlat[0]
@@ -912,7 +912,7 @@ class VIMS:
     def lon_e(self):
         """Planetocentric East coordinates.
 
-        Longitude in degrees between ``]-180ºE; 180ºE]``.
+        Longitude in degrees between ``]-180°E; 180°E]``.
 
         """
         return deg180(-self.lon)
@@ -921,7 +921,7 @@ class VIMS:
     def lat(self):
         """Planetocentric North latitude.
 
-        Latitude in degrees between ``[-90ºN; 90ºN]``.
+        Latitude in degrees between ``[-90°N; 90°N]``.
 
         """
         return self.lonlat[1]

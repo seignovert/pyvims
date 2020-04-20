@@ -14,7 +14,7 @@ def deg180(ang):
     Return
     ------
     float
-        Angle mod 360º deg between -180º and 180º.
+        Angle mod 360° deg between -180° and 180°.
 
     Example
     -------
@@ -44,7 +44,7 @@ def deg360(ang):
     Return
     ------
     float
-        Angle mod 360º deg between 0º and 360º.
+        Angle mod 360° deg between 0° and 360°.
 
     Example
     -------
