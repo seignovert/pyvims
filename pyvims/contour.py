@@ -19,6 +19,7 @@ class VIMSContour:
         Parent VIMS cube.
 
     """
+    CODES = None
 
     def __init__(self, cube):
         self._cube = cube
