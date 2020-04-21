@@ -321,13 +321,19 @@ class VIMSPixelsCorners:
             self.__paths_sky = [c.path_sky for c in self]
         return self.__paths_sky
 
+    def paths_mask(self, mask):
+        """List of corners paths with a mask."""
+        return [c.path if m else None for c, m in zip(self, mask.ravel())]
+
     def collection(self, index='surface', facecolors=None, edgecolors='None',
-                   vmin=None, vmax=None, cmap=None, alt=False, sky=False, **kwargs):
+                   vmin=None, vmax=None, cmap=None, alt=False, sky=False,
+                   mask=[], **kwargs):
         """Get the collection of all the corners patches on the ground."""
         patches = [
             PathPatch(path)
             for path in (self.paths_alt if alt else
                          self.paths_sky if sky else
+                         self.paths_mask(mask) if np.any(mask) else
                          self.paths.data)]
 
         if not isinstance(facecolors, str):
