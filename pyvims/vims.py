@@ -153,7 +153,11 @@ class VIMS:
 
     def __eq__(self, other):
         """Compare two cubes."""
-        return str(self) == str(other)
+        if isinstance(other, str):
+            return str(self) == other
+        if hasattr(other, 'md5'):
+            return self.md5 == other.md5
+        return False
 
     @property
     def root(self):
