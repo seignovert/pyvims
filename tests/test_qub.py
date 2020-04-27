@@ -30,6 +30,7 @@ def test_qub_loader(qub):
     assert qub.suffix == ''
     assert qub.is_file
     assert qub.is_qub
+    assert qub.md5 == '58a3ac2623d1d103e0077da1b0e56cf3'
 
     assert qub.ns == 16
     assert qub.nl == 4

@@ -274,6 +274,11 @@ class VIMS:
         """Data shape."""
         return self.isis.shape
 
+    @property
+    def md5(self):
+        """Cube MD5 hash."""
+        return self.isis.md5
+
     def _flat(self, array):
         """Flatten grid array.
 

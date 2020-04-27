@@ -1,5 +1,6 @@
 """VIMS RAW QUB data module."""
 
+import hashlib
 import os
 from datetime import datetime as dt
 
@@ -138,6 +139,11 @@ class QUB:
             head = f.read(512)
 
         return '^QUBE' in head
+
+    @property
+    def md5(self):
+        """QUB MD5 hash."""
+        return hashlib.md5(open(self.filename, 'rb').read()).hexdigest()  # nosec: B303
 
     @property
     def header(self):
