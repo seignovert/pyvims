@@ -1,6 +1,5 @@
 """VIMS ISIS header."""
 
-import hashlib
 import os
 
 import numpy as np
@@ -12,7 +11,7 @@ from .labels import ISISLabels
 from .tables import ISISTables
 from .time import time as _dt
 from .vars import BYTE_ORDERS, FIELD_TYPES
-
+from ..misc import get_md5
 
 class ISISCube:
     """VIMS ISIS header object.
@@ -79,7 +78,7 @@ class ISISCube:
     @property
     def md5(self):
         """QUB MD5 hash."""
-        return hashlib.md5(open(self.filename, 'rb').read()).hexdigest()  # nosec: B303
+        return get_md5(self.filename)
 
     @property
     def pvl(self):

@@ -1,6 +1,5 @@
 """VIMS wget module."""
 
-import hashlib
 import io
 import os
 import re
@@ -8,6 +7,8 @@ import re
 import requests
 
 from tqdm import tqdm
+
+from .misc import check_md5
 
 
 def nb_chunk(request, chunk=1024):
@@ -114,43 +115,14 @@ def wget(url, filename=None, md5=None, overwrite=False, verbose=True, chunk_size
 
             data = b.getvalue()
 
-    check_md5(data, md5)
+    if md5 is not None:
+        check_md5(data, md5)
 
     if filename is not None:
         with open(filename, 'wb') as f:
             f.write(data)
 
     return data
-
-
-def check_md5(data, md5=None):
-    """Check MD5 checksum matches the expeted value.
-
-    Parameters
-    ----------
-    data: bytes
-        Input data.
-    md5: str, optional
-        Expected MD5 string.
-
-    Return
-    ------
-    bool
-        ``True`` if match and ``False`` is :py:attr:`md5` is ``None``.
-
-    Raises
-    ------
-    IOError
-        If :py:attr:`md5` don't match.
-
-    """
-    if md5 is not None:
-        data_md5 = hashlib.md5(data).hexdigest()  # nosec: B303
-        if data_md5 != md5:
-            raise IOError(
-                'MD5 data ({data_md5}) does not match the expected value ({md5}).')
-        return True
-    return False
 
 
 def wget_txt(url):
@@ -167,7 +139,6 @@ def wget_txt(url):
         If the HTTP request is invalid.
 
     """
-
     resp = requests.get(url)
     if resp.status_code == requests.codes.ok:
         return resp.text.replace('href="/', f'href="{domain(url)}')
