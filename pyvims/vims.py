@@ -22,7 +22,8 @@ from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .star import Star
 from .target import intersect
 from .vars import VIMS_DATA_PORTAL
-from .vectors import angle, deg180, hat, hav_dist, lonlat, norm, radec, v_max_dist
+from .vectors import (angle, azimuth, deg180, hat, hav_dist,
+                      lonlat, norm, radec, v_max_dist)
 from .wget import wget
 
 
@@ -1025,7 +1026,8 @@ class VIMS:
             inc = angle(xyz, sun)
             eme = angle(xyz, sc)
             phase = angle(sc, sun)
-            self.__ill = self._grid(np.vstack([inc, eme, phase]))
+            azi = azimuth(inc, eme, phase)
+            self.__ill = self._grid(np.vstack([inc, eme, phase, azi]))
         return self.__ill
 
     @property
@@ -1044,6 +1046,11 @@ class VIMS:
         return self._illumination[2]
 
     @property
+    def azi(self):
+        """Cube local azimuthal angle (degrees)."""
+        return self._illumination[3]
+
+    @property
     def ground_inc(self):
         """Incidence angle on the ground (degrees)."""
         return np.ma.array(self.inc, mask=self.limb)
@@ -1057,6 +1064,11 @@ class VIMS:
     def ground_phase(self):
         """Phase angle on the ground (degrees)."""
         return np.ma.array(self.phase, mask=self.limb)
+
+    @property
+    def ground_azi(self):
+        """Azimuthal angle on the ground (degrees)."""
+        return np.ma.array(self.azi, mask=self.limb)
 
     @property
     def dist_sc(self):

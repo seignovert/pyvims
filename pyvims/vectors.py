@@ -328,3 +328,47 @@ def areaquad(lon_0, lat_0, lon_1, lat_1, r=1):
     dlambda = np.radians(lon_1 - lon_0)
     sin_phi_0, sin_phi_1 = np.sin(np.radians([lat_0, lat_1]))
     return np.abs(r ** 2 * dlambda * (sin_phi_1 - sin_phi_0))
+
+
+def azimuth(inc, eme, phase):
+    """Local azimuth angle between the sun and the observer.
+
+    Parameters
+    ----------
+    inc: float or numpy.ndarray
+        Incidence angle (degrees).
+    eme: float or numpy.ndarray
+        Emergence angle (degrees).
+    phase: float or numpy.ndarray
+        Phase angle (degrees).
+
+    Returns
+    -------
+    float or numpy.ndarray
+        Local azimuth angle (degrees).
+
+    Raises
+    ------
+    ValueError
+        If the inputs do not have the same dimension.
+
+    """
+    if not np.shape(inc) == np.shape(eme) == np.shape(phase):
+        raise ValueError(f'Incidence {np.shape(inc)}, emergence {np.shape(eme)} '
+                         f'and phase {np.shape(phase)} do not have the same dimension.')
+
+    if np.ndim(inc) == 0 and (inc == 0 or eme == 0):
+        return 0
+
+    i, e, p = np.radians([inc, eme, phase])
+
+    azi = np.cos(p) - np.cos(i) * np.cos(e)
+
+    if np.ndim(inc) == 0:
+        azi /= np.sin(i) * np.sin(e)
+    else:
+        azi = np.divide(azi, np.sin(i) * np.sin(e),
+                        out=np.ones_like(i),
+                        where=(np.not_equal(inc, 0) & np.not_equal(eme, 0)))
+
+    return np.degrees(np.arccos(np.clip(azi, -1, 1)))

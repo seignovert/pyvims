@@ -3,7 +3,7 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from pyvims.vectors import angle, areaquad, vdot
+from pyvims.vectors import angle, azimuth, areaquad, vdot
 
 from pytest import approx, raises
 
@@ -75,3 +75,40 @@ def test_angle():
     assert v2.shape == (3, 2, 2)
 
     assert_array(angle(v1, v2), [[0, 90], [180, 90]])
+
+
+def test_azimuth():
+    """Test azimuth illumination angle."""
+    assert azimuth(0, 0, 0) == 0
+    assert azimuth(10, 0, 0) == 0
+    assert azimuth(90, 90, 135) == approx(135)
+    assert azimuth(90, 45, 135) == approx(180)
+
+    _azi = 2 * np.degrees(np.arcsin(1 / np.sqrt(3)))
+
+    assert azimuth(60, 60, 60) == approx(_azi)
+
+    # 1D array
+    inc, eme, phase = [0, 10, 90, 90, 60], [0, 0, 90, 45, 60], [0, 0, 135, 135, 60]
+
+    assert_array(
+        azimuth(inc, eme, phase),
+        [0, 0, 135, 180, _azi]
+    )
+
+    # 2D array
+    inc, eme, phase = [[10, 90], [90, 60]], [[0, 90], [45, 60]], [[0, 135], [135, 60]]
+
+    assert_array(
+        azimuth(inc, eme, phase),
+        [[0, 135], [180, _azi]]
+    )
+
+    with raises(ValueError):
+        _ = azimuth(0, [0], [0])
+
+    with raises(ValueError):
+        _ = azimuth([0], 0, [0])
+
+    with raises(ValueError):
+        _ = azimuth([0], [0], [[0]])

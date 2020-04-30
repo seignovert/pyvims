@@ -262,6 +262,11 @@ class VIMSPixel:
         return self._cube.phase[self.j, self.i]
 
     @property
+    def azi(self):
+        """Pixel local azimuthal angle (degrees)."""
+        return self._cube.azi[self.j, self.i]
+
+    @property
     def dist_sc(self):
         """Intersect point distance to the spacecraft."""
         return self._cube.dist_sc[self.j, self.i]
