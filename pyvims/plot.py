@@ -222,6 +222,7 @@ def plot_img(c, index, ax=None, title=None,
 def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
                   as_sigma=False, ax=None,
                   title=None, ticks=True, labels=True, label=None,
+                  hot_pixels=False,
                   figsize=(12, 6), **kwargs):
     """Plot VIMS cube spectrum.
 
@@ -249,8 +250,10 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
         Show wavelengths/bands and I/F ticks.
     labels: bool, optional
         Show wavelengths/bands and I/F labels.
-    labels: str, optional
+    label: str, optional
         Spectrum label.
+    hot_pixels: bool, optional
+        Show hot pixels (default: False).
     figsize: tuple, optional
         Pyplot figure size.
 
@@ -262,19 +265,25 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
         x = c.bands
         xticks = c.bticks
         xlabel = c.blabel
+        xhotpix = c.hot_pixels()
     elif as_sigma:
         x = c.sigma
         xticks = c.nticks
         xlabel = c.nlabel
+        xhotpix = 1e4 / c.w_hot_pixels()
     else:
         x = c.wvlns
         xticks = c.wticks
         xlabel = c.wlabel
+        xhotpix = c.w_hot_pixels()
 
     if label is None:
         label = f'S={S}, L={L}'
 
     ax.plot(x, c[S, L].spectrum + offset, label=label, color=color)
+
+    if hot_pixels:
+        [ax.axvline(x, ls='--', lw=.5, color='r') for x in xhotpix]
 
     if title is None:
         title = f'{c} at S={S}, L={L}'
@@ -317,6 +326,9 @@ def _extract(n, key, kwargs, default=None):
         if n == 0:
             return values
 
+        if isinstance(values, bool):
+            values = [values] + (n - 1) * [default]
+
         if isinstance(values, (int, float)):
             values = np.arange(0, n * values, values)
 
@@ -329,7 +341,8 @@ def _extract(n, key, kwargs, default=None):
                                 f'the same length ({n} vs. {len(values)}).')
 
         else:
-            raise TypeError(f'Unknown key `{key}` value type `{type(values)}` to extract.')
+            raise TypeError(
+                f'Unknown key `{key}` value type `{type(values)}` to extract.')
     else:
         values = n * [default] if n > 0 else default
 
@@ -353,10 +366,12 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
     labels = _extract(n, 'label', kwargs)
     ax = _extract(0, 'ax', kwargs, default=None)
     title = _extract(0, 'title', kwargs, default=f'{c}')
+    hotpixs = _extract(n, 'hot_pixels', kwargs, default=False)
 
-    for (S, L), offset, color, label in zip(coordinates, offsets, colors, labels):
+    for (S, L), offset, color, label, hotpix in zip(
+            coordinates, offsets, colors, labels, hotpixs):
         ax = plot_spectrum(c, S, L, offset=offset, color=color, label=label,
-                           title=title, ax=ax, **kwargs)
+                           hot_pixels=hotpix, title=title, ax=ax, **kwargs)
 
     if title:
         ax.set_title(title)
