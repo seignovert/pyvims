@@ -344,6 +344,11 @@ class VIMS:
         return np.max(arr, axis=(1, 2))
 
     @property
+    def history(self):
+        """Cube history."""
+        return self.isis.history
+
+    @property
     def data(self):
         """Data cube."""
         return self.isis.cube

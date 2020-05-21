@@ -7,6 +7,7 @@ import numpy as np
 import pvl
 
 from .errors import ISISError
+from .history import ISISHistory
 from .labels import ISISLabels
 from .tables import ISISTables
 from .time import time as _dt
@@ -42,6 +43,9 @@ class ISISCube:
         if key in self.labels:
             return self.labels[key]
 
+        if key in self.orig_lbl:
+            return self.orig_lbl[key]
+
         return self.tables[key]
 
     @property
@@ -54,6 +58,8 @@ class ISISCube:
         self.__pvl = None
         self.__labels = None
         self.__tables = None
+        self.__history = None
+        self.__orig_lbl = None
         self.__cube = None
 
         if not self.is_file:
@@ -101,9 +107,28 @@ class ISISCube:
             self.__tables = ISISTables(self.filename, self.pvl)
         return self.__tables
 
+    @property
+    def history(self):
+        """ISIS cube history."""
+        if self.__history is None:
+            self.__history = ISISHistory(self.filename, self.pvl['History'])
+        return self.__history
+
+    @property
+    def orig_lbl(self):
+        """ISIS cube original labels."""
+        if self.__orig_lbl is None:
+            lbl = ISISHistory(self.filename, self.pvl['OriginalLabel'])['QUBE']
+            self.__orig_lbl = lbl
+        return self.__orig_lbl
+
     def keys(self):
         """ISIS labels and tables keys."""
-        return list(self.labels.keys()) + list(self.tables.keys())
+        return set(
+            list(self.labels.keys())
+            + list(self.tables.keys())
+            + list(self.orig_lbl.keys())
+        )
 
     @property
     def header(self):
@@ -324,10 +349,10 @@ class ISISCube:
     @property
     def target_radii(self):
         """Main target radii (km)."""
-        for k, v in self.__pvl['NaifKeywords']:
+        for k, v in self.pvl['NaifKeywords']:
             if 'RADII' in k:
                 return v
-        raise ValueError(f'Target radii not found in the header.')
+        raise ValueError('Target radii not found in the header.')
 
     @property
     def target_radius(self):
