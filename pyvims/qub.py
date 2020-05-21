@@ -45,7 +45,7 @@ class QUB:
 
     def __init__(self, fname, root=None, prefix='v', suffix=''):
         self.img_id = img_id(fname)
-        self.root = str(root)
+        self.root = root
         self.suffix = suffix
         self.prefix = prefix
 
@@ -94,7 +94,7 @@ class QUB:
             return self.core[val]
 
         raise ValueError('\n - '.join([
-            f'Invalid format (1-index). Use:',
+            'Invalid format (1-index). Use:',
             'INT -> Band image',
             '[INT, INT] -> [Sample, Line] spectrum',
         ]))
@@ -115,7 +115,7 @@ class QUB:
         elif not os.path.isdir(root):
             raise OSError(f'Folder `{root}` does not exists.')
 
-        self.__root = root
+        self.__root = str(root)
 
     @property
     def fname(self):

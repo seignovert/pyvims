@@ -61,7 +61,7 @@ class VIMSPixel:
             return self._cube[val][self.j, self.i]
 
         raise VIMSError('\n - '.join([
-            f'Invalid format. Use:',
+            'Invalid format. Use:',
             'INT -> Band image',
             'FLOAT -> Wavelength image',
         ]))
@@ -447,7 +447,7 @@ class VIMSPixels:
             return self.get_pixel(*val)
 
         raise VIMSError('\n - '.join([
-            f'Invalid format. Use:',
+            'Invalid format. Use:',
             '[INT, INT] -> Sample, Line pixel',
         ]))
 

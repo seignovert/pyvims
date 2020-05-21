@@ -134,7 +134,7 @@ class VIMS:
                 return self._rgb(*val)
 
         raise VIMSError('\n - '.join([
-            f'Invalid format. Use:',
+            'Invalid format. Use:',
             'INT -> Band image',
             'FLOAT -> Wavelength image',
             '[INT, INT] -> Sample, Line pixel',
@@ -176,7 +176,7 @@ class VIMS:
         elif not os.path.isdir(root):
             raise OSError(f'Folder `{root}` does not exists.')
 
-        self.__root = root
+        self.__root = str(root)
 
     @property
     def fname(self):
@@ -1649,7 +1649,7 @@ class VIMS:
     @property
     def flyby(self):
         """Cube flyby."""
-        return None if self.target_name == 'SKY' else FLYBYS@self.time
+        return None if self.target_name == 'SKY' else FLYBYS @ self.time
 
     def dist_pt(self, lon_w, lat):
         """Haversine distances between a geographic point and all the pixels."""
