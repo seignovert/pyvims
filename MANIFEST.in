@@ -19,4 +19,5 @@ include tests/data/C1540484434_1_001_ir.cub
 include tests/data/C1540484434_1_002_ir.cub
 include tests/data/C1540484434_1_003_ir.cub
 include tests/data/v1477479472_1.qub
+include tests/data/1787314297_1.qub
 include tests/data/v1815243432_1.qub

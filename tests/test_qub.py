@@ -52,6 +52,11 @@ def test_qub_loader(qub):
     assert qub.raw_back_plane.shape == (4, 272)
     assert qub.raw_side_plane.shape == (4, 352, 4)
 
+    # Get IR hot pixels in the background
+    assert all(qub.ir_hot_pixels() == [
+        105, 119, 124, 168, 239, 240, 275, 306, 317, 331,
+    ])
+
 
 def test_qub_data_mask(qub):
     """Test QUB masked data on NULL."""

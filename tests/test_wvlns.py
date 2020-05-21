@@ -1,15 +1,23 @@
 """Test VIMS wavelength module."""
 
+from pathlib import Path
+
 import numpy as np
 
 from numpy.testing import assert_array_almost_equal as assert_array
 
+from pyvims import QUB
 from pyvims.vars import ROOT_DATA
 from pyvims.wvlns import (BAD_IR_PIXELS, CHANNELS, FWHM, SHIFT,
                           VIMS_IR, VIMS_VIS, WLNS, YEARS,
-                          bad_ir_pixels)
+                          bad_ir_pixels, ir_multiplexer, ir_hot_pixels,
+                          is_hot_pixel, median_spectrum, moving_median,
+                          sample_line_axes)
 
 from pytest import approx, raises
+
+
+DATA = Path(__file__).parent / 'data'
 
 
 def test_vims_csv():
@@ -154,3 +162,173 @@ def test_bad_ir_pixels():
 
     coll = bad_ir_pixels()
     assert len(coll.get_paths()) == len(bads)
+
+
+def test_moving_median():
+    """Test moving median filter."""
+    a = [1, 2, 3, 4, 5]
+    assert_array(moving_median(a, width=1), a)
+
+    assert_array(moving_median(a, width=3),
+                 [1.5, 2, 3, 4, 4.5])
+
+    assert_array(moving_median(a, width=5),
+                 [2, 2.5, 3, 3.5, 4])
+
+    assert_array(moving_median(a, width=2),
+                 [1.5, 2.5, 3.5, 4.5, 5])
+
+    assert_array(moving_median(a, width=4),
+                 [2, 2.5, 3.5, 4, 4.5])
+
+
+def test_is_hot_pixel():
+    """Test hot pixel detector."""
+    # Create random signal
+    signal = np.random.default_rng().integers(20, size=100)
+
+    # Add hot pixels
+    signal[10::20] = 50
+    signal[10::30] = 150
+
+    hot_pix = is_hot_pixel(signal)
+    assert len(hot_pix) == 100
+    assert 3 <= sum(hot_pix) < 6
+    assert all(hot_pix[10::30])
+
+    hot_pix = is_hot_pixel(signal, tol=1.5, frac=90)
+    assert len(hot_pix) == 100
+    assert 6 <= sum(hot_pix) < 12
+    assert all(hot_pix[10::20])
+
+
+def test_sample_line_axes():
+    """Test locatation sample and line axes."""
+    # 2D case
+    assert sample_line_axes((64, 352)) == (0, )
+    assert sample_line_axes((256, 32)) == (1, )
+
+    # 3D case
+    assert sample_line_axes((32, 64, 352)) == (0, 1)
+    assert sample_line_axes((32, 352, 64)) == (0, 2)
+    assert sample_line_axes((352, 32, 64)) == (1, 2)
+
+    # 1D case
+    with raises(TypeError):
+        _ = sample_line_axes((352))
+
+    # No band axis
+    with raises(ValueError):
+        _ = sample_line_axes((64, 64))
+
+
+def test_median_spectrum():
+    """Test the median spectrum extraction."""
+    # 2D cases
+    spectra = [CHANNELS, CHANNELS]
+
+    spectrum = median_spectrum(spectra)  # (2, 352)
+    assert spectrum.shape == (352,)
+    assert spectrum[0] == 1
+    assert spectrum[-1] == 352
+
+    spectrum = median_spectrum(np.transpose(spectra))  # (352, 2)
+    assert spectrum.shape == (352,)
+    assert spectrum[0] == 1
+    assert spectrum[-1] == 352
+
+    # 3D cases
+    spectra = [[CHANNELS, CHANNELS]]
+
+    spectrum = median_spectrum(spectra)  # (1, 2, 352)
+    assert spectrum.shape == (352,)
+    assert spectrum[0] == 1
+    assert spectrum[-1] == 352
+
+    spectrum = median_spectrum(np.moveaxis(spectra, 1, 2))  # (1, 352, 2)
+    assert spectrum.shape == (352,)
+    assert spectrum[0] == 1
+    assert spectrum[-1] == 352
+
+    spectrum = median_spectrum(np.moveaxis(spectra, 2, 0))  # (352, 1, 2)
+    assert spectrum.shape == (352,)
+    assert spectrum[0] == 1
+    assert spectrum[-1] == 352
+
+
+def test_ir_multiplexer():
+    """Test spectrum split in each IR multiplexer."""
+    # Full spectrum
+    spec_1, spec_2 = ir_multiplexer(CHANNELS)
+
+    assert len(spec_1) == 128
+    assert len(spec_2) == 128
+
+    assert spec_1[0] == 97
+    assert spec_1[-1] == 351
+
+    assert spec_2[0] == 98
+    assert spec_2[-1] == 352
+
+    # IR spectrum only
+    spec_1, spec_2 = ir_multiplexer(CHANNELS[96:])
+
+    assert len(spec_1) == 128
+    assert len(spec_2) == 128
+
+    assert spec_1[0] == 97
+    assert spec_1[-1] == 351
+
+    assert spec_2[0] == 98
+    assert spec_2[-1] == 352
+
+    # 2D spectra
+    spectra = [CHANNELS, CHANNELS]
+    spec_1, spec_2 = ir_multiplexer(spectra)
+
+    assert len(spec_1) == 128
+    assert len(spec_2) == 128
+
+    assert spec_1[0] == 97
+    assert spec_1[-1] == 351
+
+    assert spec_2[0] == 98
+    assert spec_2[-1] == 352
+
+    # 3D spectra
+    spectra = [[CHANNELS, CHANNELS]]
+    spec_1, spec_2 = ir_multiplexer(spectra)
+
+    assert len(spec_1) == 128
+    assert len(spec_2) == 128
+
+    assert spec_1[0] == 97
+    assert spec_1[-1] == 351
+
+    assert spec_2[0] == 98
+    assert spec_2[-1] == 352
+
+    # VIS spectrum only
+    with raises(ValueError):
+        _ = ir_multiplexer(CHANNELS[:96])
+
+    # Dimension too high
+    with raises(ValueError):
+        _ = ir_multiplexer([[[CHANNELS]]])
+
+
+def test_ir_hot_pixels():
+    """Test IR hot pixel detector from spectra."""
+    qub = QUB('1787314297_1', root=DATA)
+
+    # 1D spectrum
+    hot_pixels = ir_hot_pixels(qub['BACKGROUND'][0])
+    assert len(hot_pixels) == 10
+    assert_array(hot_pixels,
+                 [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])
+
+    # 2D spectra
+    hot_pixels = ir_hot_pixels(qub['BACKGROUND'])
+    assert len(hot_pixels) == 10
+    assert_array(hot_pixels,
+                 [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])

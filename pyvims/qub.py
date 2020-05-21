@@ -9,6 +9,7 @@ import pvl
 
 from .cassini import img_id
 from .misc import get_md5
+from .wvlns import ir_hot_pixels
 
 
 def _dt(time):
@@ -604,3 +605,25 @@ class QUB:
             np.median(self['BACKGROUND'], axis=0)[None, :, None],
             self.shape_cube,
         )
+
+    def ir_hot_pixels(self, frac=95, tol=2.5):
+        """Locate hot pixel from the background.
+
+        Parameters
+        ----------
+        frac: float, optional
+            Apriori fraction of valid pixels (95 % by default)
+        tol: flat, optional
+            Detection thresold criteria (2.5 by default)
+
+        Returns
+        -------
+        list
+            Sorted list of the channel(s) with hot pixels.
+
+        See Also
+        --------
+        :py:func:`pyvims.wvlns.ir_hot_pixels`
+
+        """
+        return ir_hot_pixels(self['BACKGROUND'], frac=frac, tol=tol)
