@@ -1861,3 +1861,71 @@ class VIMS:
             self._background[:, :, None],
             self.shape,
         )
+
+    def hot_pixels(self, frac=95, tol=2.5):
+        """Locate hot pixel from the background.
+
+        Parameters
+        ----------
+        frac: float, optional
+            Apriori fraction of valid pixels (95 % by default)
+        tol: flat, optional
+            Detection thresold criteria (2.5 by default)
+
+        Returns
+        -------
+        list
+            Sorted list of the channel(s) with hot pixels.
+
+        Raises
+        ------
+        NotImplementedError
+            If the cube is a VISIBLE cube.
+
+        See Also
+        --------
+        :py:func:`pyvims.wvlns.ir_hot_pixels`
+
+        """
+        if self._is_ir:
+            return ir_hot_pixels(self._background, frac=frac, tol=tol)
+
+        raise NotImplementedError(
+            'Hot pixel detection is not implemented for the VISIBLE channel.')
+
+    def w_hot_pixels(self, frac=95, tol=2.5):
+        """Locate the wavelength of the hot pixel from the background.
+
+        Parameters
+        ----------
+        frac: float, optional
+            Apriori fraction of valid pixels (95 % by default)
+        tol: flat, optional
+            Detection thresold criteria (2.5 by default)
+
+        Returns
+        -------
+        list
+            Sorted list of the wavelength(s) with hot pixels.
+
+        Raises
+        ------
+        NotImplementedError
+            If the cube is a VISIBLE cube.
+
+        Note
+        ----
+        The wavelengths of the hot pixel correspond
+        to the cube wavelengths and included the
+        IR-wavelength shift.
+
+        See Also
+        --------
+        :py:func:`hot_pixels`
+
+        """
+        if self._is_ir:
+            return self.wvlns[self.hot_pixels() - 97]
+
+        raise NotImplementedError(
+            'Hot pixel detection is not implemented for the VISIBLE channel.')
