@@ -25,6 +25,7 @@ from .vars import VIMS_DATA_PORTAL
 from .vectors import (angle, azimuth, deg180, hat, hav_dist,
                       lonlat, norm, radec, v_max_dist)
 from .wget import wget
+from .wvlns import ir_hot_pixels
 
 
 def _parse(val):
@@ -1831,3 +1832,32 @@ class VIMS:
         return Star(et=self.et_median,
                     obs=-self._sun_position(self.et_median),  # Observer: Cassini -> Sun
                     **star_obj)
+
+    @property
+    def vis_background(self):
+        """QUB VIS background in DN (NL, 96)."""
+        return self.isis['SideplaneVis']['Value'].reshape(self.NL, 96)
+
+    @property
+    def ir_background(self):
+        """QUB IR background in DN (NL, 256)."""
+        return self.isis['SideplaneIr']['Value'].reshape(self.NL, 256)
+
+    @property
+    def qub_background(self):
+        """QUB original background in DN (NL, 352)."""
+        return np.c_[self.vis_background, self.ir_background]
+
+    @property
+    def _background(self):
+        """Select background based on cube channel (NB, NL)."""
+        return self.ir_background.T if self._is_ir else \
+            self.vis_background.T
+
+    @property
+    def background(self):
+        """Extrapolated background in the sample-axis (NB, NL, NS)."""
+        return np.broadcast_to(
+            self._background[:, :, None],
+            self.shape,
+        )
