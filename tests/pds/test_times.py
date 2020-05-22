@@ -1,7 +1,9 @@
 """Test PDS times modules."""
 
+from datetime import datetime as dt
+
 from pyvims.pds.times import (cassini2utc, cassini_time, dt_date, dt_doy, dt_iso,
-                              pds_folder, pds_time, utc2cassini)
+                              dyear, pds_folder, pds_time, utc2cassini)
 
 
 from pytest import approx, raises
@@ -118,3 +120,14 @@ def test_pds_folder():
     assert pds_folder('2005015T175855') == '2005-015T17:58:55'
     assert pds_folder('2005015T175855_2005016T184233/') == \
         '2005-015T17:58:55 2005-016T18:42:33'
+
+
+def test_dyear():
+    """Test decimal year."""
+    assert dyear('2005-01-01') == 2005.0
+    assert dyear('2005-12-31') == 2005.9973
+    assert dyear('2004-12-31') == 2004.9973
+
+    assert dyear(dt(2005, 1, 1)) == 2005.0
+    assert dyear(dt(2005, 12, 31)) == 2005.9973
+    assert dyear(dt(2004, 12, 31)) == 2004.9973

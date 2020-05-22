@@ -362,3 +362,35 @@ def utc2cassini(time):
     t = pds_time(time)
     timestamp = [_t.timestamp() for _t in t] if isinstance(t, list) else t.timestamp()
     return np.interp(timestamp, CASSINI[1], CASSINI[2])
+
+
+def dyear(time):
+    """Convert datetime to decimal year.
+
+    Parameters
+    ----------
+    time: str or datetime.datetime
+        UTC time or date.
+
+    Returns
+    -------
+    float
+        Decimal year.
+
+    Note
+    ----
+    The resolution is fixed at 1e-4 and take into account leap years.
+
+    Examples
+    --------
+    >>> dyear('2005-01-01')
+    2005.0
+    >>> dyear('2005-12-31')
+    2005.9973
+    >>> dyear('2004-12-31')
+    2004.9973
+
+    """
+    t = pds_time(str(time))
+    frac = (float(t.strftime('%j')) - 1) / float(dt(t.year, 12, 31).strftime('%j'))
+    return np.round(t.year + frac, 4)
