@@ -270,3 +270,58 @@ def cube_interp_filled(xy, data, res, contour, method='cubic'):
         z = np.ma.array(z, mask=m)
 
     return z, grid, extent
+
+
+def lin_interp(x, xp, fp):
+    """Linear interpolation on array.
+
+    Parameters
+    ----------
+    x: int, float or numpy.ndarray
+        K positions to interpolate.
+    xp: numpy.ndarray
+        M data positions.
+    fp: numpy.ndarray
+        N x M data values.
+
+    Returns
+    -------
+    numpy.ndarray
+        K x N values linearly interpolated.
+
+    Raises
+    ------
+    ValueError
+        If any of the input positions is outside
+        the interpolation range
+    IndexError
+        If the data
+
+    Note
+    ----
+    Idea: https://stackoverflow.com/a/43775224
+
+    """
+    if np.min(x) < xp[0]:
+        raise ValueError(f'Outside interpolation range: {np.min(x)} < min = {xp[0]}')
+
+    if np.max(x) > xp[-1]:
+        raise ValueError(f'Outside interpolation range: {np.max(x)} > max = {xp[-1]}')
+
+    if np.ndim(fp) == 1:
+        return np.interp(x, xp, fp)
+
+    _xp, _fp = np.asarray(xp), np.asarray(fp)
+
+    if _xp.shape[0] != _fp.shape[1]:
+        raise IndexError(
+            f'Invalid positions and values shapes: {_xp.shape} vs. {_fp.shape}')
+
+    i = np.arange(_fp.shape[0])
+    j = np.searchsorted(_xp, x) - 1
+    d = (x - _xp[j]) / (_xp[j + 1] - _xp[j])
+
+    if np.ndim(x) > 0:
+        j, d = j[:, None], d[:, None]
+
+    return (1 - d) * _fp[i, j] + d * _fp[i, j + 1]
