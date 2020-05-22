@@ -15,9 +15,12 @@ include pyvims/data/titan_npole_stereo_60_punga_kivu.png
 include pyvims/data/maps/Titan_VIMS_ISS.jpg
 include pyvims/geol/data/Titan_geol_map.png
 
-include tests/data/C1540484434_1_001_ir.cub
-include tests/data/C1540484434_1_002_ir.cub
-include tests/data/C1540484434_1_003_ir.cub
-include tests/data/v1477479472_1.qub
-include tests/data/1787314297_1.qub
-include tests/data/v1815243432_1.qub
+# Calibration files
+include pyvims/calib/data/RC19-VIMS_IR-calibration_multiplier.csv
+include pyvims/calib/data/RC19-VIMS_IR-solar.csv
+include pyvims/calib/data/RC19-VIMS_IR-wave_photon_cal.csv
+include pyvims/calib/data/RC19-VIMS_IR-wavelengths.csv
+include pyvims/calib/data/RC19-VIMS_VIS-calibration_multiplier.csv
+include pyvims/calib/data/RC19-VIMS_VIS-solar.csv
+include pyvims/calib/data/RC19-VIMS_VIS-wave_photon_cal.csv
+include pyvims/calib/data/RC19-VIMS_VIS-wavelengths.csv
