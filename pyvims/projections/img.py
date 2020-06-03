@@ -33,6 +33,6 @@ def index(img, lon_w, lat):
             j = h - 1
     else:
         i[(i >= w) | np.isnan(lon_w)] = w - 1
-        j[np.isnan(lat)] = h - 1
+        j[(j >= h) | np.isnan(lat)] = h - 1
 
     return j, i
