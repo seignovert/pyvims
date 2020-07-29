@@ -86,7 +86,7 @@ class VIMSCameraAbstract:
         elif scale == 3:
             start = offset + swath / 3 - 1 / 3
         else:
-            raise VIMSCameraError(f'Scale value must be 1, 2, or 3.')
+            raise VIMSCameraError('Scale value must be 1, 2, or 3.')
 
         stop = start + (swath - 1) / scale
         return np.linspace(start, stop, swath)

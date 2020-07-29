@@ -26,6 +26,7 @@ from .sky import Sky
 from .stere import Stereographic
 from .globe import globe
 from .path3d import Path3D
+from .img import index
 
 
 __all__ = [
@@ -40,6 +41,7 @@ __all__ = [
     'ortho_cube',
     'equi_cube',
     'globe',
+    'index',
     'polar_cube',
     'sky_cube',
 ]
