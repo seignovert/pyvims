@@ -36,3 +36,46 @@ def index(img, lon_w, lat):
         j[(j >= h) | np.isnan(lat)] = h - 1
 
     return j, i
+
+
+def bg_pole(img, proj, lat_1=60, n=1024):
+    """Polar projection of a background map.
+
+    Parameters
+    ----------
+    img: 2d-array
+        2D geol map image centered at 180°.
+    proj: pyvims.projections.GroundProjection
+        Polar ground projection (``Stereographic`` in most cases).
+    lat_1: float
+        Cut-off latitude.
+    n: int
+        Number of point in the image.
+
+    Returns
+    -------
+    array
+        Projected background image.
+    array
+        Matplotlib image extent.
+
+    """
+    r, _ = proj(-90, lat_1)
+    x = np.broadcast_to(np.linspace(-r, r, n), (n, n))
+    y = np.broadcast_to(np.linspace(-r, r, n)[::-1, None], (n, n))
+    mask = x**2 + y**2 < r**2
+    extent = [-r, r, -r, r]
+
+    if img.dtype == np.uint8:
+        mask = (255 * mask).astype(np.uint8)
+
+    lon_w, lat = proj(x, y, invert=True)
+
+    im = img[index(img, lon_w, lat)]
+
+    if np.ndim(img) == 2:
+        im = np.moveaxis(np.stack([im, im, im, mask]), 0, 2)
+    else:
+        im = np.moveaxis(np.stack([im[:, :, 0], im[:, :, 1], im[:, :, 2], mask]), 0, 2)
+
+    return im, extent

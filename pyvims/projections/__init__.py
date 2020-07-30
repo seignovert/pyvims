@@ -26,7 +26,7 @@ from .sky import Sky
 from .stere import Stereographic
 from .globe import globe
 from .path3d import Path3D
-from .img import index
+from .img import index, bg_pole
 
 
 __all__ = [
@@ -37,6 +37,7 @@ __all__ = [
     'Sky',
     'Stereographic',
     'Path3D',
+    'bg_pole',
     'ortho_proj',
     'ortho_cube',
     'equi_cube',
