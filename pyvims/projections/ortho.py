@@ -23,6 +23,11 @@ class Orthographic(GroundProjection):
     radius: float, optional
         Planet radius [km]. Use the target mean radius if
         the target is a `Planet` object.
+    dtheta: float, optional
+        Limb contour increments [degrees].
+        By default every 5° but can be increased if need.
+        Note: this could lead to a large number of point in
+        the coutour and decrease the performance.
 
     Source
     ------
@@ -32,15 +37,15 @@ class Orthographic(GroundProjection):
     """
 
     EPSILON = 1e-12
-    DTHETA = 5       # Limb contour increments [degrees]
 
     PROJ4 = 'ortho'  # Proj4 projection key
 
-    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=None):
+    def __init__(self, lon_w_0=0, lat_0=0, target=None, radius=None, dtheta=5):
         self.lon_w_0 = lon_w_0
         self.lat_0 = lat_0
         self.target = target
         self.radius = radius
+        self.dtheta = dtheta
 
     @property
     def extent(self):
@@ -209,7 +214,7 @@ class Orthographic(GroundProjection):
                     elif theta_ - _theta < -180:
                         _theta -= 360
 
-                    _dtheta = self.DTHETA * (1 if theta_ < _theta else -1)
+                    _dtheta = self.dtheta * (1 if theta_ < _theta else -1)
                     _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
                     v.extend([
                         (self.r * np.cos(_t), self.r * np.sin(_t))
@@ -238,7 +243,7 @@ class Orthographic(GroundProjection):
             elif theta_ - _theta < -180:
                 _theta -= 360
 
-            _dtheta = self.DTHETA * (1 if theta_ < _theta else -1)
+            _dtheta = self.dtheta * (1 if theta_ < _theta else -1)
             _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
             v.extend([
                 (self.r * np.cos(_t), self.r * np.sin(_t))

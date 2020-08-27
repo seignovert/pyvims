@@ -110,7 +110,7 @@ def test_ortho_npole_path_1(npole):
         (0, 40),
     ]))
 
-    assert npole.DTHETA == 5
+    assert npole.dtheta == 5
     assert len(path.vertices) == 9
 
     assert_array(path.vertices, [
@@ -258,7 +258,7 @@ def test_ortho_spole_path_1(spole):
         (0, -30),
     ]))
 
-    assert spole.DTHETA == 5
+    assert spole.dtheta == 5
     assert len(path.vertices) == 10
 
     assert_array(path.vertices, [
