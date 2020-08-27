@@ -10,6 +10,7 @@ from requests import HTTPError
 from .camera import VIMSCamera
 from .cassini import img_id
 from .contour import VIMSContour
+from .constantes import AU
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
@@ -1023,7 +1024,7 @@ class VIMS:
 
     @property
     def _illumination(self):
-        """Cube local illumination angles (degrees)."""
+        """Cube local illumination angles [degrees]."""
         if self.__ill is None:
             xyz = self._flat(self._xyz)
             sc = self._flat(self._sc_position(self.et)) - xyz
@@ -1038,67 +1039,72 @@ class VIMS:
 
     @property
     def inc(self):
-        """Cube local incidence angle (degrees)."""
+        """Cube local incidence angle [degrees]."""
         return self._illumination[0]
 
     @property
     def eme(self):
-        """Cube local emergence angle (degrees)."""
+        """Cube local emergence angle [degrees]."""
         return self._illumination[1]
 
     @property
     def phase(self):
-        """Cube local phase angle (degrees)."""
+        """Cube local phase angle [degrees]."""
         return self._illumination[2]
 
     @property
     def azi(self):
-        """Cube local azimuthal angle (degrees)."""
+        """Cube local azimuthal angle [degrees]."""
         return self._illumination[3]
 
     @property
     def ground_inc(self):
-        """Incidence angle on the ground (degrees)."""
+        """Incidence angle on the ground [degrees]."""
         return np.ma.array(self.inc, mask=self.limb)
 
     @property
     def ground_eme(self):
-        """Emergence angle on the ground (degrees)."""
+        """Emergence angle on the ground [degrees]."""
         return np.ma.array(self.eme, mask=self.limb)
 
     @property
     def ground_phase(self):
-        """Phase angle on the ground (degrees)."""
+        """Phase angle on the ground [degrees]."""
         return np.ma.array(self.phase, mask=self.limb)
 
     @property
     def ground_azi(self):
-        """Azimuthal angle on the ground (degrees)."""
+        """Azimuthal angle on the ground [degrees]."""
         return np.ma.array(self.azi, mask=self.limb)
 
     @property
     def dist_sc(self):
-        """Intersect point distance to the spacecraft."""
+        """Intersect point distance to the spacecraft [km]."""
         return norm(self._xyz - self._sc_position(self.et))
 
     @property
+    def dist_sun(self):
+        """Average distance to the Sun from the target body center [AU]."""
+        return np.mean(norm(self._sun_position(self.et))) / AU
+
+    @property
     def res_s(self):
-        """Sample pixel resolution at the intersect point."""
+        """Sample pixel resolution at the intersect point [km/pixel]."""
         return self.dist_sc * self.camera.pix_res_x
 
     @property
     def res_l(self):
-        """Line pixel resolution at the intersect point."""
+        """Line pixel resolution at the intersect point [km/pixel]."""
         return self.dist_sc * self.camera.pix_res_y
 
     @property
     def res(self):
-        """Pixels mean resolution at the intersect point."""
+        """Pixels mean resolution at the intersect point [km/pixel]."""
         return self.dist_sc * self.camera.pix_res
 
     @property
     def pix_res(self):
-        """Mean pixels resolution (km/pixel)."""
+        """Mean pixels resolution [km/pixel]."""
         return self._mean([self.res])[0]
 
     @property
