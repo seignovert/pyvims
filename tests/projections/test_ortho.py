@@ -3,10 +3,7 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from matplotlib.path import Path
-
 from pyvims.projections import Orthographic
-from pyvims.projections import Path3D
 
 from pytest import fixture
 
@@ -203,55 +200,6 @@ def test_ortho_lonlat_alt(proj):
         proj([[-2], [0]], [[0], [3]], True, invert=True),
         ([[90], [0]], [[0], [90]], [[1e-3], [2e-3]]),
         decimal=1)
-
-
-def test_ortho_path(proj):
-    """Test orthographic projection on Path."""
-    path = proj(Path([
-        (90, 0),
-        (0, 90),
-        (-90, 0),
-        (0, -90),
-    ]))
-
-    assert len(path.vertices) == 5
-
-    assert_array(path.vertices, [
-        [-1, 0],
-        [0, 1],
-        [1, 0],
-        [0, -1],
-        [-1, 0],  # Added
-    ], decimal=1)
-
-    assert_array(
-        path.codes,
-        [Path.MOVETO] + 3 * [Path.LINETO] + [Path.CLOSEPOLY]
-    )
-
-def test_ortho_path3d(proj):
-    """Test orthographic projection on Path."""
-    path = proj(Path3D([
-        (90, 0),
-        (0, 90),
-        (-90, 0),
-        (0, -90),
-    ], alt=[0, 1e-3, 2e-3, 3e-3]))
-
-    assert len(path.vertices) == 5
-
-    assert_array(path.vertices, [
-        [-1, 0],
-        [0, 2],
-        [3, 0],
-        [0, -4],
-        [-1, 0],  # Added
-    ], decimal=1)
-
-    assert_array(
-        path.codes,
-        [Path.MOVETO] + 3 * [Path.LINETO] + [Path.CLOSEPOLY]
-    )
 
 
 def test_ortho_meridians(proj):

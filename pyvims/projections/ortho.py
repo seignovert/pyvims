@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.path import Path
 
 from .__main__ import GroundProjection
+from ..vectors import hat, lonlat as _lonlat, xyz
 
 
 class Orthographic(GroundProjection):
@@ -30,7 +31,8 @@ class Orthographic(GroundProjection):
 
     """
 
-    EPSILON = 1e-18
+    EPSILON = 1e-12
+    DTHETA = 5       # Limb contour increments [degrees]
 
     PROJ4 = 'ortho'  # Proj4 projection key
 
@@ -68,14 +70,14 @@ class Orthographic(GroundProjection):
 
         g = self.slat0 * slat + self.clat0 * clat * cdlon
 
-        if np.ndim(g) == 0 and g < 0:
+        if np.ndim(g) == 0 and g < -self.EPSILON:
             return None, None  # Far-side
 
         x = self.r * clat * sdlon
         y = self.r * (self.clat0 * slat - self.slat0 * clat * cdlon)
 
         if np.ndim(g) > 0:
-            cond = np.less(g, 0, where=~np.isnan(g)) | np.isnan(g)
+            cond = np.less(g, -self.EPSILON, where=~np.isnan(g)) | np.isnan(g)
             x[cond] = None
             y[cond] = None
 
@@ -153,6 +155,104 @@ class Orthographic(GroundProjection):
 
         return lon_w, lat, alt
 
+    def _limb_gc(self, lon_1, lat_1, lon_2, lat_2):
+        """Calculate the intersection on the limb between 2 points.
+
+        Parameters
+        ----------
+        lon_1: float
+            West longitude of the first point (degree).
+        lat_1: float
+            Latitude of the first point (degree).
+        lon_2: float
+            West longitude of the second point (degree).
+        lat_2: float
+            Latitude of the second point (degree).
+
+        Returns
+        -------
+        float, float
+            Limb intersection.
+
+        """
+        pt0, pt1, pt2 = xyz([self.lon_0, lon_1, lon_2], [self.lat_0, lat_1, lat_2]).T
+        pt = hat(np.cross(pt0, np.cross(pt1, pt2)))
+        return np.round(_lonlat(pt if np.dot(pt1, pt) > 0 else -pt), 9)
+
+    def _limb_vc(self, x, y, lon, lat, codes, mask):
+        """Vertices and codes cut on the limb.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        [(float, flloat), …], [int]
+            Resampled X and Y vertices and path code.
+
+        """
+        v, c = ([], []) if mask[0] else ([(x[0], y[0])], [codes[0]])
+        theta_ = None
+        for i in range(len(lon) - 1):
+            # Limb crossing
+            if mask[i] != mask[i + 1]:
+                _lon, _lat = self._limb_gc(lon[i], lat[i], lon[i + 1], lat[i + 1])
+                _x, _y = self.xy(_lon, _lat)
+                _theta = np.degrees(np.arctan2(_y, _x))
+
+                # Follow the limb if already crossed before
+                if theta_ is None:
+                    theta_ = _theta
+                else:
+                    if theta_ - _theta > 180:
+                        _theta += 360
+                    elif theta_ - _theta < -180:
+                        _theta -= 360
+
+                    _dtheta = self.DTHETA * (1 if theta_ < _theta else -1)
+                    _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
+                    v.extend([
+                        (self.r * np.cos(_t), self.r * np.sin(_t))
+                        for _t in _thetas
+                    ])
+                    c.extend(len(_thetas) * [Path.LINETO])
+                    theta_ = None
+
+                # Add limb intersection
+                v.append((_x, _y))
+                c.append(Path.LINETO)
+
+            # Add next point if not masked
+            if not mask[i + 1]:
+                v.append((x[i + 1], y[i + 1]))
+                c.append(codes[i + 1])
+                theta_ = None
+
+        # Close the polygon if the first point was masked
+        if mask[0]:
+            _x, _y = v[0]
+            _theta = np.degrees(np.arctan2(_y, _x))
+
+            if theta_ - _theta > 180:
+                _theta += 360
+            elif theta_ - _theta < -180:
+                _theta -= 360
+
+            _dtheta = self.DTHETA * (1 if theta_ < _theta else -1)
+            _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
+            v.extend([
+                (self.r * np.cos(_t), self.r * np.sin(_t))
+                for _t in _thetas
+            ])
+            v.append((_x, _y))
+            c.extend((len(_thetas) + 1) * [Path.LINETO])
+
+        # Force codes at the beginning and the end
+        c[0] = Path.MOVETO
+        c[-1] = Path.CLOSEPOLY
+
+        return v, c
+
     def _vc(self, path):
         """Get projected vertices and codes (and close the polygon if needed).
 
@@ -163,28 +263,39 @@ class Orthographic(GroundProjection):
 
         Returns
         -------
-        [float], [float], [int]
+        [(float, flloat), …], [int]
             X and Y vertices and path code.
 
         """
-        x, y = self.xy(*path.vertices.T, alt=path.alt) if hasattr(path, 'alt') else \
-            self.xy(*path.vertices.T)
+        # Extract vertices
+        lon, lat = path.vertices.T
+        alt = path.alt if hasattr(path, 'alt') else None
 
         # Add codes if missing
         if path.codes is None:
-            codes = [Path.MOVETO] + [Path.LINETO] * (len(x) - 2) + [Path.CLOSEPOLY]
+            codes = [Path.MOVETO] + [Path.LINETO] * (len(lon) - 2) + [Path.CLOSEPOLY]
         else:
             codes = path.codes
 
         # Close the path
-        if x[0] != x[-1] or y[0] != y[-1]:
-            x = np.concatenate([x, [x[0]]])
-            y = np.concatenate([y, [y[0]]])
+        if lon[0] != lon[-1] or lat[0] != lat[-1]:
+            lon = np.concatenate([lon, [lon[0]]])
+            lat = np.concatenate([lat, [lat[0]]])
+
+            if alt is not None:
+                alt = np.concatenate([alt, [alt[0]]])
 
             if codes[-1] == Path.CLOSEPOLY:
                 codes = np.concatenate([codes[:-1], [Path.LINETO, Path.CLOSEPOLY]])
             else:
                 codes = np.concatenate([codes, [Path.CLOSEPOLY]])
+
+        x, y = self.xy(lon, lat, alt=alt)
+
+        # Check if any points are masked but not all
+        mask = np.isnan(x)
+        if not all(mask) and not all(~mask) and alt is None:
+            return self._limb_vc(x, y, lon, lat, codes, mask)
 
         return np.transpose([x, y]), codes
 
