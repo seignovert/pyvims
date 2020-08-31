@@ -1,5 +1,5 @@
-Projection data
-===============
+Reprojection basemaps
+=====================
 
 ## Titan ISS
 
@@ -8,7 +8,7 @@ Projection data
 * Extent: `-180° 180° -90° 90°`
 * Projection: `equirectangular`
 
-![Titan ISS](Titan_ISS.jpg)
+![Titan ISS](Titan_ISS.png)
 
 
 ## Titan VIMS-ISS
