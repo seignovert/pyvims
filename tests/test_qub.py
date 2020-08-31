@@ -46,6 +46,11 @@ def test_qub_loader(qub):
 
     assert 'BAND_SUFFIX_ITEM_BYTES' in qub.core
 
+    # Get Wavelengths
+    assert len(qub.wvlns) == 352
+    assert qub.wvlns[0] == qub.w[0] == qub.wvlns_vis[0] == 0.35054
+    assert qub.wvlns[-1] == qub.w[-1] == qub.wvlns_ir[-1] == 5.1225
+
     # Get raw attributes
     assert len(qub.raw_header) == 23552
     assert qub.raw_header[:40] == b'CCSD3ZF0000100000001NJPL3IF0PDS200000001'

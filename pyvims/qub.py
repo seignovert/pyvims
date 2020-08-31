@@ -627,3 +627,23 @@ class QUB:
 
         """
         return ir_hot_pixels(self['BACKGROUND'], frac=frac, tol=tol)
+
+    @property
+    def wvlns(self):
+        """QUB central wavelengths (not corrected from shift)."""
+        return self['BAND_BIN']['BAND_BIN_CENTER']
+
+    @property
+    def w(self):
+        """QUB central wavelengths (not corrected from shift) alias."""
+        return self.wvlns
+
+    @property
+    def wvlns_vis(self):
+        """QUB VIS central wavelengths (not corrected from shift)."""
+        return self.wvlns[:96]
+
+    @property
+    def wvlns_ir(self):
+        """QUB IR central wavelengths (not corrected from shift)."""
+        return self.wvlns[96:]
