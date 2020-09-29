@@ -79,7 +79,7 @@ def xy(lon, lat, center=(0, 0), scale=1, n_pole=True):
     r_lon = np.radians(lon)
     c_lon, s_lon = np.cos(r_lon), np.sin(r_lon)
     r = r_stereo(lat, n_pole=n_pole) * scale
-    return center[0] - r * s_lon, center[1] + r * c_lon
+    return center[0] - r * s_lon, center[1] + r * c_lon * (1 if n_pole else -1)
 
 
 def lonlat(x, y, center=(0, 0), scale=1, n_pole=True):
