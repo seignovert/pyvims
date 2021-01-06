@@ -35,6 +35,8 @@ jobs:
   tests:
     name: Pytest
     runs-on: ubuntu-latest
+    env:
+      PYTEST_ADDOPTS: --color=yes
 
     strategy:
       max-parallel: 3
@@ -58,15 +60,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8 -r tests/requirements.txt
     - name: Lint for errors
       run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
     - name: Install package
       run: pip install .
 
-    - name: Run pytest (no coverage)
+    - name: Run unit-tests (no coverage)
       run: pytest tests/
+
+    - name: Run jupyter notebook tests
+      run: pytest --nbval-lax notebooks/pyvims.ipynb notebooks/VIMS_wvlns.ipynb
+
 
   pypi:
     name: Deploy to PyPI
