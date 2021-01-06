@@ -21,7 +21,7 @@ setup(
     license='BSD',
     keywords=['nasa', 'cassini', 'vims', 'titan'],
     classifiers=[
-        'Development Status:: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience:: Science/Research',
         'Natural Language:: English',
         'License:: OSI Approved:: MIT License',

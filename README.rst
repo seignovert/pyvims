@@ -1,9 +1,11 @@
 PyVIMS
 ======
 
-|Build| |License| |Docker| |Binder|
+|Build| |Python| |Status| |Version| |License|
 
-.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=dev
+|PyPI| |Binder|
+
+.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=main
         :target: https://travis-ci.org/seignovert/pyvims
 .. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
         :target: https://pypi.org/project/pyvims
@@ -13,29 +15,13 @@ PyVIMS
         :target: https://pypi.org/project/pyvims
 .. |License| image:: https://img.shields.io/pypi/l/pyvims.svg?label=License
         :target: https://pypi.org/project/pyvims
-.. |Conda| image:: https://img.shields.io/badge/conda|seignovert-pyvims-blue.svg?logo=python&logoColor=white
-        :target: https://anaconda.org/seignovert/pyvims
 .. |PyPI| image:: https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white
         :target: https://pypi.org/project/pyvims
-.. |Docker| image:: https://img.shields.io/badge/docker-seignovert/pyvims-blue.svg?logo=docker&logoColor=white
-        :target: https://hub.docker.com/r/seignovert/pyvims
 .. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
-        :target: https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb
+        :target: https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb
 
 
 Python package to manipulate the Cassini VIMS data.
-
-
-Pre-requirements
-----------------
-
-If `pyvims` was already install, it is recommended to create a
-new python environnement. For example with conda:
-
-.. code:: bash
-
-    conda create -n pyvims-dev python=3.6
-    conda activate pyvims-dev
 
 
 Install
@@ -43,7 +29,7 @@ Install
 
 .. code:: bash
 
-    pip install --user https://github.com/seignovert/pyvims/archive/dev.zip
+    pip install pyvims
 
 
 Upgrade
@@ -51,7 +37,7 @@ Upgrade
 
 .. code:: bash
 
-    pip install --upgrade --user https://github.com/seignovert/pyvims/archive/dev.zip
+    pip install --upgrade pyvims
 
 
 Examples
@@ -86,19 +72,9 @@ To use, simply do:
     (42, 42)
 
 For more details, take a look to the
-`static Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/dev/notebooks/pyvims.ipynb>`_
+`static Jupyter NoteBook <https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/main/notebooks/pyvims.ipynb>`_
 where more examples of usage are provided. You can also try this
-`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/dev?filepath=notebooks/playground.ipynb>`_.
-
-
-Docker
-------
-
-PyVIMS can be use directly with Docker (without python install):
-
-.. code:: bash
-
-    docker run -it --rm seignovert/pyvims:dev
+`live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb>`_.
 
 
 Disclaimer

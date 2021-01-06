@@ -1,1 +1,1 @@
-https://github.com/seignovert/pyvims/archive/dev.zip
+pyvims
