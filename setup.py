@@ -23,7 +23,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Intended Audience:: Science / Research',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python',
@@ -32,7 +32,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Astronomy',
-        'Topic :: Scientific / Engineering :: Atmospheric Science',
+        'Topic :: Scientific/Engineering :: Atmospheric Science',
     ],
     python_requires='>=3.6',
     install_requires=REQUIREMENTS,
