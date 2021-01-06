@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Set up Python ${{ env.PYTHON }}
       uses: actions/setup-python@v1
@@ -43,7 +43,12 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
+      with:
+        lfs: true
+
+    - name: Checkout LFS objects
+      run: git lfs checkout
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
@@ -71,7 +76,12 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
+      with:
+        lfs: true
+
+    - name: Checkout LFS objects
+      run: git lfs checkout
 
     - name: Set up Python ${{ env.PYTHON }}
       uses: actions/setup-python@v1
@@ -97,13 +107,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@main
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        lfs: true
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+    - name: Checkout LFS objects
+      run: git lfs checkout
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
