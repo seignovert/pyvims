@@ -1,7 +1,7 @@
 """VIMS flyby module."""
 
 from datetime import datetime as dt
-from pytz import UTC
+from datetime import timezone
 
 import numpy as np
 
@@ -102,7 +102,7 @@ class Flyby:
         return False
 
     def __sub__(self, other):
-        return (self.ca.replace(tzinfo=UTC) - other.replace(tzinfo=UTC)).total_seconds()
+        return (self.ca.replace(tzinfo=timezone.utc) - other.replace(tzinfo=timezone.utc)).total_seconds()
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
