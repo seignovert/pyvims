@@ -10,6 +10,7 @@ on:
     paths:
     - '**.py'
     - '!**/__version__.py'
+    - '.github/workflows/actions.yml'
 
 jobs:
   flake8:
