@@ -19,7 +19,7 @@ setup(
     author_email='pyvims@seignovert.fr',
     url='https://github.com/seignovert/pyvims',
     license='BSD',
-    keywords=['nasa', 'cassini', 'vims', 'titan'],
+    keywords=['cassini', 'vims', 'titan'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience:: Science/Research',

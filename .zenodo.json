@@ -1,0 +1,45 @@
+{
+    "title": "PyVIMS",
+    "description": "<p>Python package to manipulate the Cassini VIMS data</p>",
+    "license": "BSD",
+    "upload_type": "software",
+    "access_right": "open",
+    "creators": [
+        {
+            "name": "Benoît Seignovert",
+            "affiliation": "Laboratoire de Planétologie et Géodynamique de Nantes, Nantes, FR",
+            "orcid": "0000-0001-6533-275X"
+        },
+        {
+            "name": "Stéphane Le Mouélic",
+            "affiliation": "Laboratoire de Planétologie et Géodynamique de Nantes, Nantes, FR",
+            "orcid": "0000-0001-5260-1367"
+        },
+        {
+            "name": "Michael Heslar",
+            "affiliation": "University of Idaho: Moscow, ID, US",
+            "orcid": "0000-0002-9304-8657"
+        },
+        {
+            "name": "Daniel Cordier",
+            "affiliation": "Université de Reims, Champagne-Ardenne, Reims, FR",
+            "orcid": "0000-0003-4515-6271"
+        },
+        {
+            "name": "Maélie Coutelier",
+            "affiliation": "Université de Reims, Champagne-Ardenne, Reims, FR",
+            "orcid": "0000-0002-0776-2732"
+        },
+        {
+            "name": "Shannon MacKenzie",
+            "affiliation": "Johns Hopkins University Applied Physics Laboratory: Laurel, MD, US",
+            "orcid": "0000-0002-1658-9687"
+        }
+    ],
+    "keywords": [
+        "Python",
+        "Cassini",
+        "VIMS",
+        "Titan"
+    ]
+}

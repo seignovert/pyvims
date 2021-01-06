@@ -3,7 +3,7 @@ PyVIMS
 
 |Build| |Python| |Status| |Version| |License|
 
-|PyPI| |Binder|
+|PyPI| |Binder| |Zenodo|
 
 .. |Build| image:: https://github.com/seignovert/pyvims/workflows/Github%20Actions/badge.svg
         :target: https://github.com/seignovert/pyvims/actions?query=workflow%3AGithub%20Actions
@@ -19,6 +19,8 @@ PyVIMS
         :target: https://pypi.org/project/pyvims
 .. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
         :target: https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb
+.. |Zenodo| image:: https://zenodo.org/badge/126732857.svg
+        :target: https://zenodo.org/badge/latestdoi/126732857
 
 
 Python package to manipulate the Cassini VIMS data.
@@ -81,3 +83,8 @@ Disclaimer
 ----------
 This project is not supported or endorsed by either JPL or NASA.
 The code is provided "as is", use at your own risk.
+
+Citation
+--------
+If you use this package for your research, please cite it as:
+Seignovert et al.
