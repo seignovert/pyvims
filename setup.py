@@ -15,10 +15,10 @@ setup(
     version='1.0.0-dev',
     description='Python package to manipulate the Cassini VIMS data',
     long_description=README,
-    author='Benoit Seignovert',
+    author='Benoit Seignovert (LPG-Nantes)',
     author_email='pyvims@seignovert.fr',
     url='https://github.com/seignovert/pyvims',
-    license='MIT',
+    license='BSD',
     keywords=['nasa', 'cassini', 'vims', 'titan'],
     classifiers=[
         'Development Status:: 4 - Beta',
