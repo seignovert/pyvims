@@ -1,6 +1,7 @@
 """VIMS flyby module."""
 
 from datetime import datetime as dt
+from pytz import UTC
 
 import numpy as np
 
@@ -28,7 +29,7 @@ class MetaFlybys(type):
     def __matmul__(cls, t):
         """Get the closest."""
         if isinstance(t, str):
-            t = dt.strptime(t, '%Y-%m-%dT%H:%M:%S.%f')
+            t = dt.strptime(t, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=UTC)
 
         delta_t = []
         for flyby in cls.flybys:
@@ -101,7 +102,7 @@ class Flyby:
         return False
 
     def __sub__(self, other):
-        return (self.ca - other).total_seconds()
+        return (self.ca.replace(tzinfo=UTC) - other.replace(tzinfo=UTC)).total_seconds()
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
