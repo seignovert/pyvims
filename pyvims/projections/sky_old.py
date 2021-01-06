@@ -26,7 +26,7 @@ def cs(theta):
 
 def rot_sky(ra, dec, twist):
     """Calculate sky pointing rotation matrix."""
-    (c_r, s_r), (c_d, s_d), (c_t, s_t) = cs(ra), cs(dec), cs(twist/2)
+    (c_r, s_r), (c_d, s_d), (c_t, s_t) = cs(ra), cs(dec), cs(twist / 2)
 
     m1 = np.array([
         [c_d, 0, s_d],

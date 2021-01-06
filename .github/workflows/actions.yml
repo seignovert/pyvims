@@ -1,0 +1,109 @@
+name: Github Actions
+
+env:
+  PACKAGE: pyvims
+  PYTHON: 3.6
+
+on:
+  pull_request:
+  push:
+    paths:
+    - '**.py'
+    - '!**/__version__.py'
+
+jobs:
+  flake8:
+    name: Flake8
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Set up Python ${{ env.PYTHON }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ env.PYTHON }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+    - name: Flake8
+      run: flake8 $PACKAGE/ tests/
+
+  tests:
+    name: Pytest
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 3
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+    - name: Lint for errors
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Install package
+      run: pip install .
+
+    - name: Run pytest (no coverage)
+      run: pytest tests/
+
+  pypi:
+    name: Deploy to PyPI
+    if: contains(github.ref, 'refs/tags/')
+    needs: [flake8, tests]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Set up Python ${{ env.PYTHON }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ env.PYTHON }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel twine
+    - name: Build package
+      run: python setup.py sdist bdist_wheel
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: twine upload $PYPI_REPO dist/*
+
+  release:
+    name: Release to Github
+    needs: pypi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
