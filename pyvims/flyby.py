@@ -29,7 +29,7 @@ class MetaFlybys(type):
     def __matmul__(cls, t):
         """Get the closest."""
         if isinstance(t, str):
-            t = dt.strptime(t, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=UTC)
+            t = dt.strptime(t, '%Y-%m-%dT%H:%M:%S.%f')
 
         delta_t = []
         for flyby in cls.flybys:
@@ -102,7 +102,9 @@ class Flyby:
         return False
 
     def __sub__(self, other):
-        return (self.ca.replace(tzinfo=timezone.utc) - other.replace(tzinfo=timezone.utc)).total_seconds()
+        return (
+            self.ca.replace(tzinfo=timezone.utc) - other.replace(tzinfo=timezone.utc)
+        ).total_seconds()
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
