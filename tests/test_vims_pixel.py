@@ -56,8 +56,8 @@ def test_pixel_err(cube):
 
 def test_pixel_properties(pixel):
     """Test VIMS pixel properties (ground and specular)."""
-    assert pixel == f'1731456416_1-S6_L32'
-    assert pixel != f'1731456416_1-S6_L33'
+    assert pixel == '1731456416_1-S6_L32'
+    assert pixel != '1731456416_1-S6_L33'
 
     assert pixel.s == 6
     assert pixel.l == 32
@@ -65,8 +65,8 @@ def test_pixel_properties(pixel):
     assert pixel.i == 6 - 1
     assert pixel.j == 32 - 1
 
-    assert pixel[352] == pixel@5.13 == pixel['5.13'] == pixel@'352'
-    assert pixel[339:351] == pixel@'4.91:5.11' == approx(0.162, abs=1e-3)
+    assert pixel[352] == pixel @ 5.13 == pixel['5.13'] == pixel @  '352'
+    assert pixel[339:351] == pixel @ '4.91:5.11' == approx(0.162, abs=1e-3)
 
     assert pixel.et == approx(406035298.3, abs=.1)
     assert_array(pixel.j2000, [0.7299, 0.3066, -0.6109], decimal=4)
@@ -106,7 +106,7 @@ def test_pixel_properties(pixel):
 
 def test_limb_pixel_properties_limb(limb_pixel):
     """Test VIMS limb pixel properties (not specular)."""
-    assert str(limb_pixel) == f'1731456416_1-S1_L1'
+    assert str(limb_pixel) == '1731456416_1-S1_L1'
     assert limb_pixel.s == 1
     assert limb_pixel.l == 1
 
@@ -149,14 +149,14 @@ def test_pixel_properties_err(pixel):
 
     # Wavelength invalid
     with raises(VIMSError):
-        _ = pixel@.5
+        _ = pixel @ .5
 
     with raises(VIMSError):
-        _ = pixel@6.
+        _ = pixel @ 6.
 
     # Invalid index
     with raises(VIMSError):
-        _ = pixel@(1, 2, 3)
+        _ = pixel @ (1, 2, 3)
 
 
 def test_pixel_plot(pixel):

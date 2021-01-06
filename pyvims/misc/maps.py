@@ -22,7 +22,7 @@ ROOT = ROOT_DATA / 'maps'
 
 
 def parse(rexp, line):
-    """Parse README line.
+    r"""Parse README line.
 
     Parameters
     ----------
