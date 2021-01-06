@@ -5,8 +5,8 @@ PyVIMS
 
 |PyPI| |Binder|
 
-.. |Build| image:: https://travis-ci.org/seignovert/pyvims.svg?branch=main
-        :target: https://travis-ci.org/seignovert/pyvims
+.. |Build| image:: https://github.com/seignovert/pyvims/workflows/Github%20Actions/badge.svg
+        :target: https://github.com/seignovert/pyvims/actions?query=workflow%3AGithub%20Actions
 .. |Python| image:: https://img.shields.io/pypi/pyversions/pyvims.svg?label=Python
         :target: https://pypi.org/project/pyvims
 .. |Status| image:: https://img.shields.io/pypi/status/pyvims.svg?label=Status
