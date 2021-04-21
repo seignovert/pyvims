@@ -3,7 +3,7 @@ PyVIMS
 
 |Build| |Python| |Status| |Version| |License|
 
-|PyPI| |Binder|
+|PyPI| |Binder| |Zenodo|
 
 .. |Build| image:: https://github.com/seignovert/pyvims/workflows/Github%20Actions/badge.svg
         :target: https://github.com/seignovert/pyvims/actions?query=workflow%3AGithub%20Actions
@@ -79,12 +79,16 @@ where more examples of usage are provided. You can also try this
 `live demo on Binder <https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb>`_.
 
 
+Citation
+--------
+If you use this package for your research, please cite it as:
+
+  B. Seignovert et al - PyVIMS (Version 1.0.2) - `Zenodo`_
+
+.. _`Zenodo`: https://zenodo.org/badge/latestdoi/126732857
+
+
 Disclaimer
 ----------
 This project is not supported or endorsed by either JPL or NASA.
 The code is provided "as is", use at your own risk.
-
-.. Citation
-.. --------
-.. If you use this package for your research, please cite it as:
-.. Seignovert et al.
