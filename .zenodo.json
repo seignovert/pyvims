@@ -1,7 +1,7 @@
 {
     "title": "PyVIMS",
     "description": "<p>Python package to manipulate the Cassini VIMS data</p>",
-    "license": "BSD",
+    "license": "BSD-3-Clause",
     "upload_type": "software",
     "access_right": "open",
     "creators": [
