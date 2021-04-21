@@ -83,7 +83,7 @@ Citation
 --------
 If you use this package for your research, please cite it as:
 
-  B. Seignovert et al - PyVIMS (Version 1.0.2) - `Zenodo`_
+    Seignovert et al. - PyVIMS (Version 1.0.2) - `Zenodo`_
 
 .. _`Zenodo`: https://zenodo.org/badge/latestdoi/126732857
 
