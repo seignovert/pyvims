@@ -547,7 +547,7 @@ class Map:
     @property
     def xright(self):
         """Check if x-axis is positive to the right."""
-        return self.data_extent[0] < self.data_extent[1]
+        return self.data_extent[1] < 0
 
     @property
     def _proj(self):
@@ -588,7 +588,7 @@ class Map:
 
         """
         if self._proj == 'lonlat':
-            return deg180(-np.asarray(lon_w)) if self.xright else deg360(lon_w), lat
+            return deg180(np.asarray(lon_w)) if self.xright else deg360(lon_w), lat
 
         if self._proj == 'stereo':
             return xy_stereo(lon_w, lat, n_pole=self.n_pole)
@@ -693,7 +693,7 @@ class Map:
             13 if npts is None else npts,
         )
 
-        if self.data_extent[0] > self.data_extent[1]:
+        if self.data_extent[1] < 0:
             lons = lons[::-1]  # Revert x-axis
 
         return lons
@@ -754,7 +754,7 @@ class Map:
 
         lons = self.lons(lon_min=lon_min, lon_max=lon_max, npts=npts)
 
-        if self.data_extent[0] < self.data_extent[1]:  # East longitude
+        if self.data_extent[1] < 0:  # East longitude
             labels = [slon_e(-lon) for lon in lons]
         else:
             labels = [slon_w(lon) for lon in lons]
