@@ -534,7 +534,7 @@ class QUB:
 
     def get_img(self, sample, line):
         """Extract sample and line image."""
-        return self.data[self.isample(sample), :, self.iline(line)]
+        return self.data[self.iline(line), :, self.isample(sample)]
 
     def get_spectrum(self, band):
         """Extract band spectrum."""

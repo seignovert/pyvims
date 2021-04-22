@@ -4,7 +4,7 @@ from pathlib import Path
 
 from pyvims.qub import QUB
 
-from pytest import fixture
+from pytest import fixture, raises
 
 
 DATA = Path(__file__).parent / 'data'
@@ -56,6 +56,39 @@ def test_qub_loader(qub):
     assert qub.raw_header[:40] == b'CCSD3ZF0000100000001NJPL3IF0PDS200000001'
     assert qub.raw_back_plane.shape == (4, 272)
     assert qub.raw_side_plane.shape == (4, 352, 4)
+
+    # Get image
+    assert qub[1, 1].shape == (352,)
+    assert qub[16, 1].shape == (352,)
+    assert qub[1, 4].shape == (352,)
+    assert qub[16, 4].shape == (352,)
+
+    with raises(ValueError):
+        _ = qub[0, 0]
+
+    with raises(ValueError):
+        _ = qub[0, 1]
+
+    with raises(ValueError):
+        _ = qub[1, 0]
+
+    with raises(ValueError):
+        _ = qub[17, 1]
+
+    with raises(ValueError):
+        _ = qub[1, 5]
+
+    with raises(ValueError):
+        _ = qub[17, 5]
+
+    # Get spectrum
+    assert qub[96].shape == (4, 16)
+
+    with raises(ValueError):
+        _ = qub[0]
+
+    with raises(ValueError):
+        _ = qub[353]
 
     # Get IR hot pixels in the background
     assert all(qub.ir_hot_pixels() == [
