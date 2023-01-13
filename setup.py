@@ -12,7 +12,7 @@ REQUIREMENTS = (HERE / 'requirements.txt').read_text().split()
 
 setup(
     name='pyvims',
-    version='1.0.4',
+    version='1.0.3',
     description='Python package to manipulate the Cassini VIMS data',
     long_description=README,
     author='Benoit Seignovert (LPG-Nantes)',
@@ -27,9 +27,10 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Atmospheric Science',
