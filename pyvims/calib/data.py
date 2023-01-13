@@ -54,7 +54,7 @@ class VIMSCalibData(type):
 
     def _load_data(cls, vis=False):
         """Load csv data."""
-        years, *data = np.loadtxt(cls.csv(vis=vis), delimiter=', ', unpack=True)
+        years, *data = np.genfromtxt(cls.csv(vis=vis), delimiter=', ', unpack=True)
         return years, data
 
 

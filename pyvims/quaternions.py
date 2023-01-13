@@ -29,7 +29,7 @@ def is_rot(m):
     if shape[0] != shape[1]:
         return False
 
-    is_ortho = np.allclose(np.dot(m, np.transpose(m)), np.identity(shape[0], np.float))
+    is_ortho = np.allclose(np.dot(m, np.transpose(m)), np.identity(shape[0], np.float64))
     is_det_1 = np.allclose(np.linalg.det(m), 1)
     return is_ortho and is_det_1
 

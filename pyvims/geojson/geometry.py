@@ -40,7 +40,7 @@ class Geometry(GeoJson):
             If the collection dimension is invalid (<1 or >3)
 
         """
-        coord = np.asarray(values)
+        coord = np.asarray(values, dtype=object)
         ndim = coord.ndim
 
         if ndim < 1:
@@ -48,7 +48,7 @@ class Geometry(GeoJson):
         if ndim > 3:
             raise ValueError('Coordinates must have a dimension <= 3')
 
-        if ndim == 1 and coord.dtype.char != 'O':
+        if ndim == 1 and np.ndim(coord[0]) == 0:
             self.type = 'Point'
         elif ndim == 2:
             self.type = 'LineString'
