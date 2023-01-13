@@ -23,19 +23,20 @@ def index(img, lon_w, lat):
     """
     h, w = np.shape(img)[:2]
 
-    i = np.round(np.multiply(-1, lon_w) % 360 * w / 360).astype(int)
-    j = np.round(np.subtract(90, lat) * h / 180).astype(int)
+    i = np.round(np.multiply(-1, lon_w) % 360 * w / 360)
+    j = np.round(np.subtract(90, lat) * h / 180)
 
     if np.ndim(lon_w) == 0:
         if i >= w or np.isnan(lon_w):
             i = w - 1
         if np.isnan(lat):
             j = h - 1
-    else:
-        i[(i >= w) | np.isnan(lon_w)] = w - 1
-        j[(j >= h) | np.isnan(lat)] = h - 1
+        return int(j), int(i)
 
-    return j, i
+    i[(i >= w) | np.isnan(lon_w)] = w - 1
+    j[(j >= h) | np.isnan(lat)] = h - 1
+
+    return j.astype(int), i.astype(int)
 
 
 def bg_pole(img, proj, lat_1=60, n=1024):

@@ -224,7 +224,8 @@ class Sky(Projection):
         u = np.divide(u, norm)
 
         v = np.dot(self.m.T, u)
-        ra = np.degrees(np.arctan2(v[1], v[0])) % 360
+        d, i = np.modf(np.degrees(np.arctan2(v[1], v[0])))
+        ra = np.mod(i, 360) + d
         dec = np.degrees(np.arcsin(v[2]))
 
         if shape is not None:
