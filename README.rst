@@ -64,7 +64,7 @@ To use, simply do:
     - Main target: TITAN
     - Flyby: T3
 
-    >>> cub.time
+    >>> cube.time
     datetime.datetime(2005, 2, 14, 18, 5, 0, 976500)
 
     >>> cube.target_name
