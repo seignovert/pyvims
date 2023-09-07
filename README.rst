@@ -24,6 +24,16 @@ PyVIMS
 .. |Binder| image:: https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal
         :target: https://mybinder.org/v2/gh/seignovert/pyvims/master?filepath=playground.ipynb
 
+----
+
+.. pull-quote::
+      **Warning**
+
+      **This version is no longer supported**
+
+      Please use `the latest version of pyvims <https://nbviewer.jupyter.org/github/seignovert/pyvims>`_ (``>1.0``) in the main branch.
+
+----
 
 Python package to manipulate the Cassini VIMS data.
 
