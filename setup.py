@@ -12,7 +12,7 @@ REQUIREMENTS = (HERE / 'requirements.txt').read_text().split()
 
 setup(
     name='pyvims',
-    version='1.0.4',
+    version='1.0.5',
     description='Python package to manipulate the Cassini VIMS data',
     long_description=README,
     author='Benoit Seignovert (LPG-Nantes)',
