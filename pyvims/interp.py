@@ -204,7 +204,12 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
         m = mask(grid, contour)
 
         if np.ndim(data) == 3:
-            z = np.moveaxis([z[:, :, 0], z[:, :, 1], z[:, :, 2], 255 * np.int8(~m)], 0, 2)
+            z = np.moveaxis([
+                z[:, :, 0],
+                z[:, :, 1],
+                z[:, :, 2],
+                255 * np.uint8(~m),
+            ], 0, 2)
         else:
             z = np.ma.array(z, mask=m)
 
@@ -264,7 +269,7 @@ def cube_interp_filled(xy, data, res, contour, method='cubic'):
 
     if np.ndim(data) == 3:
         # Add alpha channel outside the contour
-        z = rgba(z[:, :, 0], z[:, :, 1], z[:, :, 2], np.int8(~m))
+        z = rgba(z[:, :, 0], z[:, :, 1], z[:, :, 2], np.uint8(~m))
     else:
         # Mask the data outside the contour
         z = np.ma.array(z, mask=m)

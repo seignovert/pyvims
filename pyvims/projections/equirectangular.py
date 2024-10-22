@@ -147,7 +147,7 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
             gz_interp[:, :, 0],
             gz_interp[:, :, 1],
             gz_interp[:, :, 2],
-            255 * np.int8(~m)
+            255 * np.uint8(~m),
         ], 0, 2)
     else:
         z_mask = np.ma.array(gz_interp, mask=m)

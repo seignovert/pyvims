@@ -106,7 +106,7 @@ def sky_pixels(radec, m_sky):
 
     """
     s = np.shape(radec)
-    npix = int(np.product(s) / 2)
+    npix = int(np.prod(s) / 2)
     pix = xy(*np.reshape(radec, (2, npix)), m_sky)
     return np.reshape(pix, s)
 
@@ -147,7 +147,7 @@ def sky_grid(grid, m_sky):
 
     """
     s = np.shape(grid)
-    npix = int(np.product(s) / 2)
+    npix = int(np.prod(s) / 2)
     x, y = np.reshape(grid, (2, npix))
     return radec(x, y, m_sky).reshape(s)
 

@@ -297,10 +297,10 @@ class VIMS:
         Returns
         -------
         np.array
-            Flattenned array.
+            Flattened array.
 
         """
-        ndim = int(np.product(np.shape(array)) / self.NP)
+        ndim = int(np.prod(np.shape(array)) / self.NP)
         return np.reshape(array, (ndim, self.NP))
 
     def _grid(self, array):
@@ -317,7 +317,7 @@ class VIMS:
             Gridded array.
 
         """
-        ndim = int(np.product(np.shape(array)) / self.NP)
+        ndim = int(np.prod(np.shape(array)) / self.NP)
         return np.reshape(array, (ndim, self.NL, self.NS))
 
     @staticmethod
