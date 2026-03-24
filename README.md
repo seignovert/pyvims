@@ -87,5 +87,7 @@ uv run pytest --nbval-lax notebooks/
 
 ## Disclaimer
 
-This project is not supported or endorsed by either JPL or NASA. The
-code is provided "as is", use at your own risk.
+This project is distributed under BSD 3-Clause open-source license.
+Don't forget to [cite this package](#citation) if you use it.
+Note that this project is not supported or endorsed neither by JPL, NASA nor ESA.
+The code is provided "as is", use at your own risk.
