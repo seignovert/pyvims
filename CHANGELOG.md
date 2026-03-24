@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ### Added
 - A CHANGELOG 🙌
+- PyVIMS is now available on [conda-forge](https://anaconda.org/conda-forge/pyvims)
 
 ### Changed
 - Remove `setup.py` and `setup.cfg` in favor of `pyproject.toml`.

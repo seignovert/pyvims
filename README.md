@@ -7,6 +7,7 @@
 [![License](https://img.shields.io/pypi/l/pyvims.svg?label=License)](https://pypi.org/project/pyvims)
 
 [![PyPI](https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white)](https://pypi.org/project/pyvims)
+[![Conda-Forge](https://img.shields.io/badge/conda--forge-pyvims-blue.svg?logo=condaforge&logoColor=white)](https://anaconda.org/conda-forge/pyvims)
 [![Binder](https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal)](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb)
 [![Zenodo](https://zenodo.org/badge/126732857.svg)](https://zenodo.org/badge/latestdoi/126732857)
 
@@ -17,16 +18,9 @@ Python package to manipulate the Cassini VIMS data.
 ``` bash
 pip install pyvims
 ```
+PyVIMS is also distribute in [conda-forge](https://anaconda.org/conda-forge/pyvims).
 
-## Upgrade
-
-``` bash
-pip install --upgrade pyvims
-```
-
-## Examples
-
-To use, simply do:
+## Get started
 
 ``` python
 >>> from pyvims import VIMS
@@ -79,7 +73,7 @@ git clone https://github.com/seignovert/pyvims
 cd pyvims
 ```
 
-Lint the content of the project with `flake8`:
+Lint the content of the project with `ruff`:
 ```bash
 uv run ruff check
 uv run ruff format
