@@ -55,9 +55,10 @@ pds = "pyvims.pds.cli:cli"
 
 [tool.setuptools.package-data]
 pyvims = [
-    "calib/*",
+    "calib/data/*.csv",
     "data/*",
-    "geol/*",
+    "data/maps/*.jpg",
+    "geol/data/*.png",
 ]
 
 [tool.uv]
