@@ -51,8 +51,11 @@ class Stereographic(GroundProjection):
             X-Y map coordinates.
 
         """
-        if np.ndim(lat) == 0 and np.ndim(lon_w) == 0 \
-                and np.abs(lat + self.lat_0) <= self.EPSILON:
+        if (
+            np.ndim(lat) == 0
+            and np.ndim(lon_w) == 0
+            and np.abs(lat + self.lat_0) <= self.EPSILON
+        ):
             return None, None  # Anti-origin point
 
         clat, slat = self._cs(lat)

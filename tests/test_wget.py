@@ -1,16 +1,16 @@
 """Test wget module."""
 
-from pyvims.wget import domain, url_exists, wget_txt
-
 from pytest import fixture, raises
 
 from requests import HTTPError
+
+from pyvims.wget import domain, url_exists, wget_txt
 
 
 @fixture
 def html():
     """Mock HTML content."""
-    return '''<!DOCTYPE html>
+    return """<!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Document</title>
@@ -22,18 +22,24 @@ def html():
         and with an internal <a href="/internal.html">link</a>.
     </p>
 </body>
-</html>'''
+</html>"""
 
 
 def test_wget_domain():
     """Test domain from url."""
 
-    assert domain('https://pds-imaging.jpl.nasa.gov/volumes/vims.html') == \
-        'https://pds-imaging.jpl.nasa.gov/'
-    assert domain('http://pds-imaging.jpl.nasa.gov/volumes/vims.html') == \
-        'http://pds-imaging.jpl.nasa.gov/'
-    assert domain('/pds-imaging.jpl.nasa.gov/volumes/vims.html') == \
-        '/pds-imaging.jpl.nasa.gov/'
+    assert (
+        domain('https://pds-imaging.jpl.nasa.gov/volumes/vims.html')
+        == 'https://pds-imaging.jpl.nasa.gov/'
+    )
+    assert (
+        domain('http://pds-imaging.jpl.nasa.gov/volumes/vims.html')
+        == 'http://pds-imaging.jpl.nasa.gov/'
+    )
+    assert (
+        domain('/pds-imaging.jpl.nasa.gov/volumes/vims.html')
+        == '/pds-imaging.jpl.nasa.gov/'
+    )
 
     with raises(ValueError):
         _ = domain('pds-imaging.jpl.nasa.gov/volumes/vims.html')
@@ -46,7 +52,7 @@ def test_wget_domain():
 
 
 def test_wget_txt(requests_mock, html):
-    '''Test wget text with requests.'''
+    """Test wget text with requests."""
     requests_mock.get('https://domain.tld/txt.html', text=html, status_code=200)
 
     txt = wget_txt('https://domain.tld/txt.html')
@@ -62,11 +68,14 @@ def test_wget_txt(requests_mock, html):
 
 
 def test_url_exists(requests_mock):
-    '''Test wget text with requests.'''
+    """Test wget text with requests."""
     requests_mock.head('https://domain.tld/txt.html', status_code=200)
     requests_mock.head('https://domain.tld/404-not-found', status_code=404)
-    requests_mock.head('https://domain.tld/302-redirect', status_code=302,
-                       headers={'location': 'https://domain.tld/txt.html'})
+    requests_mock.head(
+        'https://domain.tld/302-redirect',
+        status_code=302,
+        headers={'location': 'https://domain.tld/txt.html'},
+    )
 
     assert url_exists('https://domain.tld/txt.html')
     assert not url_exists('https://domain.tld/404-not-found')

@@ -13,6 +13,7 @@ from ..pds.times import dyear
 
 class VIMSCalibData(type):
     """Abstract VIMS data."""
+
     name = None
     __vis = None
     __ir = None
@@ -60,17 +61,23 @@ class VIMSCalibData(type):
 
 class Multiplier(metaclass=VIMSCalibData):
     """VIMS calibration multiplier."""
+
     name = 'calibration_multiplier'
 
 
 class SolarFlux(metaclass=VIMSCalibData):
     """VIMS calibration solar flux."""
+
     name = 'solar'
+
 
 class Efficiency(metaclass=VIMSCalibData):
     """VIMS calibration efficiency (photon calibration)."""
+
     name = 'wave_photon_cal'
+
 
 class Wavelengths(metaclass=VIMSCalibData):
     """VIMS calibration wavelengths."""
+
     name = 'wavelengths'

@@ -64,23 +64,29 @@ def cube_click(cube, index=2.03, figsize=(12, 12)):
 
     return pixels
 
-def map_click(cube, index=2.03, figsize=(12, 6),
-              lon_min=0, lon_max=360,
-              lat_min=-90, lat_max=90,
-              bg='VIMS_ISS',
-              ):
+
+def map_click(
+    cube,
+    index=2.03,
+    figsize=(12, 6),
+    lon_min=0,
+    lon_max=360,
+    lat_min=-90,
+    lat_max=90,
+    bg='VIMS_ISS',
+):
     """Interactive equirectangular projected map."""
     pixels = []
 
     fig, ax = plt.subplots(1, 1, figsize=figsize)
-    fig.subplots_adjust(right=.85)
+    fig.subplots_adjust(right=0.85)
 
     if bg:
         bgmap = MAPS[f'{cube.target_name}_{bg}']
         ax.imshow(bgmap, extent=[180, -180, -90, 90])
         ax.imshow(bgmap, extent=[180 + 360, -180 + 360, -90, 90])
 
-    ax.add_patch(cube.patches(color='gray', alpha=.25))
+    ax.add_patch(cube.patches(color='gray', alpha=0.25))
 
     ax.set_xlim(lon_min, lon_max)
     ax.set_ylim(lat_min, lat_max)
@@ -100,10 +106,11 @@ def map_click(cube, index=2.03, figsize=(12, 6),
 
                 color = plt.cm.tab10(len(pixels) - 1)
 
-                ax.scatter(*pixel.lonlat, c=color,
-                           label=f'{lon_w:.1f}°W, {lat:.1f}°N', s=10)
-                ax.add_patch(pixel.patch(alpha=.5, color=color))
-                ax.legend(bbox_to_anchor=(1.2, .75), frameon=False)
+                ax.scatter(
+                    *pixel.lonlat, c=color, label=f'{lon_w:.1f}°W, {lat:.1f}°N', s=10
+                )
+                ax.add_patch(pixel.patch(alpha=0.5, color=color))
+                ax.legend(bbox_to_anchor=(1.2, 0.75), frameon=False)
 
     fig.canvas.mpl_connect('button_release_event', on_release)
 

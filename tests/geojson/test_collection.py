@@ -1,9 +1,9 @@
 """Test GeoJson feature collection module."""
 
+from pytest import fixture
+
 from pyvims.geojson import Feature
 from pyvims.geojson.collection import FeatureCollection
-
-from pytest import fixture
 
 
 @fixture
@@ -22,7 +22,8 @@ def test_collection(feature):
         '{"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {"id": 123, "name": "foo"}'
-        '}')
+        '}'
+    )
 
     assert dict(collection[0]) == {
         'type': 'Feature',
@@ -30,10 +31,7 @@ def test_collection(feature):
             'type': 'Point',
             'coordinates': [30, 10],
         },
-        'properties': {
-            'id': 123,
-            'name': 'foo'
-        },
+        'properties': {'id': 123, 'name': 'foo'},
     }
 
     assert collection == (
@@ -41,21 +39,24 @@ def test_collection(feature):
         '"features": [{"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {"id": 123, "name": "foo"}'
-        '}]}')
+        '}]}'
+    )
 
     assert dict(collection) == {
         'type': 'FeatureCollection',
-        'features': [{
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [30, 10],
-            },
-            'properties': {
-                'id': 123,
-                'name': 'foo',
-            },
-        }],
+        'features': [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [30, 10],
+                },
+                'properties': {
+                    'id': 123,
+                    'name': 'foo',
+                },
+            }
+        ],
     }
 
     # Two features
@@ -67,7 +68,8 @@ def test_collection(feature):
         '{"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {"id": 123, "name": "foo"}'
-        '}')
+        '}'
+    )
 
     assert collection == (
         '{"type": "FeatureCollection", '
@@ -77,29 +79,33 @@ def test_collection(feature):
         '}, {"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {"id": 123, "name": "foo"}'
-        '}]}')
+        '}]}'
+    )
 
     assert dict(collection) == {
         'type': 'FeatureCollection',
-        'features': [{
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [30, 10],
+        'features': [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [30, 10],
+                },
+                'properties': {
+                    'id': 123,
+                    'name': 'foo',
+                },
             },
-            'properties': {
-                'id': 123,
-                'name': 'foo',
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [30, 10],
+                },
+                'properties': {
+                    'id': 123,
+                    'name': 'foo',
+                },
             },
-        }, {
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [30, 10],
-            },
-            'properties': {
-                'id': 123,
-                'name': 'foo',
-            },
-        }],
+        ],
     }

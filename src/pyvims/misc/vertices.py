@@ -40,10 +40,10 @@ def path_lonlat(path):
     if n_cross == 0:
         return path
 
-    elif n_cross == 1:
+    if n_cross == 1:
         return path_lonlat_pole(lon, lat, cross)
 
-    elif n_cross == 2:
+    if n_cross == 2:
         return path_lonlat_cross(lon, lat)
 
     raise ValueError('Path vertices cross more than 2 time the split meridian.')
@@ -74,8 +74,7 @@ def path_lonlat_pole(lon, lat, cross):
         if cross[i]:
             _lon = 0 if lon[i] + lon[i + 1] >= 180 else 180
 
-            _lat = great_circle_lat(_lon, lon[i], lat[i],
-                                    lon[i + 1], lat[i + 1])
+            _lat = great_circle_lat(_lon, lon[i], lat[i], lon[i + 1], lat[i + 1])
 
             if lon[i + 1] < lon[i]:
                 _lon_1, _lon_2 = (360, 0) if _lon == 0 else (180, -180)
@@ -120,14 +119,12 @@ def path_lonlat_cross(lon, lat):
         if l_lon[i] < _lon_l and l_lon[i + 1] < _lon_l:
             continue
 
-        else:
-            if l_lon[i] >= _lon_l:
-                l_verts.append([l_lon[i], lat[i]])
+        if l_lon[i] >= _lon_l:
+            l_verts.append([l_lon[i], lat[i]])
 
-            if l_lon[i] < _lon_l or l_lon[i + 1] < _lon_l:
-                _lat = great_circle_lat(_lon_l, l_lon[i], lat[i],
-                                        l_lon[i + 1], lat[i + 1])
-                l_verts.append([_lon_l, _lat])
+        if l_lon[i] < _lon_l or l_lon[i + 1] < _lon_l:
+            _lat = great_circle_lat(_lon_l, l_lon[i], lat[i], l_lon[i + 1], lat[i + 1])
+            l_verts.append([_lon_l, _lat])
 
     # Right polygon
     r_verts = []
@@ -136,14 +133,12 @@ def path_lonlat_cross(lon, lat):
         if r_lon[i] > _lon_r and r_lon[i + 1] > _lon_r:
             continue
 
-        else:
-            if r_lon[i] <= _lon_r:
-                r_verts.append([lon[i], lat[i]])
+        if r_lon[i] <= _lon_r:
+            r_verts.append([lon[i], lat[i]])
 
-            if r_lon[i] > _lon_r or r_lon[i + 1] > _lon_r:
-                _lat = great_circle_lat(_lon_r, r_lon[i], lat[i],
-                                        r_lon[i + 1], lat[i + 1])
-                r_verts.append([_lon_r, _lat])
+        if r_lon[i] > _lon_r or r_lon[i + 1] > _lon_r:
+            _lat = great_circle_lat(_lon_r, r_lon[i], lat[i], r_lon[i + 1], lat[i + 1])
+            r_verts.append([_lon_r, _lat])
 
     return _merge(l_verts, r_verts)
 
@@ -160,8 +155,14 @@ def _merge(lv, rv):
     else:
         raise ValueError(f'Right vertice size invalid: `{len(rv)}`')
 
-    codes = ([Path.MOVETO] + [Path.LINETO] * (len(lv) - 2) + [Path.CLOSEPOLY]
-             + [Path.MOVETO] + [Path.LINETO] * (len(rv) - 2) + [Path.CLOSEPOLY])
+    codes = (
+        [Path.MOVETO]
+        + [Path.LINETO] * (len(lv) - 2)
+        + [Path.CLOSEPOLY]
+        + [Path.MOVETO]
+        + [Path.LINETO] * (len(rv) - 2)
+        + [Path.CLOSEPOLY]
+    )
 
     return Path(np.vstack([lv, rv]), codes)
 
@@ -171,7 +172,7 @@ def area(vertices):
     x, y = np.transpose(vertices)
     y1 = np.array([*y[1:], y[0]])
     x2 = np.array([*x[2:], *x[:2]])
-    return .5 * np.abs(np.sum((x2 - x) * y1))
+    return 0.5 * np.abs(np.sum((x2 - x) * y1))
 
 
 def path_gc_lonlat(path, npt=8):
@@ -198,8 +199,10 @@ def path_gc_lonlat(path, npt=8):
     lon, lat = path.vertices.T
     nv = len(lon) - 1
 
-    gc = [great_circle_arc(lon[i], lat[i], lon[i + 1], lat[i + 1], npt=npt)
-          for i in range(nv)]
+    gc = [
+        great_circle_arc(lon[i], lat[i], lon[i + 1], lat[i + 1], npt=npt)
+        for i in range(nv)
+    ]
 
     vertices = np.reshape(np.stack(gc, axis=1), (2, nv * npt)).T
     codes = [Path.MOVETO] + [Path.LINETO] * (nv * npt - 2) + [Path.CLOSEPOLY]

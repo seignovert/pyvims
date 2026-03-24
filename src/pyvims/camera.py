@@ -122,19 +122,19 @@ class VIMSCameraAbstract:
         x, y = self._x, self._y
         xl, xr, yt, yb = x[0], x[-1], y[0], y[-1]
 
-        ex, ey = .5 / np.array(self.scale)         # Edges
+        ex, ey = 0.5 / np.array(self.scale)  # Edges
         dx, dy = ex / np.sqrt(2), ey / np.sqrt(2)  # Ellipse corners
 
         return np.hstack([
-            [[xl - dx], [yt - dy]],               # Top-Left corner
-            [x, self.swath_x * [yt - ey]],        # Top edge
-            [[xr + dx], [yt - dy]],               # Top-Right corner
-            [self.swath_y * [xr + ex], y],        # Right edge
-            [[xr + dx], [yb + dy]],               # Bottom-Right corner
+            [[xl - dx], [yt - dy]],  # Top-Left corner
+            [x, self.swath_x * [yt - ey]],  # Top edge
+            [[xr + dx], [yt - dy]],  # Top-Right corner
+            [self.swath_y * [xr + ex], y],  # Right edge
+            [[xr + dx], [yb + dy]],  # Bottom-Right corner
             [x[::-1], self.swath_x * [yb + ey]],  # Bottom edge
-            [[xl - dx], [yb + dy]],               # Bottom-Left corner
+            [[xl - dx], [yb + dy]],  # Bottom-Left corner
             [self.swath_y * [xl - ex], y[::-1]],  # Left edge
-            [[xl - dx], [yt - dy]],               # Top-Left corner
+            [[xl - dx], [yt - dy]],  # Top-Left corner
         ])
 
     @property
@@ -155,7 +155,7 @@ class VIMSCameraAbstract:
         """
         x, y = self._x, self._y
 
-        cx, cy = .5 / np.array(self.scale)  # Rectangle corners
+        cx, cy = 0.5 / np.array(self.scale)  # Rectangle corners
 
         tl = np.meshgrid(x - cx, y - cy)
         tr = np.meshgrid(x + cx, y - cy)
@@ -187,7 +187,7 @@ class VIMSCameraAbstract:
         """
         x, y = self._x, self._y
 
-        ex, ey = .5 / np.array(self.scale)         # Edges
+        ex, ey = 0.5 / np.array(self.scale)  # Edges
         dx, dy = ex / np.sqrt(2), ey / np.sqrt(2)  # Ellipse corners
 
         l = np.meshgrid(x - ex, y)
@@ -205,10 +205,12 @@ class VIMSCameraAbstract:
     @property
     def extent(self):
         """Camera grid extent."""
-        return [self._x[0] - .5 / self.scale_x,
-                self._x[-1] + .5 / self.scale_x,
-                self._y[-1] + .5 / self.scale_y,
-                self._y[0] - .5 / self.scale_y]
+        return [
+            self._x[0] - 0.5 / self.scale_x,
+            self._x[-1] + 0.5 / self.scale_x,
+            self._y[-1] + 0.5 / self.scale_y,
+            self._y[0] - 0.5 / self.scale_y,
+        ]
 
     def xy2ang(self, x, y):
         """Convert pixel coordinates in camera look vector.
@@ -234,11 +236,14 @@ class VIMSCameraAbstract:
             x, y = np.reshape(x, s), np.reshape(y, s)
 
         phi, theta = (np.array([x, y]) - self.BORESITE) * self.PIXEL_SIZE
-        return np.reshape([
-            np.cos(theta) * np.sin(phi),
-            np.sin(theta),
-            np.cos(theta) * np.cos(phi),
-        ], shape)
+        return np.reshape(
+            [
+                np.cos(theta) * np.sin(phi),
+                np.sin(theta),
+                np.cos(theta) * np.cos(phi),
+            ],
+            shape,
+        )
 
     @property
     def pixels(self):
@@ -352,12 +357,15 @@ class VIMSCamera:
     def __new__(cls, channel, mode, offsets, swaths):
 
         if channel not in ['VIS', 'IR']:
-            raise VIMSCameraError(f'Unknown channel `{channel}`. '
-                                  'Only `VIS` and `IR` are available')
+            raise VIMSCameraError(
+                f'Unknown channel `{channel}`. Only `VIS` and `IR` are available'
+            )
 
         if mode not in ['NORMAL', 'HI-RES']:
-            raise VIMSCameraError(f'Unknown sampling mode `{mode}`. '
-                                  'Only `NORMAL` and `HI-RES` are available')
+            raise VIMSCameraError(
+                f'Unknown sampling mode `{mode}`. '
+                'Only `NORMAL` and `HI-RES` are available'
+            )
 
         if mode == 'NORMAL' and channel == 'IR':
             return VIMSCameraIr(offsets, swaths)

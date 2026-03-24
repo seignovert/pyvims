@@ -1,8 +1,9 @@
 """Test planet module."""
 
+from pytest import raises
+
 from pyvims.planets import PLANETS
 
-from pytest import raises
 
 def test_planets_list():
     """Test planets list."""

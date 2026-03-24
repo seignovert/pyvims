@@ -1,9 +1,10 @@
 """Abstract planet type."""
 
+
 class Planet(type):
     """Abstract Planet object."""
 
-    MEAN_RADIUS = (None, None)                          # [km] ± err [km]
+    MEAN_RADIUS = (None, None)  # [km] ± err [km]
     RADII = ((None, None), (None, None), (None, None))  # [km] ± err [km]
 
     def __str__(cls):

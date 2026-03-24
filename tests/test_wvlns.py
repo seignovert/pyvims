@@ -3,18 +3,29 @@
 from pathlib import Path
 
 import numpy as np
-
 from numpy.testing import assert_array_almost_equal as assert_array
+
+from pytest import approx, raises
 
 from pyvims import QUB
 from pyvims.vars import ROOT_DATA
-from pyvims.wvlns import (BAD_IR_PIXELS, CHANNELS, FWHM, SHIFT,
-                          VIMS_IR, VIMS_VIS, WLNS, YEARS,
-                          bad_ir_pixels, ir_multiplexer, ir_hot_pixels,
-                          is_hot_pixel, median_spectrum, moving_median,
-                          sample_line_axes)
-
-from pytest import approx, raises
+from pyvims.wvlns import (
+    BAD_IR_PIXELS,
+    CHANNELS,
+    FWHM,
+    SHIFT,
+    VIMS_IR,
+    VIMS_VIS,
+    WLNS,
+    YEARS,
+    bad_ir_pixels,
+    ir_hot_pixels,
+    ir_multiplexer,
+    is_hot_pixel,
+    median_spectrum,
+    moving_median,
+    sample_line_axes,
+)
 
 
 DATA = Path(__file__).parent / 'data'
@@ -27,11 +38,11 @@ def test_vims_csv():
     assert CHANNELS[0] == 1
     assert CHANNELS[-1] == 352
 
-    assert WLNS[0] == .350540
+    assert WLNS[0] == 0.350540
     assert WLNS[-1] == 5.1225
 
-    assert FWHM[0] == .007368
-    assert FWHM[-1] == .016
+    assert FWHM[0] == 0.007368
+    assert FWHM[-1] == 0.016
 
     assert len(YEARS) == len(SHIFT) == 58
 
@@ -47,14 +58,14 @@ def test_vims_ir():
     # Standard wavelengths
     wvlns = VIMS_IR()
     assert len(wvlns) == 256
-    assert wvlns[0] == .884210
+    assert wvlns[0] == 0.884210
     assert wvlns[-1] == 5.122500
 
     # Full-width at half maximum value
     fwhms = VIMS_IR(fwhm=True)
     assert len(fwhms) == 256
-    assert fwhms[0] == .012878
-    assert fwhms[-1] == .016
+    assert fwhms[0] == 0.012878
+    assert fwhms[-1] == 0.016
 
     # Wavenumber (cm-1)
     wvnb = VIMS_IR(sigma=True)
@@ -63,29 +74,29 @@ def test_vims_ir():
     assert wvnb[-1] == approx(1952.17, abs=1e-2)
 
     # Single band
-    assert VIMS_IR(band=97) == .884210
-    assert VIMS_IR(band=97, fwhm=True) == .012878
+    assert VIMS_IR(band=97) == 0.884210
+    assert VIMS_IR(band=97, fwhm=True) == 0.012878
     assert VIMS_IR(band=97, sigma=True) == approx(11309.53, abs=1e-2)
     assert VIMS_IR(band=97, fwhm=True, sigma=True) == approx(164.72, abs=1e-2)
 
     # Selected bands array
-    assert_array(VIMS_IR(band=[97, 352]), [.884210, 5.122500])
-    assert_array(VIMS_IR(band=[97, 352], fwhm=True), [.012878, .016])
+    assert_array(VIMS_IR(band=[97, 352]), [0.884210, 5.122500])
+    assert_array(VIMS_IR(band=[97, 352], fwhm=True), [0.012878, 0.016])
 
     # Time offset
-    assert VIMS_IR(band=97, year=2002) == approx(.884210, abs=1e-6)
-    assert VIMS_IR(band=97, year=2005) == approx(.884210, abs=1e-6)
-    assert VIMS_IR(band=97, year=2001.5) == approx(.885410, abs=1e-6)  # +.0012
-    assert VIMS_IR(band=97, year=2011) == approx(.890210, abs=1e-6)    # +.006
+    assert VIMS_IR(band=97, year=2002) == approx(0.884210, abs=1e-6)
+    assert VIMS_IR(band=97, year=2005) == approx(0.884210, abs=1e-6)
+    assert VIMS_IR(band=97, year=2001.5) == approx(0.885410, abs=1e-6)  # +.0012
+    assert VIMS_IR(band=97, year=2011) == approx(0.890210, abs=1e-6)  # +.006
 
     # Time offset on all IR bands
     wvlns_2011 = VIMS_IR(year=2011)
     assert len(wvlns_2011) == 256
-    assert wvlns_2011[0] == approx(.890210, abs=1e-6)
+    assert wvlns_2011[0] == approx(0.890210, abs=1e-6)
     assert wvlns_2011[-1] == approx(5.128500, abs=1e-6)
 
     # No change in FWHM with time
-    assert VIMS_IR(band=97, year=2001.5, fwhm=True) == .012878
+    assert VIMS_IR(band=97, year=2001.5, fwhm=True) == 0.012878
 
     # Outside IR band range
     assert np.isnan(VIMS_IR(band=0))
@@ -98,14 +109,14 @@ def test_vims_vis():
     # Standard wavelengths
     wvlns = VIMS_VIS()
     assert len(wvlns) == 96
-    assert wvlns[0] == .350540
+    assert wvlns[0] == 0.350540
     assert wvlns[-1] == 1.045980
 
     # Full-width at half maximum value
     fwhms = VIMS_VIS(fwhm=True)
     assert len(fwhms) == 96
-    assert fwhms[0] == .007368
-    assert fwhms[-1] == .012480
+    assert fwhms[0] == 0.007368
+    assert fwhms[-1] == 0.012480
 
     # Wavenumber (cm-1)
     wvnb = VIMS_VIS(sigma=True)
@@ -115,13 +126,13 @@ def test_vims_vis():
 
     # Single band
     assert VIMS_VIS(band=96) == 1.045980
-    assert VIMS_VIS(band=96, fwhm=True) == .012480
+    assert VIMS_VIS(band=96, fwhm=True) == 0.012480
     assert VIMS_VIS(band=96, sigma=True) == approx(9560.41, abs=1e-2)
     assert VIMS_VIS(band=96, fwhm=True, sigma=True) == approx(114.07, abs=1e-2)
 
     # Selected bands array
-    assert_array(VIMS_VIS(band=[1, 96]), [.350540, 1.045980])
-    assert_array(VIMS_VIS(band=[1, 96], fwhm=True), [.007368, .012480])
+    assert_array(VIMS_VIS(band=[1, 96]), [0.350540, 1.045980])
+    assert_array(VIMS_VIS(band=[1, 96], fwhm=True), [0.007368, 0.012480])
 
     # Time offset
     with raises(ValueError):
@@ -138,13 +149,17 @@ def test_vims_vis():
 
 def test_bad_ir_pixels():
     """Test bad IR pixels list."""
-    csv = np.loadtxt(ROOT_DATA / 'wvlns_std.csv',
-                     delimiter=',', usecols=(0, 1, 2, 3),
-                     dtype=str, skiprows=98)
+    csv = np.loadtxt(
+        ROOT_DATA / 'wvlns_std.csv',
+        delimiter=',',
+        usecols=(0, 1, 2, 3),
+        dtype=str,
+        skiprows=98,
+    )
 
     # Extract bad pixels
     wvlns = np.transpose([
-        (int(channel), float(wvln) - .5 * float(fwhm), float(fwhm))
+        (int(channel), float(wvln) - 0.5 * float(fwhm), float(fwhm))
         for channel, wvln, fwhm, comment in csv
         if comment
     ])
@@ -169,17 +184,13 @@ def test_moving_median():
     a = [1, 2, 3, 4, 5]
     assert_array(moving_median(a, width=1), a)
 
-    assert_array(moving_median(a, width=3),
-                 [1.5, 2, 3, 4, 4.5])
+    assert_array(moving_median(a, width=3), [1.5, 2, 3, 4, 4.5])
 
-    assert_array(moving_median(a, width=5),
-                 [2, 2.5, 3, 3.5, 4])
+    assert_array(moving_median(a, width=5), [2, 2.5, 3, 3.5, 4])
 
-    assert_array(moving_median(a, width=2),
-                 [1.5, 2.5, 3.5, 4.5, 5])
+    assert_array(moving_median(a, width=2), [1.5, 2.5, 3.5, 4.5, 5])
 
-    assert_array(moving_median(a, width=4),
-                 [2, 2.5, 3.5, 4, 4.5])
+    assert_array(moving_median(a, width=4), [2, 2.5, 3.5, 4, 4.5])
 
 
 def test_is_hot_pixel():
@@ -205,8 +216,8 @@ def test_is_hot_pixel():
 def test_sample_line_axes():
     """Test locatation sample and line axes."""
     # 2D case
-    assert sample_line_axes((64, 352)) == (0, )
-    assert sample_line_axes((256, 32)) == (1, )
+    assert sample_line_axes((64, 352)) == (0,)
+    assert sample_line_axes((256, 32)) == (1,)
 
     # 3D case
     assert sample_line_axes((32, 64, 352)) == (0, 1)
@@ -215,7 +226,7 @@ def test_sample_line_axes():
 
     # 1D case
     with raises(TypeError):
-        _ = sample_line_axes((352))
+        _ = sample_line_axes(352)
 
     # No band axis
     with raises(ValueError):
@@ -324,11 +335,9 @@ def test_ir_hot_pixels():
     # 1D spectrum
     hot_pixels = ir_hot_pixels(qub['BACKGROUND'][0])
     assert len(hot_pixels) == 10
-    assert_array(hot_pixels,
-                 [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])
+    assert_array(hot_pixels, [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])
 
     # 2D spectra
     hot_pixels = ir_hot_pixels(qub['BACKGROUND'])
     assert len(hot_pixels) == 10
-    assert_array(hot_pixels,
-                 [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])
+    assert_array(hot_pixels, [105, 119, 124, 168, 239, 240, 275, 306, 317, 331])

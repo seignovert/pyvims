@@ -2,15 +2,15 @@
 
 import numpy as np
 
-from .vectors import hat, norm, lonlat
 from .quaternions import q_rot
+from .vectors import hat, lonlat, norm
 
 
 SUN_RADIUS = 6.955e5  # km
 
 
 def specular_angle(beta, dist, radius, debug=False):
-    '''Find specular angle with SS in the SS-O-SC plane.
+    """Find specular angle with SS in the SS-O-SC plane.
 
     Parameters
     ----------
@@ -35,12 +35,12 @@ def specular_angle(beta, dist, radius, debug=False):
         If not roots are found or not roots correspond
         to the expected geometry.
 
-    '''
+    """
     r_d = radius / dist
 
     sin_beta = np.sin(beta)
 
-    b = - r_d * sin_beta
+    b = -r_d * sin_beta
     c = np.power(r_d / 2, 2) - 1
     d = r_d / 2 * sin_beta
     e = np.power(sin_beta / 2, 2)
@@ -60,17 +60,19 @@ def specular_angle(beta, dist, radius, debug=False):
     alphas = np.arcsin(roots)
     betas = 2 * alphas - np.arcsin(r_d * roots)
     diff = np.abs(
-        np.abs(np.cos(beta) - np.cos(betas))
-        + np.abs(np.sin(beta) - np.sin(betas)))
+        np.abs(np.cos(beta) - np.cos(betas)) + np.abs(np.sin(beta) - np.sin(betas))
+    )
 
     if debug:
         print(f'<SPECULAR ANGLE> Alphas: {np.degrees(alphas)}')
         print(f'<SPECULAR ANGLE> Betas: {np.degrees(betas)}')
 
     if np.min(diff) > 1e-2:
-        raise ValueError(f'No root match the expected geometry.\n'
-                         f' - Output betas: {np.degrees(betas)} deg.\n'
-                         f' - Expected: {np.degrees(beta)} deg')
+        raise ValueError(
+            f'No root match the expected geometry.\n'
+            f' - Output betas: {np.degrees(betas)} deg.\n'
+            f' - Expected: {np.degrees(beta)} deg'
+        )
 
     return alphas[np.argmin(diff)]
 

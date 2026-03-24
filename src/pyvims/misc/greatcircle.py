@@ -38,8 +38,9 @@ def great_circle_arc(lon1, lat1, lon2, lat2, npt=361):
     s = np.sin(omega)
 
     if s == 0:
-        raise ValueError('Infinity of solutions. '
-                         'Point 1 and 2 are aligned (0° or ±180°).')
+        raise ValueError(
+            'Infinity of solutions. Point 1 and 2 are aligned (0° or ±180°).'
+        )
 
     t = np.transpose([np.linspace(0, 1, npt)])
     v = (np.sin((1 - t) * omega) * pt1 + np.sin(t * omega) * pt2) / s
@@ -77,8 +78,9 @@ def great_circle_lat(lon, lon1, lat1, lon2, lat2):
 
     """
     if (lon1 - lon2) % 180 == 0:
-        raise ValueError('Infinity of solutions. '
-                         'Longitudes 1 and 2 are on the same meridian (±180°).')
+        raise ValueError(
+            'Infinity of solutions. Longitudes 1 and 2 are on the same meridian (±180°).'
+        )
 
     lon = np.asarray(lon)
     s1, s2 = np.sin(np.radians([lon - lon1, lon - lon2]))

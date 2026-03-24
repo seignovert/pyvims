@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from pyvims.qub import QUB
-
 from pytest import fixture, raises
+
+from pyvims.qub import QUB
 
 
 DATA = Path(__file__).parent / 'data'
@@ -91,9 +91,21 @@ def test_qub_loader(qub):
         _ = qub[353]
 
     # Get IR hot pixels in the background
-    assert all(qub.ir_hot_pixels() == [
-        105, 119, 124, 168, 239, 240, 275, 306, 317, 331,
-    ])
+    assert all(
+        qub.ir_hot_pixels()
+        == [
+            105,
+            119,
+            124,
+            168,
+            239,
+            240,
+            275,
+            306,
+            317,
+            331,
+        ]
+    )
 
 
 def test_qub_data_mask(qub):

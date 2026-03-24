@@ -69,5 +69,4 @@ def check_md5(data, md5: str) -> bool:
     if computed == md5:
         return True
 
-    raise IOError(f'MD5 data ({computed}) does not match '
-                  f'the expected value ({md5}).')
+    raise OSError(f'MD5 data ({computed}) does not match the expected value ({md5}).')

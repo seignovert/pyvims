@@ -3,19 +3,20 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
-
-from pyvims.projections import Mollweide
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 from pytest import fixture, raises
+
+from pyvims.projections import Mollweide
 
 
 @fixture
 def proj():
     """Mollweide projection."""
     return Mollweide()
+
 
 def test_moll():
     """Test mollweide projection."""
@@ -30,8 +31,8 @@ def test_moll():
     assert proj.ry == 2574730 * np.sqrt(2)
 
     assert proj.proj4 == (
-        '+proj=moll +lon_0=0 +x_0=0 +y_0=0 '
-        '+R=2574730.0 +units=m +no_defs')
+        '+proj=moll +lon_0=0 +x_0=0 +y_0=0 +R=2574730.0 +units=m +no_defs'
+    )
 
     assert proj.wkt == (
         'PROJCS["PROJCS_Titan_Mollweide",'
@@ -44,14 +45,19 @@ def test_moll():
         'PARAMETER["false_easting", 0],'
         'PARAMETER["false_northing", 0],'
         'PARAMETER["central_meridian", 0],'
-        'UNIT["Meter", 1]]')
+        'UNIT["Meter", 1]]'
+    )
 
-    assert_array(proj.extent, [
-        -2 * 2574730 * np.sqrt(2),
-        2 * 2574730 * np.sqrt(2),
-        -2574730 * np.sqrt(2),
-        2574730 * np.sqrt(2),
-    ], decimal=1)
+    assert_array(
+        proj.extent,
+        [
+            -2 * 2574730 * np.sqrt(2),
+            2 * 2574730 * np.sqrt(2),
+            -2574730 * np.sqrt(2),
+            2574730 * np.sqrt(2),
+        ],
+        decimal=1,
+    )
 
 
 def test_moll_xy(proj):
@@ -68,35 +74,25 @@ def test_moll_xy(proj):
     assert_array(proj(180, 90), (0, 1))
     assert_array(proj(-180, -90), (0, -1))
 
-    assert_array(
-        proj(0, [0, 90, -90]),
-        ([0, 0, 0], [0, 1, -1]),
-        decimal=1)
+    assert_array(proj(0, [0, 90, -90]), ([0, 0, 0], [0, 1, -1]), decimal=1)
 
     assert_array(
         proj([0, 90, 180, -180, 270, 360], 0),
         ([0, -1, -2, 2, 1, 0], [0, 0, 0, 0, 0, 0]),
-        decimal=1)
+        decimal=1,
+    )
 
     assert_array(
-        proj(
-            [0, 0, 0, 90, 180, -180, 270, 360],
-            [0, 90, -90, 0, 0, 0, 0, 0]
-        ), (
-            [0, 0, 0, -1, -2, 2, 1, 0],
-            [0, 1, -1, 0, 0, 0, 0, 0]
-        ),
-        decimal=1)
+        proj([0, 0, 0, 90, 180, -180, 270, 360], [0, 90, -90, 0, 0, 0, 0, 0]),
+        ([0, 0, 0, -1, -2, 2, 1, 0], [0, 1, -1, 0, 0, 0, 0, 0]),
+        decimal=1,
+    )
 
     assert_array(
-        proj(
-            [[0, 0, 0, 90], [180, -180, 270, 360]],
-            [[0, 90, -90, 0], [0, 0, 0, 0]]
-        ), (
-            [[0, 0, 0, -1], [-2, 2, 1, 0]],
-            [[0, 1, -1, 0], [0, 0, 0, 0]]
-        ),
-        decimal=1)
+        proj([[0, 0, 0, 90], [180, -180, 270, 360]], [[0, 90, -90, 0], [0, 0, 0, 0]]),
+        ([[0, 0, 0, -1], [-2, 2, 1, 0]], [[0, 1, -1, 0], [0, 0, 0, 0]]),
+        decimal=1,
+    )
 
 
 def test_moll_lonlat(proj):
@@ -115,60 +111,71 @@ def test_moll_lonlat(proj):
     assert_array(
         proj(0, [0, 1, -1, 2], invert=True),
         ([0, 0, 0, np.nan], [0, 90, -90, np.nan]),
-        decimal=1)
+        decimal=1,
+    )
 
     assert_array(
         proj([0, -1, -2, 2, 1, 3], 0, invert=True),
         ([0, 90, 180, 180, 270, np.nan], [0, 0, 0, 0, 0, np.nan]),
-        decimal=1)
+        decimal=1,
+    )
 
     assert_array(
-        proj(
-            [0, 0, 0, 0, -1, -2, 2, 1, 3],
-            [0, 1, -1, 2, 0, 0, 0, 0, 0],
-            invert=True
-        ), (
+        proj([0, 0, 0, 0, -1, -2, 2, 1, 3], [0, 1, -1, 2, 0, 0, 0, 0, 0], invert=True),
+        (
             [0, 0, 0, np.nan, 90, 180, 180, 270, np.nan],
-            [0, 90, -90, np.nan, 0, 0, 0, 0, np.nan]
-        ), decimal=1)
+            [0, 90, -90, np.nan, 0, 0, 0, 0, np.nan],
+        ),
+        decimal=1,
+    )
 
     assert_array(
-        proj(
-            [[0, 0, 0, 0], [-1, -2, 2, 3]],
-            [[0, 1, -1, 2], [0, 0, 0, 0]],
-            invert=True
-        ), (
+        proj([[0, 0, 0, 0], [-1, -2, 2, 3]], [[0, 1, -1, 2], [0, 0, 0, 0]], invert=True),
+        (
             [[0, 0, 0, np.nan], [90, 180, 180, np.nan]],
-            [[0, 90, -90, np.nan], [0, 0, 0, np.nan]]
-        ), decimal=1)
+            [[0, 90, -90, np.nan], [0, 0, 0, np.nan]],
+        ),
+        decimal=1,
+    )
 
 
 def test_moll_path(proj):
     """Test mollweide projection on Path."""
     with raises(NotImplementedError):
-        _ = proj(Path([
-            (20, 30),
-            (-10, 0),
-            (20, -30),
-        ]))
+        _ = proj(
+            Path([
+                (20, 30),
+                (-10, 0),
+                (20, -30),
+            ])
+        )
+
 
 def test_moll_patch(proj):
     """Test mollweide projection on Patch."""
     with raises(NotImplementedError):
-        _ = proj(PathPatch(Path([
-            (20, 30),
-            (-10, 0),
-            (20, -30),
-        ])))
+        _ = proj(
+            PathPatch(
+                Path([
+                    (20, 30),
+                    (-10, 0),
+                    (20, -30),
+                ])
+            )
+        )
 
 
 def test_moll_collection(proj):
     """Test mollweide projection on Collection."""
     with raises(NotImplementedError):
-        _ = proj(PatchCollection([
-            PathPatch(Path([
-                (20, 30),
-                (-10, 0),
-                (20, -30),
-            ]))
-        ]))
+        _ = proj(
+            PatchCollection([
+                PathPatch(
+                    Path([
+                        (20, 30),
+                        (-10, 0),
+                        (20, -30),
+                    ])
+                )
+            ])
+        )

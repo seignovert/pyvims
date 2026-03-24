@@ -6,8 +6,8 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 
 from .projections.lambert import xy as lambert
-from .vertices import path_cross_180, path_cross_360, path_pole_180, path_pole_360
 from .vectors import deg180, deg360
+from .vertices import path_cross_180, path_cross_360, path_pole_180, path_pole_360
 
 
 class VIMSContour:
@@ -19,6 +19,7 @@ class VIMSContour:
         Parent VIMS cube.
 
     """
+
     CODES = None
 
     def __init__(self, cube):
@@ -107,12 +108,16 @@ class VIMSContour:
     def __contains__(self, item):
         """Check the item is inside the pixel."""
         if np.size(item) != 2 or np.ndim(item) == 0:
-            raise ValueError('Coordinate point must be a 2 dimension array: '
-                             '`(west_longitude, latitude)`')
+            raise ValueError(
+                'Coordinate point must be a 2 dimension array: '
+                '`(west_longitude, latitude)`'
+            )
 
         if np.ndim(item) != 1:
-            raise ValueError('Only a single point can be tested. '
-                             'Use `.contains()` function for multiple points.')
+            raise ValueError(
+                'Only a single point can be tested. '
+                'Use `.contains()` function for multiple points.'
+            )
 
         return self.contains([item])
 

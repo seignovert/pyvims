@@ -16,6 +16,7 @@ def qub():
     """Test QUB."""
     return QUB('1815243432_1', root=DATA)
 
+
 @fixture
 def cube():
     """Test CUBE."""

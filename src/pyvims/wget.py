@@ -5,7 +5,6 @@ import os
 import re
 
 import requests
-
 from tqdm import tqdm
 
 from .misc import check_md5
@@ -88,28 +87,30 @@ def wget(url, filename=None, md5=None, overwrite=False, verbose=True, chunk_size
     if filename is not None:
         if os.path.exists(filename) and not overwrite:
             raise FileExistsError(
-                f'{filename} already exists. Add `overwrite=True` to overwrite it.')
+                f'{filename} already exists. Add `overwrite=True` to overwrite it.'
+            )
 
         fname = os.path.basename(filename)
     else:
         fname = url.split('/')[-1]
 
     with requests.get(url, stream=True) as r:
-
         if r.status_code != requests.codes.ok:
             r.raise_for_status()
 
         with io.BytesIO() as b:
-            for chunk in tqdm(r.iter_content(chunk_size),
-                              total=nb_chunk(r, chunk_size),
-                              desc=f"Download {fname}",
-                              unit='B',
-                              unit_divisor=chunk_size,
-                              unit_scale=True,
-                              miniters=1,
-                              bar_format=bar_format,
-                              disable=(not verbose),
-                              leave=None):
+            for chunk in tqdm(
+                r.iter_content(chunk_size),
+                total=nb_chunk(r, chunk_size),
+                desc=f'Download {fname}',
+                unit='B',
+                unit_divisor=chunk_size,
+                unit_scale=True,
+                miniters=1,
+                bar_format=bar_format,
+                disable=(not verbose),
+                leave=None,
+            ):
                 if chunk:
                     b.write(chunk)
 

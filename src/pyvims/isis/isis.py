@@ -14,6 +14,7 @@ from .time import time as _dt
 from .vars import BYTE_ORDERS, FIELD_TYPES
 from ..misc import get_md5
 
+
 class ISISCube:
     """VIMS ISIS header object.
 
@@ -173,8 +174,9 @@ class ISISCube:
     @property
     def dtype(self):
         """Cube data type."""
-        return np.dtype(BYTE_ORDERS[self._pix['ByteOrder']]
-                        + FIELD_TYPES[self._pix['Type']])
+        return np.dtype(
+            BYTE_ORDERS[self._pix['ByteOrder']] + FIELD_TYPES[self._pix['Type']]
+        )
 
     @property
     def _start_byte(self):
@@ -216,14 +218,20 @@ class ISISCube:
     @property
     def _underflow(self):
         """Data type underflow value."""
-        return np.finfo(self.dtype).min if self.dtype.char == 'f' \
+        return (
+            np.finfo(self.dtype).min
+            if self.dtype.char == 'f'
             else np.iinfo(self.dtype).min
+        )
 
     @property
     def _overflow(self):
         """Data type overflow value."""
-        return np.finfo(self.dtype).max if self.dtype.char == 'f' \
+        return (
+            np.finfo(self.dtype).max
+            if self.dtype.char == 'f'
             else np.iinfo(self.dtype).max
+        )
 
     def _is_null(self, data, tol=1e-6):
         """Find NULL values.
@@ -243,8 +251,9 @@ class ISISCube:
             Location of the null values.
 
         """
-        return (np.abs(data / self._underflow) >= tol) | \
-            (np.abs(data / self._overflow) >= tol)
+        return (np.abs(data / self._underflow) >= tol) | (
+            np.abs(data / self._overflow) >= tol
+        )
 
     @property
     def _TL(self):
@@ -267,8 +276,7 @@ class ISISCube:
 
         # Stack in the samples direction
         shape = (size // (self._TL * self.NS), self.NS, self._TL)
-        samples_stacked = np.moveaxis(
-            np.moveaxis(tiled_data, 1, 2).reshape(shape), 1, 2)
+        samples_stacked = np.moveaxis(np.moveaxis(tiled_data, 1, 2).reshape(shape), 1, 2)
 
         # Stack in the lines direction
         return np.reshape(samples_stacked, self.shape)
@@ -286,8 +294,9 @@ class ISISCube:
     @property
     def wvlns(self):
         """Cube central wavelengths (um)."""
-        return np.array([float(w[:-1]) if isinstance(w, str) else w
-                         for w in self._bands['Center']])
+        return np.array([
+            float(w[:-1]) if isinstance(w, str) else w for w in self._bands['Center']
+        ])
 
     @property
     def _inst(self):

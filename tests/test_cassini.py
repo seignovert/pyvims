@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from pyvims.cassini import img_id
-
 from pytest import raises
+
+from pyvims.cassini import img_id
 
 
 def test_cassini_img_id():

@@ -13,20 +13,20 @@ New projection are based on PROJ project:
 """
 
 # Old projection methods
-from .equirectangular import equi_cube
-from .orthographic import ortho_cube, ortho_proj
-from .polar import polar_cube
-from .sky_old import sky_cube
 # New projections
 from .equi import Equirectangular
 from .equi_gc import Equirectangular as EquirectangularGC
+from .equirectangular import equi_cube
+from .globe import globe
+from .img import bg_pole, index
 from .mollweide import Mollweide
 from .ortho import Orthographic
-from .sky import Sky
-from .stere import Stereographic
-from .globe import globe
+from .orthographic import ortho_cube, ortho_proj
 from .path3d import Path3D
-from .img import index, bg_pole
+from .polar import polar_cube
+from .sky import Sky
+from .sky_old import sky_cube
+from .stere import Stereographic
 
 
 __all__ = [

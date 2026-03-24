@@ -6,16 +6,17 @@ import re
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.image import imread
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
+from matplotlib.image import imread
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 from .vertices import path_lonlat
-from ..projections.stereographic import r_stereo, xy as xy_stereo
+from ..coordinates import slat, slon_e, slon_w
+from ..projections.stereographic import r_stereo
+from ..projections.stereographic import xy as xy_stereo
 from ..vars import ROOT_DATA
 from ..vectors import deg180, deg360
-from ..coordinates import slat, slon_e, slon_w
 
 
 ROOT = ROOT_DATA / 'maps'
@@ -113,8 +114,11 @@ def basename(fname):
     'foo'
 
     """
-    return str(fname) if '.' not in str(fname) else \
-        '.'.join(os.path.basename(str(fname)).split('.')[:-1])
+    return (
+        str(fname)
+        if '.' not in str(fname)
+        else '.'.join(os.path.basename(str(fname)).split('.')[:-1])
+    )
 
 
 def parse_readme(filename):
@@ -131,7 +135,7 @@ def parse_readme(filename):
         List of all the maps available in the README.
 
     """
-    with open(filename, 'r') as f:
+    with open(filename) as f:
         lines = f.read().splitlines()
 
     maps = {}
@@ -188,7 +192,7 @@ def remove_from_readme(filename, fname):
         List of all the maps available in the README.
 
     """
-    with open(filename, 'r') as f:
+    with open(filename) as f:
         lines = f.read().splitlines()
 
     new = []
@@ -229,7 +233,7 @@ class MapsDetails(type):
     def __repr__(cls):
         return '\n - '.join([
             f'<{cls.__name__}> Available: {len(cls)}',
-            *cls.maps().keys()
+            *cls.maps().keys(),
         ])
 
     def __len__(cls):
@@ -268,16 +272,18 @@ class MapsDetails(type):
 
         if not filename.exists():
             with filename.open('w') as f:
-                f.write('\n'.join([
-                    'List of maps available',
-                    '======================\n',
-                    '## Titan VIMS/ISS\n',
-                    '* Filename: `Titan_VIMS_ISS.jpg`',
-                    '* Source: [Seignovert et al. 2019]'
-                    '(https://doi.org/10.22002/D1.1173)',
-                    '* Extent: `-180° 180° -90° 90°`',
-                    '* Projection: `equirectangular`\n',
-                ]))
+                f.write(
+                    '\n'.join([
+                        'List of maps available',
+                        '======================\n',
+                        '## Titan VIMS/ISS\n',
+                        '* Filename: `Titan_VIMS_ISS.jpg`',
+                        '* Source: [Seignovert et al. 2019]'
+                        '(https://doi.org/10.22002/D1.1173)',
+                        '* Extent: `-180° 180° -90° 90°`',
+                        '* Projection: `equirectangular`\n',
+                    ])
+                )
 
         return str(filename)
 
@@ -368,8 +374,16 @@ class Map:
 
     """
 
-    def __init__(self, fname, root=None, extent=None, src=None, url=None,
-                 projection=None, name=None):
+    def __init__(
+        self,
+        fname,
+        root=None,
+        extent=None,
+        src=None,
+        url=None,
+        projection=None,
+        name=None,
+    ):
         self.root = root if root else str(ROOT)
         self.fname = fname
 
@@ -378,8 +392,7 @@ class Map:
         self.url = url
         self.proj = projection.lower() if isinstance(projection, str) else None
 
-        self.name = name if name is not None else \
-            '.'.join(self.fname.split('.')[:-1])
+        self.name = name if name is not None else '.'.join(self.fname.split('.')[:-1])
 
     def __str__(self):
         return self.fname if self.root == str(ROOT) else self.filename
@@ -411,8 +424,10 @@ class Map:
         if len(args) == 2:
             return self.xy(args[0], args[1])
 
-        raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
-                         'or (lon_w, lat) attributes are required.')
+        raise ValueError(
+            'A `PatchCollection`, `PathPatch`, `Patch` '
+            'or (lon_w, lat) attributes are required.'
+        )
 
     @property
     def fname(self):
@@ -496,15 +511,17 @@ class Map:
             return self
 
         if self.data_extent[0] != 360 or self.data_extent[1] != 0:
-            raise ValueError('Longitude span invalid. Must be [360, 0], not '
-                             f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].')
+            raise ValueError(
+                'Longitude span invalid. Must be [360, 0], not '
+                f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].'
+            )
 
         if self.ndim == 2:
             _, ns = self.shape
-            self.__img = np.hstack([self.img[:, ns // 2:], self.img[:, :ns // 2]])
+            self.__img = np.hstack([self.img[:, ns // 2 :], self.img[:, : ns // 2]])
         elif self.ndim == 3:
             _, ns, _ = self.shape
-            self.__img = np.hstack([self.img[:, ns // 2:, :], self.img[:, :ns // 2, :]])
+            self.__img = np.hstack([self.img[:, ns // 2 :, :], self.img[:, : ns // 2, :]])
         else:
             raise ValueError(f'Image dimension invalid: {self.ndim}.')
 
@@ -521,15 +538,17 @@ class Map:
             return self
 
         if self.data_extent[0] != -180 or self.data_extent[1] != 180:
-            raise ValueError('Longitude span invalid. Must be [-180, 180], not '
-                             f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].')
+            raise ValueError(
+                'Longitude span invalid. Must be [-180, 180], not '
+                f'[{self.data_extent[0]:.1f}, {self.data_extent[1]:.1f}].'
+            )
 
         if self.ndim == 2:
             _, ns = self.shape
-            self.__img = np.hstack([self.img[:, ns // 2:], self.img[:, :ns // 2]])
+            self.__img = np.hstack([self.img[:, ns // 2 :], self.img[:, : ns // 2]])
         elif self.ndim == 3:
             _, ns, _ = self.shape
-            self.__img = np.hstack([self.img[:, ns // 2:, :], self.img[:, :ns // 2, :]])
+            self.__img = np.hstack([self.img[:, ns // 2 :, :], self.img[:, : ns // 2, :]])
         else:
             raise ValueError(f'Image dimension invalid: {self.ndim}.')
 
@@ -656,10 +675,7 @@ class Map:
 
         """
         return PatchCollection(
-            [
-                PathPatch(self.xy_path(path))
-                for path in collection.get_paths()
-            ],
+            [PathPatch(self.xy_path(path)) for path in collection.get_paths()],
             edgecolor=collection.get_ec(),
             facecolor=collection.get_fc(),
         )
@@ -862,13 +878,11 @@ class Map:
 
         return lons, lats
 
-    def subplots(self, *args, bgshow=True, ticks=True,
-                 lim=True, grid=True, **kwargs):
+    def subplots(self, *args, bgshow=True, ticks=True, lim=True, grid=True, **kwargs):
         """Create subplots based on map background."""
         fig, ax = plt.subplots(*args, **kwargs)
 
-        return fig, MapAxes(self, ax, bgshow=bgshow, ticks=ticks,
-                            lim=lim, grid=grid)
+        return fig, MapAxes(self, ax, bgshow=bgshow, ticks=ticks, lim=lim, grid=grid)
 
     def figure(self, *args, **kwargs):
         """Create figure based on map background."""
@@ -895,8 +909,7 @@ class MapAxis:
 
     """
 
-    def __init__(self, bg, ax, bgshow=True, ticks=True,
-                 lim=True, grid=True):
+    def __init__(self, bg, ax, bgshow=True, ticks=True, lim=True, grid=True):
         self.bg = bg
         self.ax = ax
 
@@ -922,9 +935,14 @@ class MapAxis:
         self.ax.set_xticks(self.bg.lons() if xticks is None else xticks)
         self.ax.set_yticks(self.bg.lats() if yticks is None else yticks)
 
-    def set_xyticklabels(self, lats=[60, 70, 80], lon_w=45,
-                         color='lightgray',
-                         xticklabels=None, yticklabels=None):
+    def set_xyticklabels(
+        self,
+        lats=[60, 70, 80],
+        lon_w=45,
+        color='lightgray',
+        xticklabels=None,
+        yticklabels=None,
+    ):
         """Set axis X-Y ticklabels.
 
         Parameters
@@ -936,17 +954,22 @@ class MapAxis:
 
         """
         self.ax.set_xticklabels(
-            self.bg.lonlabels() if xticklabels is None else xticklabels)
+            self.bg.lonlabels() if xticklabels is None else xticklabels
+        )
         self.ax.set_yticklabels(
-            self.bg.latlabels() if yticklabels is None else yticklabels)
+            self.bg.latlabels() if yticklabels is None else yticklabels
+        )
 
-        if (self.bg._proj == 'stereo'
-                and yticklabels is None
-                and yticklabels is None):
+        if self.bg._proj == 'stereo' and yticklabels is None and yticklabels is None:
             for lat in lats:
-                self.ax.text(*self.bg(lon_w, lat), slat(lat),
-                             rotation=-lon_w, color=color,
-                             va='baseline', ha='center')
+                self.ax.text(
+                    *self.bg(lon_w, lat),
+                    slat(lat),
+                    rotation=-lon_w,
+                    color=color,
+                    va='baseline',
+                    ha='center',
+                )
 
     def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
@@ -959,9 +982,17 @@ class MapAxis:
             self.ax.set_xlim(xmin, xmax)
             self.ax.set_ylim(ymin, ymax)
 
-    def grid(self, lats=[60, 70, 80], lons=[30, 60, 120, 150, 210, 240, 310, 340],
-             lat_min=60, lat_max=80, nlats=21,
-             color='lightgray', lw=.5, **kwargs):
+    def grid(
+        self,
+        lats=[60, 70, 80],
+        lons=[30, 60, 120, 150, 210, 240, 310, 340],
+        lat_min=60,
+        lat_max=80,
+        nlats=21,
+        color='lightgray',
+        lw=0.5,
+        **kwargs,
+    ):
         """Set image ticks, limits and grid.
 
         Parameters
@@ -986,8 +1017,7 @@ class MapAxis:
 
         if self.bg._proj == 'stereo':
             p = self.bg.paralleles(lats)
-            m = self.bg.meridians(lons, nlats=nlats,
-                                  lat_min=lat_min, lat_max=lat_max)
+            m = self.bg.meridians(lons, nlats=nlats, lat_min=lat_min, lat_max=lat_max)
 
             self.plot(*p, color=color, lw=lw)
             self.plot(*m, color=color, lw=lw)
@@ -1057,8 +1087,6 @@ class MapAxes:
             return np.array([MapAxis(bg, axis, **kwargs) for axis in ax])
 
         if np.ndim(ax) == 2:
-            return np.array([
-                [MapAxis(bg, axis, **kwargs) for axis in _ax] for _ax in ax
-            ])
+            return np.array([[MapAxis(bg, axis, **kwargs) for axis in _ax] for _ax in ax])
 
         raise ValueError(f'Invalid axis dimension: {np.ndim(ax)}')

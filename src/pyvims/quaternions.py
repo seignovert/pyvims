@@ -132,20 +132,23 @@ def q2m(q):
         raise ValueError('Quaternion must have 4 elements.')
 
     q0, q1, q2, q3 = hat(q)
-    return np.array([[
-        1 - 2 * (q2 * q2 + q3 * q3),
-        2 * (q1 * q2 - q0 * q3),
-        2 * (q1 * q3 + q0 * q2),
-    ], [
-        2 * (q1 * q2 + q0 * q3),
-        1 - 2 * (q1 * q1 + q3 * q3),
-        2 * (q2 * q3 - q0 * q1),
-    ], [
-
-        2 * (q1 * q3 - q0 * q2),
-        2 * (q2 * q3 + q0 * q1),
-        1 - 2 * (q1 * q1 + q2 * q2),
-    ]])
+    return np.array([
+        [
+            1 - 2 * (q2 * q2 + q3 * q3),
+            2 * (q1 * q2 - q0 * q3),
+            2 * (q1 * q3 + q0 * q2),
+        ],
+        [
+            2 * (q1 * q2 + q0 * q3),
+            1 - 2 * (q1 * q1 + q3 * q3),
+            2 * (q2 * q3 - q0 * q1),
+        ],
+        [
+            2 * (q1 * q3 - q0 * q2),
+            2 * (q2 * q3 + q0 * q1),
+            1 - 2 * (q1 * q1 + q2 * q2),
+        ],
+    ])
 
 
 def q2mt(q):
@@ -171,20 +174,23 @@ def q2mt(q):
         raise ValueError('Quaternion must have 4 elements.')
 
     q0, q1, q2, q3 = hat(q)
-    return np.array([[
-        1 - 2 * (q2 * q2 + q3 * q3),
-        2 * (q1 * q2 + q0 * q3),
-        2 * (q1 * q3 - q0 * q2),
-    ], [
-        2 * (q1 * q2 - q0 * q3),
-        1 - 2 * (q1 * q1 + q3 * q3),
-        2 * (q2 * q3 + q0 * q1),
-    ], [
-
-        2 * (q1 * q3 + q0 * q2),
-        2 * (q2 * q3 - q0 * q1),
-        1 - 2 * (q1 * q1 + q2 * q2),
-    ]])
+    return np.array([
+        [
+            1 - 2 * (q2 * q2 + q3 * q3),
+            2 * (q1 * q2 + q0 * q3),
+            2 * (q1 * q3 - q0 * q2),
+        ],
+        [
+            2 * (q1 * q2 - q0 * q3),
+            1 - 2 * (q1 * q1 + q3 * q3),
+            2 * (q2 * q3 + q0 * q1),
+        ],
+        [
+            2 * (q1 * q3 + q0 * q2),
+            2 * (q2 * q3 - q0 * q1),
+            1 - 2 * (q1 * q1 + q2 * q2),
+        ],
+    ])
 
 
 def q_mult(q0, q1):
@@ -232,8 +238,11 @@ def q_mult(q0, q1):
 
     v = s0 * v1 + s1 * v0 + np.cross(v0.T, v1.T).T
 
-    return np.array([s, v[0], v[1], v[2]]) if s.shape[0] != 1 else \
-        np.hstack([s, v[0], v[1], v[2]])
+    return (
+        np.array([s, v[0], v[1], v[2]])
+        if s.shape[0] != 1
+        else np.hstack([s, v[0], v[1], v[2]])
+    )
 
 
 def q_rot(q, v):
@@ -326,11 +335,11 @@ def q_interp(q0, q1, t, threshold=0.9995):
 
     dot = np.sum(q0 * q1)
 
-    if (dot < 0):
+    if dot < 0:
         q1 = -q1
         dot = -dot
 
-    if (dot > threshold):
+    if dot > threshold:
         result = q0[np.newaxis, :] + t[:, np.newaxis] * (q1 - q0)[np.newaxis, :]
         return hat(result.T).T
 

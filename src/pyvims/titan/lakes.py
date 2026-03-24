@@ -4,12 +4,13 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from ..projections.stereographic import stereo_scale, xy as stereo_xy
+from ..projections.stereographic import stereo_scale
+from ..projections.stereographic import xy as stereo_xy
 from ..vars import ROOT_DATA
 
 
 lat_min = 60
-threshold = .5
+threshold = 0.5
 n_pole = True
 
 

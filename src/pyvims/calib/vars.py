@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+
 # Data folder
 DATA = Path(__file__).parent / 'data'
 

@@ -2,11 +2,19 @@
 
 from datetime import datetime as dt
 
-from pyvims.pds.times import (cassini2utc, cassini_time, dt_date, dt_doy, dt_iso,
-                              dyear, pds_folder, pds_time, utc2cassini)
-
-
 from pytest import approx, raises
+
+from pyvims.pds.times import (
+    cassini2utc,
+    cassini_time,
+    dt_date,
+    dt_doy,
+    dt_iso,
+    dyear,
+    pds_folder,
+    pds_time,
+    utc2cassini,
+)
 
 
 def test_dt_iso():
@@ -118,8 +126,10 @@ def test_utc2cassini():
 def test_pds_folder():
     """Test convert PDS folder as string."""
     assert pds_folder('2005015T175855') == '2005-015T17:58:55'
-    assert pds_folder('2005015T175855_2005016T184233/') == \
-        '2005-015T17:58:55 2005-016T18:42:33'
+    assert (
+        pds_folder('2005015T175855_2005016T184233/')
+        == '2005-015T17:58:55 2005-016T18:42:33'
+    )
 
 
 def test_dyear():

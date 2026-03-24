@@ -23,9 +23,7 @@ class ISISHistory:
         self.__history = None
 
     def __repr__(self):
-        return '\n - '.join([
-            f'<{self.__class__.__name__}>',
-            *self.keys()])
+        return '\n - '.join([f'<{self.__class__.__name__}>', *self.keys()])
 
     def __contains__(self, key):
         return key in self.history.keys()

@@ -42,8 +42,7 @@ def equi_contour(contour, sc_lat, dlon=180):
     pole = 90 * np.sign(sc_lat)
 
     for i in _cross_180(clon):
-        frac = np.abs(180 - (clon[i] % 360)) / \
-            np.abs(clon[i + 1] % 360 - clon[i] % 360)
+        frac = np.abs(180 - (clon[i] % 360)) / np.abs(clon[i + 1] % 360 - clon[i] % 360)
         edge = 180 * np.sign(clon[i])
         lat = (clat[i + 1] - clat[i]) * frac + clat[i]
         clon = np.insert(clon, i + 1, [edge, edge, -edge, -edge])
@@ -77,8 +76,8 @@ def equi_grid(glon, glat, npix=1440):
 
     pix = (x1 - x0) / npix if x1 - x0 > y1 - y0 else (y1 - y0) / (npix / 2)
 
-    x = np.arange(x0 + .5 * pix, x1, pix)
-    y = np.arange(y0 + .5 * pix, y1, pix)
+    x = np.arange(x0 + 0.5 * pix, x1, pix)
+    y = np.arange(y0 + 0.5 * pix, y1, pix)
 
     X, Y = np.meshgrid(x, y)
     grid = (X, Y)
@@ -143,12 +142,16 @@ def equi_interp(xy, data, res, contour, sc, r, npix=1440, method='cubic'):
     m = mask(grid, ctn)
 
     if np.ndim(gz_interp) == 3:
-        z_mask = np.moveaxis([
-            gz_interp[:, :, 0],
-            gz_interp[:, :, 1],
-            gz_interp[:, :, 2],
-            255 * np.uint8(~m),
-        ], 0, 2)
+        z_mask = np.moveaxis(
+            [
+                gz_interp[:, :, 0],
+                gz_interp[:, :, 1],
+                gz_interp[:, :, 2],
+                255 * np.uint8(~m),
+            ],
+            0,
+            2,
+        )
     else:
         z_mask = np.ma.array(gz_interp, mask=m)
 

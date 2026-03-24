@@ -221,8 +221,9 @@ def v_max_dist(v):
         distance between them.
 
     """
-    dist = np.sum(np.power(np.subtract(
-        v.T[np.newaxis, :], v.T[:, np.newaxis]), 2), axis=2)
+    dist = np.sum(
+        np.power(np.subtract(v.T[np.newaxis, :], v.T[:, np.newaxis]), 2), axis=2
+    )
     return np.unravel_index(np.argmax(dist), dist.shape)
 
 
@@ -270,7 +271,7 @@ def hav(theta):
         Half versine value.
 
     """
-    return .5 * (1 - np.cos(theta))
+    return 0.5 * (1 - np.cos(theta))
 
 
 def hav_dist(lon_1, lat_1, lon_2, lat_2, r=1):
@@ -297,9 +298,16 @@ def hav_dist(lon_1, lat_1, lon_2, lat_2, r=1):
     """
     lambda_1, phi_1 = np.radians([lon_1, lat_1])
     lambda_2, phi_2 = np.radians([lon_2, lat_2])
-    return 2 * r * np.arcsin(np.sqrt(
-        hav(phi_2 - phi_1) + np.cos(phi_1) * np.cos(phi_2) * hav(lambda_2 - lambda_1)
-    ))
+    return (
+        2
+        * r
+        * np.arcsin(
+            np.sqrt(
+                hav(phi_2 - phi_1)
+                + np.cos(phi_1) * np.cos(phi_2) * hav(lambda_2 - lambda_1)
+            )
+        )
+    )
 
 
 def areaquad(lon_0, lat_0, lon_1, lat_1, r=1):
@@ -327,7 +335,7 @@ def areaquad(lon_0, lat_0, lon_1, lat_1, r=1):
     """
     dlambda = np.radians(lon_1 - lon_0)
     sin_phi_0, sin_phi_1 = np.sin(np.radians([lat_0, lat_1]))
-    return np.abs(r ** 2 * dlambda * (sin_phi_1 - sin_phi_0))
+    return np.abs(r**2 * dlambda * (sin_phi_1 - sin_phi_0))
 
 
 def azimuth(inc, eme, phase):
@@ -354,8 +362,10 @@ def azimuth(inc, eme, phase):
 
     """
     if not np.shape(inc) == np.shape(eme) == np.shape(phase):
-        raise ValueError(f'Incidence {np.shape(inc)}, emergence {np.shape(eme)} '
-                         f'and phase {np.shape(phase)} do not have the same dimension.')
+        raise ValueError(
+            f'Incidence {np.shape(inc)}, emergence {np.shape(eme)} '
+            f'and phase {np.shape(phase)} do not have the same dimension.'
+        )
 
     if np.ndim(inc) == 0 and (inc == 0 or eme == 0):
         return 0
@@ -367,8 +377,11 @@ def azimuth(inc, eme, phase):
     if np.ndim(inc) == 0:
         azi /= np.sin(i) * np.sin(e)
     else:
-        azi = np.divide(azi, np.sin(i) * np.sin(e),
-                        out=np.ones_like(i),
-                        where=(np.not_equal(inc, 0) & np.not_equal(eme, 0)))
+        azi = np.divide(
+            azi,
+            np.sin(i) * np.sin(e),
+            out=np.ones_like(i),
+            where=(np.not_equal(inc, 0) & np.not_equal(eme, 0)),
+        )
 
     return np.degrees(np.arccos(np.clip(azi, -1, 1)))

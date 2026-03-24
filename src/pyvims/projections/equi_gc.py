@@ -34,8 +34,9 @@ class Equirectangular(EquirectangularProjection):
 
     """
 
-    def __init__(self, lon_w_0=180, lat_0=0, lat_ts=0, target=None, radius=None,
-                 npt_gc=8):
+    def __init__(
+        self, lon_w_0=180, lat_0=0, lat_ts=0, target=None, radius=None, npt_gc=8
+    ):
         self.lon_w_0 = lon_w_0
         self.lat_0 = lat_0
         self.target = target
@@ -84,14 +85,13 @@ class Equirectangular(EquirectangularProjection):
             (_lon_w, _lat)
             for i in range(nv)
             for _lon_w, _lat in great_circle_arc(
-                lon_w[i], lat[i], lon_w[i + 1], lat[i + 1], npt=self.npt_gc).T[:-1]
+                lon_w[i], lat[i], lon_w[i + 1], lat[i + 1], npt=self.npt_gc
+            ).T[:-1]
         ] + [(lon_w[-1], lat[-1])]
 
         gc_codes = np.concatenate(
-            [
-                [code] + (self.npt_gc - 2) * [Path.LINETO]
-                for code in codes[:-1]
-            ]
-            + [[Path.CLOSEPOLY]])
+            [[code] + (self.npt_gc - 2) * [Path.LINETO] for code in codes[:-1]]
+            + [[Path.CLOSEPOLY]]
+        )
 
         return np.transpose(self.xy(*np.transpose(vertices))), gc_codes

@@ -54,7 +54,7 @@ class QUB:
             raise FileNotFoundError(f'File `{self.filename}` not found.')
 
         if not self.is_qub:
-            raise IOError(f'File `{self.filename}` is not a valid QUB.')
+            raise OSError(f'File `{self.filename}` is not a valid QUB.')
 
         self.__header = None
         self.__cube = None
@@ -67,7 +67,7 @@ class QUB:
         return self.img_id
 
     def __repr__(self):
-        return ('\n - '.join([
+        return '\n - '.join([
             f'<{self.__class__.__name__}> QUB: {self}',
             f'Size: {self.ns, self.nl}',
             f'Mode: {self.sampling_mode_vis, self.sampling_mode_ir}',
@@ -76,7 +76,7 @@ class QUB:
             f'Exposure: {self.expo_vis, self.expo_ir} sec',
             f'Duration: {self.duration}',
             f'Target: {self.target}',
-        ]))
+        ])
 
     def __getitem__(self, val):
         if isinstance(val, tuple) and len(val) == 2:
@@ -94,11 +94,13 @@ class QUB:
 
             return self.core[val]
 
-        raise ValueError('\n - '.join([
-            'Invalid format (1-index). Use:',
-            'INT -> Band image',
-            '[INT, INT] -> [Sample, Line] spectrum',
-        ]))
+        raise ValueError(
+            '\n - '.join([
+                'Invalid format (1-index). Use:',
+                'INT -> Band image',
+                '[INT, INT] -> [Sample, Line] spectrum',
+            ])
+        )
 
     @property
     def root(self):
@@ -136,7 +138,7 @@ class QUB:
     @property
     def is_qub(self):
         """Check if the file is a valid QUB."""
-        with open(self.filename, 'r') as f:
+        with open(self.filename) as f:
             head = f.read(512)
 
         return '^QUBE' in head
@@ -291,8 +293,11 @@ class QUB:
     @property
     def b_band_suffix(self):
         """Band suffix size (bytes)."""
-        return np.sum(self.item_bytes('BAND_SUFFIX')) \
-            if 'BAND_SUFFIX_ITEM_BYTES' in self.core else 0
+        return (
+            np.sum(self.item_bytes('BAND_SUFFIX'))
+            if 'BAND_SUFFIX_ITEM_BYTES' in self.core
+            else 0
+        )
 
     @property
     def b_bands_suffix(self):
@@ -396,13 +401,13 @@ class QUB:
         raw = np.frombuffer(raw, dtype='b')
         raw = raw.reshape(self.nl, self.b_line)
 
-        lines = raw[:, :self.b_bands]
-        raw_back_plane = raw[:, self.b_bands:]
+        lines = raw[:, : self.b_bands]
+        raw_back_plane = raw[:, self.b_bands :]
 
         bands = lines.reshape(self.nl, self.nb, self.b_band)
 
-        cube = bands[:, :, :self.b_samples]
-        raw_side_plane = bands[:, :, self.b_samples:]
+        cube = bands[:, :, : self.b_samples]
+        raw_side_plane = bands[:, :, self.b_samples :]
 
         cube = np.frombuffer(cube.ravel(), dtype=self.dtype_cube)
         cube = cube.reshape(self.shape_cube)[self.name('CORE')]
@@ -470,12 +475,12 @@ class QUB:
     @property
     def extent(self):
         """Pyplot imshow cube extent."""
-        return [.5, self.ns + .5, self.nl + .5, .5]
+        return [0.5, self.ns + 0.5, self.nl + 0.5, 0.5]
 
     @property
     def cextent(self):
         """Pyplot contour cube extent."""
-        return [.5, self.ns + .5, .5, self.nl + .5]
+        return [0.5, self.ns + 0.5, 0.5, self.nl + 0.5]
 
     @property
     def sticks(self):
@@ -514,8 +519,9 @@ class QUB:
 
         if isinstance(value, slice):
             start = self.check_index(value.start, n, name)
-            stop = None if value.stop is None \
-                else self.check_index(value.stop, n, name) + 1
+            stop = (
+                None if value.stop is None else self.check_index(value.stop, n, name) + 1
+            )
             return slice(start, stop, value.step)
 
         raise ValueError(f'Invalid {name} type: `{type(value)}`.')

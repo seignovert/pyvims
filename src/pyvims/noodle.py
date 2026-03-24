@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from .vims import VIMS
 from .errors import VIMSError
+from .vims import VIMS
 
 
 class VIMSNoodle:
@@ -36,10 +36,17 @@ class VIMSNoodle:
 
     """
 
-    def __init__(self, *cubes,
-                 root=None, channel='ir',
-                 prefix='C', suffix='', ext='cub',
-                 vstack=True, verbose=True):
+    def __init__(
+        self,
+        *cubes,
+        root=None,
+        channel='ir',
+        prefix='C',
+        suffix='',
+        ext='cub',
+        vstack=True,
+        verbose=True,
+    ):
         self.channel = channel.upper()
         self.vstack = vstack
         self.verbose = verbose
@@ -48,10 +55,7 @@ class VIMSNoodle:
         self.__data = None
 
     def __str__(self):
-        return '\n - '.join([
-            'Cubes:',
-            *[str(cube) for cube in self.cubes]
-        ])
+        return '\n - '.join(['Cubes:', *[str(cube) for cube in self.cubes]])
 
     def __repr__(self):
         return f'<{self.__class__.__name__}> {self}'
@@ -60,8 +64,11 @@ class VIMSNoodle:
         return len(self.cubes)
 
     def __getitem__(self, item):
-        return self.cubes[item] if isinstance(item, (int, tuple, slice)) else \
-            self.cubes[self.cubes.index(item)]
+        return (
+            self.cubes[item]
+            if isinstance(item, (int, tuple, slice))
+            else self.cubes[self.cubes.index(item)]
+        )
 
     def __iter__(self):
         return iter(self.cubes)
@@ -104,14 +111,20 @@ class VIMSNoodle:
                 prefix=_prefix[i],
                 suffix=_suffix[i],
                 ext=_ext[i],
-            ) for i in range(n)
+            )
+            for i in range(n)
         ]
 
     @staticmethod
     def _list(values, n=1):
         """Convert values as list."""
-        return n * [values] if values is None or isinstance(values, (str, Path)) else \
-            values[0] if isinstance(values[0], list) else list(values)
+        return (
+            n * [values]
+            if values is None or isinstance(values, (str, Path))
+            else values[0]
+            if isinstance(values[0], list)
+            else list(values)
+        )
 
     @property
     def _is_ir(self):
@@ -126,14 +139,20 @@ class VIMSNoodle:
     @property
     def NS(self):
         """Max sample width."""
-        return max([cube.NS for cube in self]) if self.vstack else \
-            sum([cube.NS for cube in self])
+        return (
+            max([cube.NS for cube in self])
+            if self.vstack
+            else sum([cube.NS for cube in self])
+        )
 
     @property
     def NL(self):
         """Summed number of lines."""
-        return sum([cube.NL for cube in self]) if self.vstack else \
-            max([cube.NL for cube in self])
+        return (
+            sum([cube.NL for cube in self])
+            if self.vstack
+            else max([cube.NL for cube in self])
+        )
 
     @property
     def NP(self):
@@ -162,10 +181,10 @@ class VIMSNoodle:
         k = 0
         for cube in self.cubes:
             if self.vstack:
-                data[:, k: k + self.NL, :cube.NS] = cube.data
+                data[:, k : k + self.NL, : cube.NS] = cube.data
                 k += cube.NL
             else:
-                data[:, :cube.NL, k: k + cube.NS] = cube.data
+                data[:, : cube.NL, k : k + cube.NS] = cube.data
                 k += cube.NS
 
         if self.verbose:

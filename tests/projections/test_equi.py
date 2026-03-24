@@ -2,9 +2,9 @@
 
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from pyvims.projections import Equirectangular
-
 from pytest import approx, fixture
+
+from pyvims.projections import Equirectangular
 
 
 @fixture
@@ -27,7 +27,8 @@ def test_equi(proj):
 
     assert proj.proj4 == (
         '+proj=eqc +lat_0=0 +lon_0=180 +lat_ts=0 +x_0=0 +y_0=0 '
-        '+a=2574730.0 +b=2574730.0 +units=m +no_defs')
+        '+a=2574730.0 +b=2574730.0 +units=m +no_defs'
+    )
 
     assert proj.wkt == (
         'PROJCS["PROJCS_Titan_Equirectangular",'
@@ -42,7 +43,8 @@ def test_equi(proj):
         'PARAMETER["standard_parallel_1", 0],'
         'PARAMETER["central_meridian", 180],'
         'PARAMETER["latitude_of_origin", 0],'
-        'UNIT["Meter", 1]]')
+        'UNIT["Meter", 1]]'
+    )
 
 
 def test_equi_xy(proj):
@@ -58,22 +60,16 @@ def test_equi_xy(proj):
     assert_array(
         proj([0, 90, 180, 270], 0),
         ([8088753, 4044376, 0, -4044376], [0, 0, 0, 0]),
-        decimal=0)
+        decimal=0,
+    )
+
+    assert_array(proj(180, [0, 90, -90]), ([0, 0, 0], [0, 4044376, -4044376]), decimal=0)
+
+    assert_array(proj([180, 0], [90, 0]), ([0, 8088753], [4044376, 0]), decimal=0)
 
     assert_array(
-        proj(180, [0, 90, -90]),
-        ([0, 0, 0], [0, 4044376, -4044376]),
-        decimal=0)
-
-    assert_array(
-        proj([180, 0], [90, 0]),
-        ([0, 8088753], [4044376, 0]),
-        decimal=0)
-
-    assert_array(
-        proj([[180], [0]], [[90], [0]]),
-        ([[0], [8088753]], [[4044376], [0]]),
-        decimal=0)
+        proj([[180], [0]], [[90], [0]]), ([[0], [8088753]], [[4044376], [0]]), decimal=0
+    )
 
 
 def test_equi_lonlat(proj):
@@ -87,24 +83,23 @@ def test_equi_lonlat(proj):
     assert_array(proj(-8088753, -4044376, invert=True), (0, -90), decimal=0)
 
     assert_array(
-        proj([4044376, -4044376], 0, invert=True),
-        ([90, 270], [0, 0]),
-        decimal=0)
+        proj([4044376, -4044376], 0, invert=True), ([90, 270], [0, 0]), decimal=0
+    )
 
     assert_array(
-        proj(0, [4044376, -4044376], invert=True),
-        ([180, 180], [90, -90]),
-        decimal=0)
+        proj(0, [4044376, -4044376], invert=True), ([180, 180], [90, -90]), decimal=0
+    )
 
     assert_array(
-        proj([0, 8088753], [4044376, 0], invert=True),
-        ([180, 0], [90, 0]),
-        decimal=0)
+        proj([0, 8088753], [4044376, 0], invert=True), ([180, 0], [90, 0]), decimal=0
+    )
 
     assert_array(
         proj([[0], [8088753]], [[4044376], [0]], invert=True),
         ([[180], [0]], [[90], [0]]),
-        decimal=0)
+        decimal=0,
+    )
+
 
 def test_equi_lon_w_0():
     """Test equirectangular projection values centered on 0."""

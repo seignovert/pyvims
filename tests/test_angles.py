@@ -1,8 +1,8 @@
 """Test angles module."""
 
-from pyvims.angles import Angle, DEC, RA
-
 from pytest import approx, raises
+
+from pyvims.angles import DEC, RA, Angle
 
 
 def test_angle_math():
@@ -81,7 +81,7 @@ def test_dec_parser():
     assert DEC.parse('12 34 56') == approx(12.58, abs=1e-2)
     assert DEC.parse('12 34 56.789') == approx(12.58, abs=1e-2)
     assert DEC.parse("12°34'56''") == approx(12.58, abs=1e-2)
-    assert DEC.parse("12º34'56\"") == approx(12.58, abs=1e-2)
+    assert DEC.parse('12º34\'56"') == approx(12.58, abs=1e-2)
     assert DEC.parse('12°34′56″') == approx(12.58, abs=1e-2)
 
     with raises(ValueError):

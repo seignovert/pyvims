@@ -25,7 +25,7 @@ def intersect(v, sc, r):
     """
     dot = vdot(sc, v)
 
-    delta = np.subtract(dot**2, np.subtract(norm(sc)**2, r**2))
+    delta = np.subtract(dot**2, np.subtract(norm(sc) ** 2, r**2))
 
     if np.ndim(delta) > 0:
         delta[delta < 0] = 0

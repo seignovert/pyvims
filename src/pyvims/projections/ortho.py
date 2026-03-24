@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from matplotlib.path import Path
 
 from .__main__ import GroundProjection
-from ..vectors import hat, lonlat as _lonlat, xyz
+from ..vectors import hat, xyz
+from ..vectors import lonlat as _lonlat
 
 
 class Orthographic(GroundProjection):
@@ -131,8 +132,11 @@ class Orthographic(GroundProjection):
 
         lat = np.arcsin(cosc * self.slat0 + y / rh * sinc * self.clat0)
         if self.clat0 < self.EPSILON:
-            lon_w = np.arctan2(x, np.multiply(-1, y)) if self.lat_0 >= 0 else \
-                -np.arctan2(np.multiply(-1, x), y)
+            lon_w = (
+                np.arctan2(x, np.multiply(-1, y))
+                if self.lat_0 >= 0
+                else -np.arctan2(np.multiply(-1, x), y)
+            )
         else:
             lon_w = np.arctan2(sinc * x, rh * self.clat0 * cosc - self.slat0 * sinc * y)
 
@@ -217,8 +221,7 @@ class Orthographic(GroundProjection):
                     _dtheta = self.dtheta * (1 if theta_ < _theta else -1)
                     _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
                     v.extend([
-                        (self.r * np.cos(_t), self.r * np.sin(_t))
-                        for _t in _thetas
+                        (self.r * np.cos(_t), self.r * np.sin(_t)) for _t in _thetas
                     ])
                     c.extend(len(_thetas) * [Path.LINETO])
                     theta_ = None
@@ -245,10 +248,7 @@ class Orthographic(GroundProjection):
 
             _dtheta = self.dtheta * (1 if theta_ < _theta else -1)
             _thetas = np.radians(np.arange(theta_, _theta, _dtheta)[1:])
-            v.extend([
-                (self.r * np.cos(_t), self.r * np.sin(_t))
-                for _t in _thetas
-            ])
+            v.extend([(self.r * np.cos(_t), self.r * np.sin(_t)) for _t in _thetas])
             v.append((_x, _y))
             c.extend((len(_thetas) + 1) * [Path.LINETO])
 
@@ -309,9 +309,7 @@ class Orthographic(GroundProjection):
         theta = np.linspace(0, 2 * np.pi, npt)
         return self.r * np.cos(theta), self.r * np.sin(theta)
 
-    def grid(self, ax=None, color='gray',
-             lw=.25, color_2='red', lw_2=.5,
-             ticks=False):
+    def grid(self, ax=None, color='gray', lw=0.25, color_2='red', lw_2=0.5, ticks=False):
         """Draw orthographic grid."""
         if ax is None:
             ax = plt.gca()

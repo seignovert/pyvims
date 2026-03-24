@@ -1,10 +1,10 @@
 """Test MD5 module."""
 
-from pyvims.misc import check_md5, get_md5
-
 from pathlib import Path
 
 from pytest import raises
+
+from pyvims.misc import check_md5, get_md5
 
 
 QUB = Path(__file__).parents[1] / 'data' / 'v1815243432_1.qub'

@@ -33,7 +33,7 @@ class Equirectangular(GroundProjection):
 
     """
 
-    DEFAULT_RADIUS_KM = 180e-3 / np.pi   # Unitary degree representation
+    DEFAULT_RADIUS_KM = 180e-3 / np.pi  # Unitary degree representation
 
     PROJ4 = 'eqc'  # Proj4 projection key
 
@@ -277,9 +277,9 @@ class Equirectangular(GroundProjection):
             if _xr[i] <= self.xc:
                 rv.append([_xr[i], y[i]])
 
-            if (_xr[i] <= self.xc and _xr[i + 1] > self.xc) \
-                    or (_xr[i] > self.xc and _xr[i + 1] <= self.xc):
-
+            if (_xr[i] <= self.xc and _xr[i + 1] > self.xc) or (
+                _xr[i] > self.xc and _xr[i + 1] <= self.xc
+            ):
                 _f = (self.xc - _xr[i]) / (_xr[i + 1] - _xr[i])
                 _y = (y[i + 1] - y[i]) * _f + y[i]
                 rv.append([self.xc, _y])
@@ -293,9 +293,9 @@ class Equirectangular(GroundProjection):
             if _xl[i] >= -self.xc:
                 lv.append([_xl[i], y[i]])
 
-            if (_xl[i] >= -self.xc and _xl[i + 1] < -self.xc) \
-                    or (_xl[i] < -self.xc and _xl[i + 1] >= -self.xc):
-
+            if (_xl[i] >= -self.xc and _xl[i + 1] < -self.xc) or (
+                _xl[i] < -self.xc and _xl[i + 1] >= -self.xc
+            ):
                 _f = (-self.xc - _xl[i]) / (_xl[i + 1] - _xl[i])
                 _y = (y[i + 1] - y[i]) * _f + y[i]
                 lv.append([-self.xc, _y])
@@ -303,7 +303,13 @@ class Equirectangular(GroundProjection):
         lv.append(lv[0])
 
         # Create codes
-        codes = ([Path.MOVETO] + [Path.LINETO] * (len(lv) - 2) + [Path.CLOSEPOLY]
-                 + [Path.MOVETO] + [Path.LINETO] * (len(rv) - 2) + [Path.CLOSEPOLY])
+        codes = (
+            [Path.MOVETO]
+            + [Path.LINETO] * (len(lv) - 2)
+            + [Path.CLOSEPOLY]
+            + [Path.MOVETO]
+            + [Path.LINETO] * (len(rv) - 2)
+            + [Path.CLOSEPOLY]
+        )
 
         return np.vstack([lv, rv]), codes

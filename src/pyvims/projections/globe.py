@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from .ortho import Orthographic
 from .img import index
+from .ortho import Orthographic
 
 
 def globe(img, lon_w_0=0, lat_0=0, npt=1024):

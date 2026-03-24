@@ -34,13 +34,16 @@ def test_lin_interp_2d():
     assert_array(lin_interp(5, xp, fp), [50, 500, 5000])
     assert_array(lin_interp(4, xp, fp), [40, 400, 4000])
 
-    assert_array(lin_interp([1, 2, 5, 4, 3], xp, fp), [
-        [10, 100, 1000],
-        [20, 200, 2000],
-        [50, 500, 5000],
-        [40, 400, 4000],
-        [30, 300, 3000],
-    ])
+    assert_array(
+        lin_interp([1, 2, 5, 4, 3], xp, fp),
+        [
+            [10, 100, 1000],
+            [20, 200, 2000],
+            [50, 500, 5000],
+            [40, 400, 4000],
+            [30, 300, 3000],
+        ],
+    )
 
 
 def test_lin_interp_err():

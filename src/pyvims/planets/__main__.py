@@ -3,6 +3,7 @@
 from .enceladus import Enceladus
 from .titan import Titan
 
+
 class Planets(type):
     """Abstract Planets object."""
 

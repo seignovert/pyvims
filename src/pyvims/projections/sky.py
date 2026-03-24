@@ -31,10 +31,7 @@ class Sky(Projection):
         self.twist = twist
 
     def __repr__(self):
-        return (f'<{self}> '
-                f'RA: {self.ra}° | '
-                f'Dec: {self.dec}° | '
-                f'Twist: {self.twist}°')
+        return f'<{self}> RA: {self.ra}° | Dec: {self.dec}° | Twist: {self.twist}°'
 
     @property
     def ra(self):
@@ -103,19 +100,23 @@ class Sky(Projection):
         q2 = self.__stwist * self.__cdec * self.__sra
         q3 = self.__stwist * self.__sdec
 
-        m3 = np.array([[
-            1 - 2 * (q2 * q2 + q3 * q3),
-            2 * (q1 * q2 + q0 * q3),
-            2 * (q1 * q3 - q0 * q2),
-        ], [
-            2 * (q1 * q2 - q0 * q3),
-            1 - 2 * (q1 * q1 + q3 * q3),
-            2 * (q2 * q3 + q0 * q1),
-        ], [
-            2 * (q1 * q3 + q0 * q2),
-            2 * (q2 * q3 - q0 * q1),
-            1 - 2 * (q1 * q1 + q2 * q2),
-        ]])
+        m3 = np.array([
+            [
+                1 - 2 * (q2 * q2 + q3 * q3),
+                2 * (q1 * q2 + q0 * q3),
+                2 * (q1 * q3 - q0 * q2),
+            ],
+            [
+                2 * (q1 * q2 - q0 * q3),
+                1 - 2 * (q1 * q1 + q3 * q3),
+                2 * (q2 * q3 + q0 * q1),
+            ],
+            [
+                2 * (q1 * q3 + q0 * q2),
+                2 * (q2 * q3 - q0 * q1),
+                1 - 2 * (q1 * q1 + q2 * q2),
+            ],
+        ])
 
         return np.dot(m1, np.dot(m2, m3))
 

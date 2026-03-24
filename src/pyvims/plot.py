@@ -63,8 +63,7 @@ def _title(c, index):
         if isinstance(index[0], float):
             return f'{c} at ({index[0]:.2f}, {index[1]:.2f}, {index[2]:.2f}) µm'
 
-        else:
-            return f'{c} on bands {index}'
+        return f'{c} on bands {index}'
 
     return None
 
@@ -79,8 +78,10 @@ def _circle(r, npt=181):
 def plot_cube(c, *args, **kwargs):
     """Generic cube plot."""
     if not args:
-        raise VIMSError('Not attribute provided: '
-                        'band(s), wavelength(s), (S, L) coordinates or keyword')
+        raise VIMSError(
+            'Not attribute provided: '
+            'band(s), wavelength(s), (S, L) coordinates or keyword'
+        )
 
     if len(args) > 1:
         if 'bands' in args:
@@ -102,7 +103,7 @@ def plot_cube(c, *args, **kwargs):
         if 'all' in args:
             return plot_all(c, args[0], **kwargs)
 
-        if 'specular' == args[0]:
+        if args[0] == 'specular':
             return plot_spectra(c, *c.specular_sl, **kwargs)
 
         if 'specular' in args:
@@ -137,11 +138,21 @@ def plot_cube(c, *args, **kwargs):
             return plot_spectra(c, *args[0], **kwargs)
 
 
-def plot_img(c, index, ax=None, title=None,
-             ticks=True, labels=True, figsize=(8, 8),
-             cmap='gray', interp='none', ir_hr=False,
-             show_specular=False, show_legend=None,
-             **kwargs):
+def plot_img(
+    c,
+    index,
+    ax=None,
+    title=None,
+    ticks=True,
+    labels=True,
+    figsize=(8, 8),
+    cmap='gray',
+    interp='none',
+    ir_hr=False,
+    show_specular=False,
+    show_legend=None,
+    **kwargs,
+):
     """Plot VIMS cube image.
 
     Parameters
@@ -179,8 +190,12 @@ def plot_img(c, index, ax=None, title=None,
 
     if show_specular:
         edgecolors = 'r' if not isinstance(show_specular, str) else show_specular
-        ax.scatter(*c.specular_sl.T, facecolors='none', edgecolors=edgecolors,
-                   label=f'Specular: {c.specular_sl}')
+        ax.scatter(
+            *c.specular_sl.T,
+            facecolors='none',
+            edgecolors=edgecolors,
+            label=f'Specular: {c.specular_sl}',
+        )
         show_legend = True if show_legend is None else show_legend
 
     if title is None:
@@ -213,17 +228,29 @@ def plot_img(c, index, ax=None, title=None,
     if show_legend:
         ax.legend()
 
-    ax.set_xlim(.5, c.NS + .5)
-    ax.set_ylim(c.NL + .5, .5)
+    ax.set_xlim(0.5, c.NS + 0.5)
+    ax.set_ylim(c.NL + 0.5, 0.5)
 
     return ax
 
 
-def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
-                  as_sigma=False, ax=None,
-                  title=None, ticks=True, labels=True, label=None,
-                  hot_pixels=False,
-                  figsize=(12, 6), **kwargs):
+def plot_spectrum(
+    c,
+    S,
+    L,
+    offset=0,
+    color=None,
+    as_bands=False,
+    as_sigma=False,
+    ax=None,
+    title=None,
+    ticks=True,
+    labels=True,
+    label=None,
+    hot_pixels=False,
+    figsize=(12, 6),
+    **kwargs,
+):
     """Plot VIMS cube spectrum.
 
     Parameters
@@ -283,7 +310,7 @@ def plot_spectrum(c, S, L, offset=0, color=None, as_bands=False,
     ax.plot(x, c[S, L].spectrum + offset, label=label, color=color)
 
     if hot_pixels:
-        [ax.axvline(x, ls='--', lw=.5, color='r') for x in xhotpix]
+        [ax.axvline(x, ls='--', lw=0.5, color='r') for x in xhotpix]
 
     if title is None:
         title = f'{c} at S={S}, L={L}'
@@ -337,12 +364,15 @@ def _extract(n, key, kwargs, default=None):
 
         elif isinstance(values, (list, tuple)):
             if len(values) != n:
-                raise VIMSError('`coordinates` and `offset` must have '
-                                f'the same length ({n} vs. {len(values)}).')
+                raise VIMSError(
+                    '`coordinates` and `offset` must have '
+                    f'the same length ({n} vs. {len(values)}).'
+                )
 
         else:
             raise TypeError(
-                f'Unknown key `{key}` value type `{type(values)}` to extract.')
+                f'Unknown key `{key}` value type `{type(values)}` to extract.'
+            )
     else:
         values = n * [default] if n > 0 else default
 
@@ -369,9 +399,20 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
     hotpixs = _extract(n, 'hot_pixels', kwargs, default=False)
 
     for (S, L), offset, color, label, hotpix in zip(
-            coordinates, offsets, colors, labels, hotpixs):
-        ax = plot_spectrum(c, S, L, offset=offset, color=color, label=label,
-                           hot_pixels=hotpix, title=title, ax=ax, **kwargs)
+        coordinates, offsets, colors, labels, hotpixs
+    ):
+        ax = plot_spectrum(
+            c,
+            S,
+            L,
+            offset=offset,
+            color=color,
+            label=label,
+            hot_pixels=hotpix,
+            title=title,
+            ax=ax,
+            **kwargs,
+        )
 
     if title:
         ax.set_title(title)
@@ -380,13 +421,23 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
         ax.legend()
 
 
-def plot_sky(c, index, ax=None, title=None,
-             labels=True,
-             figsize=(8, 8), cmap='gray',
-             twist=0, n_interp=512,
-             interp='cubic', grid='lightgray',
-             show_img=True, show_pixels=False,
-             show_contour=False, **kwargs):
+def plot_sky(
+    c,
+    index,
+    ax=None,
+    title=None,
+    labels=True,
+    figsize=(8, 8),
+    cmap='gray',
+    twist=0,
+    n_interp=512,
+    interp='cubic',
+    grid='lightgray',
+    show_img=True,
+    show_pixels=False,
+    show_contour=False,
+    **kwargs,
+):
     """Plot projected VIMS cube image on the sky.
 
     Parameters
@@ -417,6 +468,7 @@ def plot_sky(c, index, ax=None, title=None,
         Color grid. Set ``None`` to remove the grid.
 
     """
+
     def _ticks_levels(cnt, x, p_x):
         """Extract levels from contour.
 
@@ -460,10 +512,9 @@ def plot_sky(c, index, ax=None, title=None,
         d = max(-int(np.log10(t[-1] - t[0]) - 1.5), 0)
         return np.array(['{v:0.{d}f}{s}'.format(v=v, d=d, s=suffix) for v in t])
 
-    img, (x, y), extent, pix, cnt, (ra, dec) = sky_cube(c, index,
-                                                        twist=twist,
-                                                        n=n_interp,
-                                                        interp=interp)
+    img, (x, y), extent, pix, cnt, (ra, dec) = sky_cube(
+        c, index, twist=twist, n=n_interp, interp=interp
+    )
 
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
@@ -490,8 +541,8 @@ def plot_sky(c, index, ax=None, title=None,
 
     if grid is not None:
         cextent = [extent[0], extent[1], extent[3], extent[2]]
-        cx = ax.contour(ra, extent=cextent, colors=grid, linewidths=.75)
-        cy = ax.contour(dec, extent=cextent, colors=grid, linewidths=.75)
+        cx = ax.contour(ra, extent=cextent, colors=grid, linewidths=0.75)
+        cy = ax.contour(dec, extent=cextent, colors=grid, linewidths=0.75)
 
         tx, lx = _ticks_levels(cx, ra[0, :], x[0, :])
         ty, ly = _ticks_levels(cy, dec[:, -1], y[:, -1])
@@ -517,13 +568,23 @@ def plot_sky(c, index, ax=None, title=None,
     return ax
 
 
-def plot_ortho(c, index, ax=None, title=None,
-               labels=True,
-               figsize=(8, 8), cmap='gray',
-               twist=0, n_interp=512,
-               interp='cubic', grid='lightgray',
-               show_img=True, show_pixels=False,
-               show_contour=False, **kwargs):
+def plot_ortho(
+    c,
+    index,
+    ax=None,
+    title=None,
+    labels=True,
+    figsize=(8, 8),
+    cmap='gray',
+    twist=0,
+    n_interp=512,
+    interp='cubic',
+    grid='lightgray',
+    show_img=True,
+    show_pixels=False,
+    show_contour=False,
+    **kwargs,
+):
     """Plot projected VIMS cube image in median orthographic plane.
 
     Parameters
@@ -554,9 +615,9 @@ def plot_ortho(c, index, ax=None, title=None,
         Color grid. Set ``None`` to remove the grid.
 
     """
-    img, (x, y), extent, pix, cnt, (lon, lat, alt) = ortho_cube(c, index,
-                                                                n=n_interp,
-                                                                interp=interp)
+    img, (x, y), extent, pix, cnt, (lon, lat, alt) = ortho_cube(
+        c, index, n=n_interp, interp=interp
+    )
 
     if ax is None:
         _, ax = plt.subplots(1, 1, figsize=figsize)
@@ -596,8 +657,8 @@ def plot_ortho(c, index, ax=None, title=None,
         kwargs = {
             'extent': cextent,
             'colors': grid,
-            'linewidths': .75,
-            'linestyles': 'solid'
+            'linewidths': 0.75,
+            'linestyles': 'solid',
         }
 
         dlon = np.max(clon) - np.min(clon)
@@ -638,7 +699,7 @@ def plot_ortho(c, index, ax=None, title=None,
         ax.clabel(lalt, fmt=_fmt_alt, inline=True, use_clabeltext=True)
 
         # Planet cercle
-        ax.contour(alt, [.1], **kwargs)
+        ax.contour(alt, [0.1], **kwargs)
 
         # Polar reticule for large FOV
         r = c.target_radius
@@ -665,13 +726,23 @@ def plot_ortho(c, index, ax=None, title=None,
     return ax
 
 
-def plot_equi(c, index, ax=None, title=None,
-              labels=True,
-              figsize=(16, 8), cmap='gray',
-              twist=0, n_interp=512,
-              interp='cubic', grid='lightgray',
-              show_img=True, show_pixels=False,
-              show_contour=False, **kwargs):
+def plot_equi(
+    c,
+    index,
+    ax=None,
+    title=None,
+    labels=True,
+    figsize=(16, 8),
+    cmap='gray',
+    twist=0,
+    n_interp=512,
+    interp='cubic',
+    grid='lightgray',
+    show_img=True,
+    show_pixels=False,
+    show_contour=False,
+    **kwargs,
+):
     """Plot projected VIMS cube image as equirectangular.
 
     Parameters
@@ -750,7 +821,7 @@ def plot_equi(c, index, ax=None, title=None,
     ax.yaxis.set_major_formatter(_fmt_lat)
 
     if grid is not None:
-        ax.grid(color=grid, linewidth=.75)
+        ax.grid(color=grid, linewidth=0.75)
 
     if title:
         ax.set_title(title)
@@ -768,12 +839,23 @@ def plot_equi(c, index, ax=None, title=None,
     return ax
 
 
-def plot_polar(c, index, ax=None, title=None,
-               figsize=(8, 8), cmap='gray',
-               twist=0, n_interp=512,
-               interp='cubic', grid='lightgray',
-               show_img=True, show_pixels=False,
-               show_contour=False, lat_min=60, **kwargs):
+def plot_polar(
+    c,
+    index,
+    ax=None,
+    title=None,
+    figsize=(8, 8),
+    cmap='gray',
+    twist=0,
+    n_interp=512,
+    interp='cubic',
+    grid='lightgray',
+    show_img=True,
+    show_pixels=False,
+    show_contour=False,
+    lat_min=60,
+    **kwargs,
+):
     """Plot projected VIMS cube image in polar view.
 
     Parameters
@@ -832,7 +914,7 @@ def plot_polar(c, index, ax=None, title=None,
     if grid is not None:
         kwargs = {
             'color': grid,
-            'linewidth': .75,
+            'linewidth': 0.75,
         }
 
         r_max = 90 - lat_min
@@ -841,9 +923,11 @@ def plot_polar(c, index, ax=None, title=None,
 
         for t in np.arange(0, 360, 30):
             cth, sth = np.cos(np.radians(t)), np.sin(np.radians(t))
-            ax.plot([(0 if t % 90 == 0 else r0) * cth, r1 * cth],
-                    [(0 if t % 90 == 0 else r0) * sth, r1 * sth],
-                    **kwargs)
+            ax.plot(
+                [(0 if t % 90 == 0 else r0) * cth, r1 * cth],
+                [(0 if t % 90 == 0 else r0) * sth, r1 * sth],
+                **kwargs,
+            )
 
         for r in np.arange(r0, r1 + r0, r0):
             ax.plot(*_circle(r), '-', **kwargs)
@@ -855,8 +939,13 @@ def plot_polar(c, index, ax=None, title=None,
             return -t_45, -t_45, f'\n\n{lat}°{ns}'
 
         for lat in np.arange(lat_min - r0, 90, r0):
-            ax.text(*_fmt_lat(lat), color=kwargs['color'], rotation=45,
-                    ha='center', va='center')
+            ax.text(
+                *_fmt_lat(lat),
+                color=kwargs['color'],
+                rotation=45,
+                ha='center',
+                va='center',
+            )
 
         t_30 = r_max / np.sqrt(3)
 

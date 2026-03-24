@@ -31,7 +31,7 @@ class Mollweide(GroundProjection):
 
     """
 
-    DEFAULT_RADIUS_KM = 1e-3 / np.sqrt(2)   # Unitary degree representation
+    DEFAULT_RADIUS_KM = 1e-3 / np.sqrt(2)  # Unitary degree representation
 
     PROJ4 = 'moll'  # Proj4 projection key
 
@@ -242,7 +242,7 @@ class Mollweide(GroundProjection):
         """
         if np.ndim(y) == 0 and abs(y / self.ry) > 1:
             return (None, None)
-        elif np.ndim(y) > 0:
+        if np.ndim(y) > 0:
             theta = np.divide(y, self.ry)
             np.clip(theta, -1, 1, out=theta)
             np.arcsin(theta, out=theta)

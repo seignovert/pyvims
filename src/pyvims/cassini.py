@@ -37,7 +37,6 @@ def img_id(fname):
     img_ids = re.findall(r'\d{10}_\d+(?:_\d+)?', str(fname))
 
     if not img_ids:
-        raise ValueError(f'File `{fname}` name does not '
-                         'match the correct ID pattern.')
+        raise ValueError(f'File `{fname}` name does not match the correct ID pattern.')
 
     return img_ids[0]

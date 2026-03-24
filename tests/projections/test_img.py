@@ -6,9 +6,9 @@ from numpy.testing import assert_array_almost_equal as assert_array
 
 from matplotlib.pyplot import imread
 
-from pyvims.projections import Orthographic, Stereographic, bg_pole
-
 from pytest import fixture
+
+from pyvims.projections import Orthographic, Stereographic, bg_pole
 
 
 DATA = Path(__file__).parent / 'data'
@@ -18,6 +18,7 @@ DATA = Path(__file__).parent / 'data'
 def bw_png():
     """Black and white background map in PNG."""
     return imread(DATA / 'Titan_ISS.png')
+
 
 @fixture
 def rgb_jpg():
@@ -29,6 +30,7 @@ def rgb_jpg():
 def npole_ortho():
     """Default North Pole Orthographic projection."""
     return Orthographic(lat_0=90)
+
 
 @fixture
 def spole_stereo():

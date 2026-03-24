@@ -76,7 +76,7 @@ def _hdr(NS, NL, offset):
 
     now = dt.now().strftime('%a %b %d %H:%M:%S %Y')
 
-    return f'''ENVI
+    return f"""ENVI
 description = {{
   ENVI File, Created [{now}]}}
 samples = {NS}
@@ -112,7 +112,7 @@ band names = {{
  n20: Limb pixel emission angle,
  n21: Limb pixel phase angle,
  n22: EMPTY.}}
-'''.encode()
+""".encode()
 
 
 def _mask(data, mask, fill=-99999):
@@ -128,11 +128,12 @@ def _mask(data, mask, fill=-99999):
         Fill data array.
 
     """
-    return np.ma.array(data,
-                       mask=mask,
-                       fill_value=fill,
-                       dtype=np.float32
-                       ).filled().copy(order='C')
+    return (
+        np.ma
+        .array(data, mask=mask, fill_value=fill, dtype=np.float32)
+        .filled()
+        .copy(order='C')
+    )
 
 
 def create_nav(cube, root=None):

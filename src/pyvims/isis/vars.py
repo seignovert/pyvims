@@ -2,8 +2,8 @@
 
 BYTE_ORDERS = {
     'NoByteOrder': '=',  # system
-    'Lsb': '<',          # little-endian
-    'Msb': '>'           # big-endian
+    'Lsb': '<',  # little-endian
+    'Msb': '>',  # big-endian
 }
 
 FIELD_TYPES = {

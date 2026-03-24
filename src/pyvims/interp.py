@@ -1,8 +1,8 @@
 """Interpolation module."""
 
-from matplotlib.path import Path
-
 import numpy as np
+
+from matplotlib.path import Path
 
 from scipy.interpolate import griddata
 
@@ -47,7 +47,7 @@ def _extent(x, y):
         X and Y extent.
 
     """
-    dx, dy = .5 * (x[1] - x[0]), .5 * (y[1] - y[0])
+    dx, dy = 0.5 * (x[1] - x[0]), 0.5 * (y[1] - y[0])
     return [x[0] - dx, x[-1] + dx, y[-1] + dy, y[0] - dy]
 
 
@@ -126,15 +126,15 @@ def _interp_1d(pts, data, grid, method='cubic', is_contour=True):
     if is_contour:
         values = np.hstack([
             values,
-            data[0, 0],      # Top-Left corner
-            data[0, :],      # Top edge
-            data[0, -1],     # Top-Right corner
-            data[:, -1],     # Right edge
-            data[-1, -1],    # Bottom-Right corner
+            data[0, 0],  # Top-Left corner
+            data[0, :],  # Top edge
+            data[0, -1],  # Top-Right corner
+            data[:, -1],  # Right edge
+            data[-1, -1],  # Bottom-Right corner
             data[-1, ::-1],  # Bottom edge
-            data[-1, 0],     # Bottom-Left corner
-            data[::-1, 0],   # Left edge
-            data[0, 0],      # Top-Left corner
+            data[-1, 0],  # Bottom-Left corner
+            data[::-1, 0],  # Left edge
+            data[0, 0],  # Top-Left corner
         ])
 
     # If some data are mask, they are removed before the interpolation.
@@ -194,8 +194,10 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
             b = _interp_1d(pts, data[:, :, 2], grid, **kwargs)
             z = rgb(r, g, b)
         else:
-            raise ValueError('3D data array can only have 3 planes (R, G, B), '
-                             f'{np.shape(data)[-1]} planes were provided.')
+            raise ValueError(
+                '3D data array can only have 3 planes (R, G, B), '
+                f'{np.shape(data)[-1]} planes were provided.'
+            )
 
     else:
         z = _interp_1d(pts, data, grid, **kwargs)
@@ -204,12 +206,16 @@ def cube_interp(xy, data, res, contour=False, method='cubic'):
         m = mask(grid, contour)
 
         if np.ndim(data) == 3:
-            z = np.moveaxis([
-                z[:, :, 0],
-                z[:, :, 1],
-                z[:, :, 2],
-                255 * np.uint8(~m),
-            ], 0, 2)
+            z = np.moveaxis(
+                [
+                    z[:, :, 0],
+                    z[:, :, 1],
+                    z[:, :, 2],
+                    255 * np.uint8(~m),
+                ],
+                0,
+                2,
+            )
         else:
             z = np.ma.array(z, mask=m)
 
@@ -320,7 +326,8 @@ def lin_interp(x, xp, fp):
 
     if _xp.shape[0] != _fp.shape[1]:
         raise IndexError(
-            f'Invalid positions and values shapes: {_xp.shape} vs. {_fp.shape}')
+            f'Invalid positions and values shapes: {_xp.shape} vs. {_fp.shape}'
+        )
 
     i = np.arange(_fp.shape[0])
     j = np.searchsorted(_xp, x) - 1

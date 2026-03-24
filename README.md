@@ -81,8 +81,8 @@ cd pyvims
 
 Lint the content of the project with `flake8`:
 ```bash
-uv run flake8 src tests
-uv run pylint
+uv run ruff check
+uv run ruff format
 ```
 
 Check that all the tests pass successfully:

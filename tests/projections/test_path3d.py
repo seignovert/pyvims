@@ -2,25 +2,21 @@
 
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from matplotlib.path import Path
 from matplotlib.patches import PathPatch
-
-from pyvims.projections import Path3D
+from matplotlib.path import Path
 
 from pytest import raises
+
+from pyvims.projections import Path3D
 
 
 def test_path3d_path():
     """Test path 3D path."""
-    path = Path3D([
-        (1, 2),
-        (3, 4),
-        (5, 6)
-    ], codes=[
-        Path.MOVETO,
-        Path.LINETO,
-        Path.CLOSEPOLY
-    ], alt=[7, 8, 9])
+    path = Path3D(
+        [(1, 2), (3, 4), (5, 6)],
+        codes=[Path.MOVETO, Path.LINETO, Path.CLOSEPOLY],
+        alt=[7, 8, 9],
+    )
 
     assert len(path) == 3
     assert_array(path.vertices, [(1, 2), (3, 4), (5, 6)])
@@ -39,15 +35,13 @@ def test_path3d_path():
 
 def test_path3d_patch():
     """Test path 3D patch."""
-    path = PathPatch(Path3D([
-        (1, 2),
-        (3, 4),
-        (5, 6)
-    ], codes=[
-        Path.MOVETO,
-        Path.LINETO,
-        Path.CLOSEPOLY
-    ], alt=[7, 8, 9])).get_path()
+    path = PathPatch(
+        Path3D(
+            [(1, 2), (3, 4), (5, 6)],
+            codes=[Path.MOVETO, Path.LINETO, Path.CLOSEPOLY],
+            alt=[7, 8, 9],
+        )
+    ).get_path()
 
     assert len(path) == 3
     assert_array(path.vertices, [(1, 2), (3, 4), (5, 6)])

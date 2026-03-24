@@ -2,10 +2,10 @@
 
 from pathlib import Path
 
-from pyvims.noodle import VIMSNoodle
-from pyvims.errors import VIMSError
-
 from pytest import fixture, raises
+
+from pyvims.errors import VIMSError
+from pyvims.noodle import VIMSNoodle
 
 
 DATA = Path(__file__).parent / 'data'
@@ -25,6 +25,7 @@ def cubes():
 def v_noodle(cubes):
     """Vertical noodle object."""
     return VIMSNoodle(cubes, root=DATA, vstack=True)
+
 
 @fixture
 def h_noodle(cubes):

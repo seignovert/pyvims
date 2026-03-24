@@ -28,8 +28,9 @@ class Path3D(Path):
     def __init__(self, *args, alt=None, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if alt is not None and \
-                (np.ndim(alt) == 0 or len(self.vertices) != np.shape(alt)[0]):
+        if alt is not None and (
+            np.ndim(alt) == 0 or len(self.vertices) != np.shape(alt)[0]
+        ):
             raise ValueError('Altitude array must have the same length as the vertices.')
 
         self.alt = alt

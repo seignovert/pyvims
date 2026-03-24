@@ -94,14 +94,13 @@ def path_cross_180(vertices_e):
         if l_lon[i] < -180 and l_lon[i + 1] < -180:
             continue
 
-        else:
-            if l_lon[i] >= -180:
-                l_verts.append([lon_e[i], lat[i]])
+        if l_lon[i] >= -180:
+            l_verts.append([lon_e[i], lat[i]])
 
-            if l_lon[i] < -180 or l_lon[i + 1] < -180:
-                f = (-180 - l_lon[i]) / (l_lon[i + 1] - l_lon[i])
-                f_lat = lat[i] + f * (lat[i + 1] - lat[i])
-                l_verts.append([-180, f_lat])
+        if l_lon[i] < -180 or l_lon[i + 1] < -180:
+            f = (-180 - l_lon[i]) / (l_lon[i + 1] - l_lon[i])
+            f_lat = lat[i] + f * (lat[i + 1] - lat[i])
+            l_verts.append([-180, f_lat])
 
     # Right polygon
     r_verts = []
@@ -110,14 +109,13 @@ def path_cross_180(vertices_e):
         if r_lon[i] > 180 and r_lon[i + 1] > 180:
             continue
 
-        else:
-            if r_lon[i] <= 180:
-                r_verts.append([lon_e[i], lat[i]])
+        if r_lon[i] <= 180:
+            r_verts.append([lon_e[i], lat[i]])
 
-            if r_lon[i] > 180 or r_lon[i + 1] > 180:
-                f = (180 - r_lon[i]) / (r_lon[i + 1] - r_lon[i])
-                f_lat = lat[i] + f * (lat[i + 1] - lat[i])
-                r_verts.append([180, f_lat])
+        if r_lon[i] > 180 or r_lon[i + 1] > 180:
+            f = (180 - r_lon[i]) / (r_lon[i + 1] - r_lon[i])
+            f_lat = lat[i] + f * (lat[i + 1] - lat[i])
+            r_verts.append([180, f_lat])
 
     return _merge(l_verts, r_verts)
 
@@ -139,14 +137,13 @@ def path_cross_360(vertices):
         if l_lon[i] < 0 and l_lon[i + 1] < 0:
             continue
 
-        else:
-            if l_lon[i] >= 0:
-                l_verts.append([lon[i], lat[i]])
+        if l_lon[i] >= 0:
+            l_verts.append([lon[i], lat[i]])
 
-            if l_lon[i] < 0 or l_lon[i + 1] < 0:
-                f = - l_lon[i] / (l_lon[i + 1] - l_lon[i])
-                f_lat = lat[i] + f * (lat[i + 1] - lat[i])
-                l_verts.append([0, f_lat])
+        if l_lon[i] < 0 or l_lon[i + 1] < 0:
+            f = -l_lon[i] / (l_lon[i + 1] - l_lon[i])
+            f_lat = lat[i] + f * (lat[i + 1] - lat[i])
+            l_verts.append([0, f_lat])
 
     # Right polygon
     r_verts = []
@@ -155,14 +152,13 @@ def path_cross_360(vertices):
         if r_lon[i] > 360 and r_lon[i + 1] > 360:
             continue
 
-        else:
-            if r_lon[i] <= 360:
-                r_verts.append([lon[i], lat[i]])
+        if r_lon[i] <= 360:
+            r_verts.append([lon[i], lat[i]])
 
-            if r_lon[i] > 360 or r_lon[i + 1] > 360:
-                f = (360 - r_lon[i]) / (r_lon[i + 1] - r_lon[i])
-                f_lat = lat[i] + f * (lat[i + 1] - lat[i])
-                r_verts.append([360, f_lat])
+        if r_lon[i] > 360 or r_lon[i + 1] > 360:
+            f = (360 - r_lon[i]) / (r_lon[i + 1] - r_lon[i])
+            f_lat = lat[i] + f * (lat[i + 1] - lat[i])
+            r_verts.append([360, f_lat])
 
     return _merge(l_verts, r_verts)
 
@@ -179,8 +175,14 @@ def _merge(lv, rv):
     else:
         raise ValueError(f'Right vertice size invalid: `{len(rv)}`')
 
-    codes = ([Path.MOVETO] + [Path.LINETO] * (len(lv) - 2) + [Path.CLOSEPOLY]
-             + [Path.MOVETO] + [Path.LINETO] * (len(rv) - 2) + [Path.CLOSEPOLY])
+    codes = (
+        [Path.MOVETO]
+        + [Path.LINETO] * (len(lv) - 2)
+        + [Path.CLOSEPOLY]
+        + [Path.MOVETO]
+        + [Path.LINETO] * (len(rv) - 2)
+        + [Path.CLOSEPOLY]
+    )
 
     return np.vstack([lv, rv]), codes
 
@@ -190,4 +192,4 @@ def area(vertices):
     x, y = np.transpose(vertices)
     y1 = np.array([*y[1:], y[0]])
     x2 = np.array([*x[2:], *x[:2]])
-    return .5 * np.abs(np.sum((x2 - x) * y1))
+    return 0.5 * np.abs(np.sum((x2 - x) * y1))

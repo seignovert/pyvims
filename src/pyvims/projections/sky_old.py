@@ -7,7 +7,7 @@ from ..vectors import deg180, deg360
 
 
 def cs(theta):
-    '''COS and SIN values.
+    """COS and SIN values.
 
     Parameters
     ----------
@@ -19,7 +19,7 @@ def cs(theta):
     (float, float)
         Cosinus and sinus of the input angle.
 
-    '''
+    """
     rad_theta = np.radians(theta)
     return np.array([np.cos(rad_theta), np.sin(rad_theta)])
 
@@ -45,20 +45,23 @@ def rot_sky(ra, dec, twist):
     q2 = s_t * c_d * s_r
     q3 = s_t * s_d
 
-    m3 = np.array([[
-        1 - 2 * (q2 * q2 + q3 * q3),
-        2 * (q1 * q2 + q0 * q3),
-        2 * (q1 * q3 - q0 * q2),
-    ], [
-        2 * (q1 * q2 - q0 * q3),
-        1 - 2 * (q1 * q1 + q3 * q3),
-        2 * (q2 * q3 + q0 * q1),
-    ], [
-
-        2 * (q1 * q3 + q0 * q2),
-        2 * (q2 * q3 - q0 * q1),
-        1 - 2 * (q1 * q1 + q2 * q2),
-    ]])
+    m3 = np.array([
+        [
+            1 - 2 * (q2 * q2 + q3 * q3),
+            2 * (q1 * q2 + q0 * q3),
+            2 * (q1 * q3 - q0 * q2),
+        ],
+        [
+            2 * (q1 * q2 - q0 * q3),
+            1 - 2 * (q1 * q1 + q3 * q3),
+            2 * (q2 * q3 + q0 * q1),
+        ],
+        [
+            2 * (q1 * q3 + q0 * q2),
+            2 * (q2 * q3 - q0 * q1),
+            1 - 2 * (q1 * q1 + q2 * q2),
+        ],
+    ])
 
     return np.dot(m1, np.dot(m2, m3))
 
@@ -66,11 +69,7 @@ def rot_sky(ra, dec, twist):
 def xyz(ra, dec):
     """Convert RA/DEC pointing into XYZ coordinates."""
     (c_r, s_r), (c_d, s_d) = cs(ra), cs(dec)
-    return np.array([
-        c_r * c_d,
-        s_r * c_d,
-        s_d
-    ])
+    return np.array([c_r * c_d, s_r * c_d, s_d])
 
 
 def xy(ra, dec, m_sky):

@@ -3,14 +3,14 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 from .img import rgb
 from .misc.vertices import area
-from .projections.lambert import xy as lambert
 from .projections import Path3D
+from .projections.lambert import xy as lambert
 
 
 class VIMSPixelCorners:
@@ -147,12 +147,16 @@ class VIMSPixelCorners:
     def __contains__(self, item):
         """Check the item is inside the pixel."""
         if np.size(item) != 2 or np.ndim(item) == 0:
-            raise ValueError('Coordinate point must be a 2 dimension array: '
-                             '`(west_longitude, latitude)`')
+            raise ValueError(
+                'Coordinate point must be a 2 dimension array: '
+                '`(west_longitude, latitude)`'
+            )
 
         if np.ndim(item) != 1:
-            raise ValueError('Only a single point can be tested. '
-                             'Use `.contains()` function for multiple points.')
+            raise ValueError(
+                'Only a single point can be tested. '
+                'Use `.contains()` function for multiple points.'
+            )
 
         return self.contains([item])
 
@@ -184,7 +188,8 @@ class VIMSPixelCorners:
     def patch(self, alt=False, sky=False, **kwargs):
         """Ground corners matplotlib patch."""
         return PathPatch(
-            self.path_alt if alt else self.path_sky if sky else self.path, **kwargs)
+            self.path_alt if alt else self.path_sky if sky else self.path, **kwargs
+        )
 
     @property
     def area(self):
@@ -194,7 +199,7 @@ class VIMSPixelCorners:
         centered on the mean sub-spacecraft point.
 
         """
-        return area(self._lambert_path.vertices) * self._cube.target_radius ** 2
+        return area(self._lambert_path.vertices) * self._cube.target_radius**2
 
 
 class VIMSPixelFootprint(VIMSPixelCorners):
@@ -279,7 +284,7 @@ class VIMSPixelsCorners:
     def __repr__(self):
         return '\n - '.join([
             f'<{self.__class__.__name__}> {self}',
-            f'Vertices shape: {self.vertices.shape}'
+            f'Vertices shape: {self.vertices.shape}',
         ])
 
     def __len__(self):
@@ -302,9 +307,9 @@ class VIMSPixelsCorners:
     def paths(self):
         """List of corners paths."""
         if self.__paths is None:
-            self.__paths = np.ma.array([c.path for c in self],
-                                       mask=~self.ground,
-                                       fill_value=None)
+            self.__paths = np.ma.array(
+                [c.path for c in self], mask=~self.ground, fill_value=None
+            )
         return self.__paths
 
     @property
@@ -325,16 +330,32 @@ class VIMSPixelsCorners:
         """List of corners paths with a mask."""
         return [c.path if m else None for c, m in zip(self, mask.ravel())]
 
-    def collection(self, index='surface', facecolors=None, edgecolors='None',
-                   vmin=None, vmax=None, cmap=None, alt=False, sky=False,
-                   mask=[], **kwargs):
+    def collection(
+        self,
+        index='surface',
+        facecolors=None,
+        edgecolors='None',
+        vmin=None,
+        vmax=None,
+        cmap=None,
+        alt=False,
+        sky=False,
+        mask=[],
+        **kwargs,
+    ):
         """Get the collection of all the corners patches on the ground."""
         patches = [
             PathPatch(path)
-            for path in (self.paths_alt if alt else
-                         self.paths_sky if sky else
-                         self.paths_mask(mask) if np.any(mask) else
-                         self.paths.data)]
+            for path in (
+                self.paths_alt
+                if alt
+                else self.paths_sky
+                if sky
+                else self.paths_mask(mask)
+                if np.any(mask)
+                else self.paths.data
+            )
+        ]
 
         if not isinstance(facecolors, str):
             if facecolors is None:
@@ -359,11 +380,9 @@ class VIMSPixelsCorners:
 
                 facecolors = np.reshape(data, (self._pixels.NP, 4))
 
-        return PatchCollection(patches,
-                               edgecolors=edgecolors,
-                               facecolors=facecolors,
-                               cmap=cmap,
-                               **kwargs)
+        return PatchCollection(
+            patches, edgecolors=edgecolors, facecolors=facecolors, cmap=cmap, **kwargs
+        )
 
 
 class VIMSPixelsFootprint(VIMSPixelsCorners):

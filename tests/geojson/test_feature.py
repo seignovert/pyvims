@@ -12,7 +12,8 @@ def test_feature():
         '{"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {}'
-        '}')
+        '}'
+    )
 
     assert dict(feature) == {
         'type': 'Feature',
@@ -29,7 +30,8 @@ def test_feature():
         '{"type": "Feature", '
         '"geometry": {"type": "Point", "coordinates": [30, 10]}, '
         '"properties": {"id": 123, "name": "foo"}'
-        '}')
+        '}'
+    )
 
     assert dict(feature) == {
         'type': 'Feature',

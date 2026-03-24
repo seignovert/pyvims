@@ -49,9 +49,7 @@ class ISISFields:
         self.__labels = None
 
     def __repr__(self):
-        return '\n - '.join([
-            f'<{self.__class__.__name__}> Available:',
-            *self.keys()])
+        return '\n - '.join([f'<{self.__class__.__name__}> Available:', *self.keys()])
 
     def __iter__(self):
         return iter(self.fields)
@@ -142,7 +140,7 @@ class ISISTable:
     def __repr__(self):
         return '\n - '.join([
             f'<{self.__class__.__name__}> Name: `{self}`. Fields:',
-            *self.keys()
+            *self.keys(),
         ])
 
     def __int__(self):
@@ -196,7 +194,7 @@ class ISISTable:
         """Table fields types."""
         return np.dtype({
             'names': self.fields.names,
-            'formats': [self.order + dtype for dtype in self.fields.dtypes]
+            'formats': [self.order + dtype for dtype in self.fields.dtypes],
         })
 
     def _load_data(self):
@@ -226,9 +224,7 @@ class ISISTables:
         self.__tables = None
 
     def __repr__(self):
-        return '\n - '.join([
-            f'<{self.__class__.__name__}> Available:',
-            *self.keys()])
+        return '\n - '.join([f'<{self.__class__.__name__}> Available:', *self.keys()])
 
     def __contains__(self, key):
         return key in self.tables.keys()

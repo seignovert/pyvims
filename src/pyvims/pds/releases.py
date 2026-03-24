@@ -40,8 +40,9 @@ class PDS:
 
     """
 
-    def __init__(self, instr, prefix='co', src='jpl', fmt='lbl',
-                 update=False, verbose=True):
+    def __init__(
+        self, instr, prefix='co', src='jpl', fmt='lbl', update=False, verbose=True
+    ):
         self.instr = instr.lower()
         self.prefix = prefix
         self.src = src
@@ -53,9 +54,11 @@ class PDS:
         self.download() if not self.is_file or update else self.load_csv()
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}> {self.instr.upper()}\n'
-                f' - Releases: {len(self)}\n'
-                f' - Source: {self.src.upper()}')
+        return (
+            f'<{self.__class__.__name__}> {self.instr.upper()}\n'
+            f' - Releases: {len(self)}\n'
+            f' - Source: {self.src.upper()}'
+        )
 
     def __len__(self):
         return len(self.__releases)
@@ -143,14 +146,13 @@ class PDS:
 
         with open(self.filename, 'w') as f:
             f.write(f'release, start, stop, url, src:{self.url}\n')
-            f.write('\n'.join(
-                [', '.join([str(r) for r in row]) for row in releases]))
+            f.write('\n'.join([', '.join([str(r) for r in row]) for row in releases]))
 
         self.__releases = np.array(releases, dtype=self.dtype)
 
     def load_csv(self):
         """Load CSV file."""
-        with open(self.filename, 'r') as f:
+        with open(self.filename) as f:
             src_url = f.readlines()[1].split(':')[1]
 
         if 'jpl.nasa.gov' in src_url:
@@ -162,8 +164,9 @@ class PDS:
         else:
             raise ValueError(f'Data source unknown: `{src_url}`.')
 
-        self.__releases = np.loadtxt(self.filename, delimiter=', ', skiprows=1,
-                                     dtype=self.dtype)
+        self.__releases = np.loadtxt(
+            self.filename, delimiter=', ', skiprows=1, dtype=self.dtype
+        )
 
     @property
     def releases(self):
@@ -207,7 +210,8 @@ class PDS:
         links = self.links[self.releases == release]
         if not links:
             raise PDSError(
-                f'Release `{release}` not found in {self.src.upper()} releases.')
+                f'Release `{release}` not found in {self.src.upper()} releases.'
+            )
 
         return links[0] if len(links) == 1 else links
 
@@ -285,9 +289,11 @@ class PDSRelease:
         return self.name
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}> {self}\n'
-                f' - Folders: {len(self)}\n'
-                f' - Source: {self.src.upper()}')
+        return (
+            f'<{self.__class__.__name__}> {self}\n'
+            f' - Folders: {len(self)}\n'
+            f' - Source: {self.src.upper()}'
+        )
 
     def __len__(self):
         return len(self.__folders)
@@ -362,18 +368,18 @@ class PDSRelease:
 
         with open(self.filename, 'w') as f:
             f.write(f'start, stop, url, src:{url}\n')
-            f.write('\n'.join(
-                [', '.join([str(r) for r in row]) for row in folders]))
+            f.write('\n'.join([', '.join([str(r) for r in row]) for row in folders]))
 
         self.__folders = np.array(folders, dtype=self.dtype)
 
     def load_csv(self):
         """Load CSV file."""
-        with open(self.filename, 'r') as f:
+        with open(self.filename) as f:
             self.url = f.readlines()[1].split(':')[1]
 
-        self.__folders = np.loadtxt(self.filename, delimiter=', ', skiprows=1,
-                                    dtype=self.dtype)
+        self.__folders = np.loadtxt(
+            self.filename, delimiter=', ', skiprows=1, dtype=self.dtype
+        )
 
     @property
     def folders(self):

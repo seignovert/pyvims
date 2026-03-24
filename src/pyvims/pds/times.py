@@ -7,8 +7,8 @@ Cassini time are extracted from kernels:
 """
 
 import re
-from datetime import datetime as dt, timezone as tz
-
+from datetime import datetime as dt
+from datetime import timezone as tz
 
 import numpy as np
 
@@ -76,7 +76,8 @@ def dt_iso(time):
 
     """
     times = re.findall(
-        r'(\d{4})-(\d{2})-(\d{2})[T:\s]?(\d{2})?:?(\d{2})?:?(\d{2})?\.?(\d{1,6})?', time)
+        r'(\d{4})-(\d{2})-(\d{2})[T:\s]?(\d{2})?:?(\d{2})?:?(\d{2})?\.?(\d{1,6})?', time
+    )
 
     if not times:
         raise ValueError(f'Invalid ISO datetime pattern `{time}`.')
@@ -86,8 +87,9 @@ def dt_iso(time):
     # Convert millisecondes to microsecondes for datetime input.
     t[:, -1] = np.array([int(1e6 * float(f'0.{_t}')) for _t in t[:, -1]])
 
-    return dt(*t[0], tzinfo=tz.utc) if len(t) == 1 else \
-        [dt(*_t, tzinfo=tz.utc) for _t in t]
+    return (
+        dt(*t[0], tzinfo=tz.utc) if len(t) == 1 else [dt(*_t, tzinfo=tz.utc) for _t in t]
+    )
 
 
 def dt_doy(time):
@@ -127,7 +129,8 @@ def dt_doy(time):
 
     """
     times = re.findall(
-        r'(\d{4})-(\d{3})[T:\s]?(\d{2})?:?(\d{2})?:?(\d{2})?\.?(\d{1,6})?', time)
+        r'(\d{4})-(\d{3})[T:\s]?(\d{2})?:?(\d{2})?:?(\d{2})?\.?(\d{1,6})?', time
+    )
 
     if not times:
         raise ValueError(f'Invalid DOY pattern `{time}`.')
@@ -138,9 +141,13 @@ def dt_doy(time):
     t[:, -1] = np.array([int(1e6 * float(f'0.{_t}')) for _t in t[:, -1]])
 
     # Reformat string for datetime parser.
-    t = [dt.strptime(
-        f'{_t[0]:04d}-{_t[1]:03d}T{_t[2]:02d}:{_t[3]:02d}:{_t[4]:02d}.{_t[5]:06d}+0000',
-        '%Y-%jT%H:%M:%S.%f%z') for _t in t]
+    t = [
+        dt.strptime(
+            f'{_t[0]:04d}-{_t[1]:03d}T{_t[2]:02d}:{_t[3]:02d}:{_t[4]:02d}.{_t[5]:06d}+0000',
+            '%Y-%jT%H:%M:%S.%f%z',
+        )
+        for _t in t
+    ]
 
     return t[0] if len(t) == 1 else t
 
@@ -193,9 +200,14 @@ def dt_date(time, eod=False):
     if not times:
         raise ValueError(f'Invalid date pattern `{time}`.')
 
-    t = [dt.strptime(
-        ' '.join([*_t[1:], '23:59:59' if eod or _t[0] != '' else '00:00:00']) + '+0000',
-        '%b %d %Y %H:%M:%S%z') for _t in times]
+    t = [
+        dt.strptime(
+            ' '.join([*_t[1:], '23:59:59' if eod or _t[0] != '' else '00:00:00'])
+            + '+0000',
+            '%b %d %Y %H:%M:%S%z',
+        )
+        for _t in times
+    ]
 
     return t[0] if len(t) == 1 else t
 

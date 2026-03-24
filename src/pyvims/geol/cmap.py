@@ -28,6 +28,7 @@ class UnitsColormap:
         if not isinstance(units, dict):
             raise TypeError('Units must be `dict`')
 
-        return LinearSegmentedColormap.from_list(name, [
-            ((value - vmin) / (vmax - vmin), color)
-            for value, color in units.items()])
+        return LinearSegmentedColormap.from_list(
+            name,
+            [((value - vmin) / (vmax - vmin), color) for value, color in units.items()],
+        )

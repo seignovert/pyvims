@@ -3,15 +3,15 @@
 import numpy as np
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from pyvims.vectors import angle, azimuth, areaquad, vdot
-
 from pytest import approx, raises
+
+from pyvims.vectors import angle, areaquad, azimuth, vdot
 
 
 def test_areaquad():
     """Test spherical quadrangle area."""
     assert areaquad(0, -90, 360, 90) == approx(4 * np.pi, abs=1e-6)
-    assert areaquad(0, 15, 30, 45) == approx(4 * np.pi * .0187, abs=1e-3)
+    assert areaquad(0, 15, 30, 45) == approx(4 * np.pi * 0.0187, abs=1e-3)
 
     assert areaquad(0, 15, 0, 45) == 0
     assert areaquad(0, 15, 30, 15) == 0
@@ -91,18 +91,12 @@ def test_azimuth():
     # 1D array
     inc, eme, phase = [0, 10, 90, 90, 60], [0, 0, 90, 45, 60], [0, 0, 135, 135, 60]
 
-    assert_array(
-        azimuth(inc, eme, phase),
-        [0, 0, 135, 180, _azi]
-    )
+    assert_array(azimuth(inc, eme, phase), [0, 0, 135, 180, _azi])
 
     # 2D array
     inc, eme, phase = [[10, 90], [90, 60]], [[0, 90], [45, 60]], [[0, 135], [135, 60]]
 
-    assert_array(
-        azimuth(inc, eme, phase),
-        [[0, 135], [180, _azi]]
-    )
+    assert_array(azimuth(inc, eme, phase), [[0, 135], [180, _azi]])
 
     with raises(ValueError):
         _ = azimuth(0, [0], [0])

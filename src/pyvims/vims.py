@@ -9,8 +9,8 @@ from requests import HTTPError
 
 from .camera import VIMSCamera
 from .cassini import img_id
-from .contour import VIMSContour
 from .constantes import AU
+from .contour import VIMSContour
 from .errors import VIMSError
 from .flyby import FLYBYS
 from .img import rgb, save_img
@@ -23,8 +23,17 @@ from .quaternions import m2q, q_mult, q_rot, q_rot_t
 from .star import Star
 from .target import intersect
 from .vars import VIMS_DATA_PORTAL
-from .vectors import (angle, azimuth, deg180, hat, hav_dist,
-                      lonlat, norm, radec, v_max_dist)
+from .vectors import (
+    angle,
+    azimuth,
+    deg180,
+    hat,
+    hav_dist,
+    lonlat,
+    norm,
+    radec,
+    v_max_dist,
+)
 from .wget import wget
 from .wvlns import ir_hot_pixels
 
@@ -96,8 +105,16 @@ class VIMS:
     # VIMS clock drift for IR scan
     VIMS_SEC = 1.01725
 
-    def __init__(self, fname, root=None, download=True,
-                 channel='ir', prefix='C', suffix='', ext='cub'):
+    def __init__(
+        self,
+        fname,
+        root=None,
+        download=True,
+        channel='ir',
+        prefix='C',
+        suffix='',
+        ext='cub',
+    ):
         self.img_id = img_id(fname)
         self.fname = f'{prefix}{self.img_id}{suffix}_{channel}.{ext}'
         self.root = root
@@ -107,7 +124,7 @@ class VIMS:
         return self.img_id
 
     def __repr__(self):
-        return ('\n - '.join([
+        return '\n - '.join([
             f'<{self.__class__.__name__}> Cube: {self}',
             f'Size: {self.NS, self.NL}',
             f'Channel: {self.channel}',
@@ -118,7 +135,7 @@ class VIMS:
             f'Duration: {self.duration}',
             f'Main target: {self.target_name}',
             f'Flyby: {self.flyby}',
-        ]))
+        ])
 
     def __getitem__(self, val):
         val = _parse(val)
@@ -135,15 +152,17 @@ class VIMS:
             if len(val) == 3:
                 return self._rgb(*val)
 
-        raise VIMSError('\n - '.join([
-            'Invalid format. Use:',
-            'INT -> Band image',
-            'FLOAT -> Wavelength image',
-            '[INT, INT] -> Sample, Line pixel',
-            '[FLOAT, FLOAT] -> West Longitude, Latitude pixel',
-            '[INT, INT, INT] -> Bands RGB',
-            '[FLOAT, FLOAT, FLOAT] -> Wavelengths RGB',
-        ]))
+        raise VIMSError(
+            '\n - '.join([
+                'Invalid format. Use:',
+                'INT -> Band image',
+                'FLOAT -> Wavelength image',
+                '[INT, INT] -> Sample, Line pixel',
+                '[FLOAT, FLOAT] -> West Longitude, Latitude pixel',
+                '[INT, INT, INT] -> Bands RGB',
+                '[FLOAT, FLOAT, FLOAT] -> Wavelengths RGB',
+            ])
+        )
 
     def __matmul__(self, val):
         return self[val]
@@ -238,8 +257,9 @@ class VIMS:
         try:
             wget(self.url, filename=self.filename, overwrite=overwrite)
         except HTTPError:
-            raise FileNotFoundError(f'`{self.fname}` is not available on '
-                                    'the VIMS Data Portal.')
+            raise FileNotFoundError(
+                f'`{self.fname}` is not available on the VIMS Data Portal.'
+            )
 
     @property
     def isis(self):
@@ -388,12 +408,12 @@ class VIMS:
     @property
     def extent(self):
         """Pyplot imshow cube extent."""
-        return [.5, self.NS + .5, self.NL + .5, .5]
+        return [0.5, self.NS + 0.5, self.NL + 0.5, 0.5]
 
     @property
     def cextent(self):
         """Pyplot contour cube extent."""
-        return [.5, self.NS + .5, .5, self.NL + .5]
+        return [0.5, self.NS + 0.5, 0.5, self.NL + 0.5]
 
     @property
     def sticks(self):
@@ -408,14 +428,12 @@ class VIMS:
     @property
     def bticks(self):
         """Cube bands ticks."""
-        return [97, 150, 200, 250, 300, 352] if self._is_ir else \
-            [1, 25, 50, 75, 96]
+        return [97, 150, 200, 250, 300, 352] if self._is_ir else [1, 25, 50, 75, 96]
 
     @property
     def wticks(self):
         """Cube wvlns ticks."""
-        return np.arange(1, 5.5, .5) if self._is_ir else \
-            np.arange(.4, 1.2, .2)
+        return np.arange(1, 5.5, 0.5) if self._is_ir else np.arange(0.4, 1.2, 0.2)
 
     @property
     def nticks(self):
@@ -596,9 +614,11 @@ class VIMS:
     def _et_ir(self):
         """IR pixels ephemeris time (ET)."""
         line_duration = self.NS * self._expo_ir + self.interline_delay
-        return (self.et_start
-                + (self._l - 1) * line_duration
-                + (self._s - .5) * self._expo_ir)
+        return (
+            self.et_start
+            + (self._l - 1) * line_duration
+            + (self._s - 0.5) * self._expo_ir
+        )
 
     @property
     def _et_vis(self):
@@ -612,10 +632,8 @@ class VIMS:
             (IrExposMsec - VisExposMsec) / 2
 
         """
-        offset = .5 * (self.NS * self._expo_ir - self._expo_vis)
-        return (self.et_start + offset
-                + (self._l - .5) * self._expo_vis
-                + 0 * self._s)
+        offset = 0.5 * (self.NS * self._expo_ir - self._expo_vis)
+        return self.et_start + offset + (self._l - 0.5) * self._expo_vis + 0 * self._s
 
     @property
     def et(self):
@@ -717,8 +735,9 @@ class VIMS:
     @property
     def _q_inst(self):
         """Instrument rotation matrix from the spacecraft frame."""
-        return m2q(np.reshape(
-            self.isis.tables['InstrumentPointing']['ConstantRotation'], (3, 3)))
+        return m2q(
+            np.reshape(self.isis.tables['InstrumentPointing']['ConstantRotation'], (3, 3))
+        )
 
     @property
     def _inst_q(self):
@@ -952,10 +971,9 @@ class VIMS:
     def alt(self):
         """Planetocentric altitude from the main target body center."""
         if self.__alt is None:
-            self.__alt = np.max([
-                np.zeros((self.NL, self.NS)),
-                self._dist - self.target_radius
-            ], axis=0)
+            self.__alt = np.max(
+                [np.zeros((self.NL, self.NS)), self._dist - self.target_radius], axis=0
+            )
 
         return self.__alt
 
@@ -1175,17 +1193,17 @@ class VIMS:
     @property
     def fov_patch(self):
         """Mean field of view patch on the ground."""
-        return great_circle_patch(*self.sc, inside=True, color='r', alpha=.1)
+        return great_circle_patch(*self.sc, inside=True, color='r', alpha=0.1)
 
     @property
     def sun_patch(self):
         """Sun illumination patch on the ground."""
-        return great_circle_patch(*self.ss, inside=True, color='gold', alpha=.1)
+        return great_circle_patch(*self.ss, inside=True, color='gold', alpha=0.1)
 
     @property
     def shadow_patch(self):
         """Shadow patch on the ground."""
-        return great_circle_patch(*self.ss, inside=False, color='k', alpha=.1)
+        return great_circle_patch(*self.ss, inside=False, color='k', alpha=0.1)
 
     @property
     def pixels(self):
@@ -1201,15 +1219,15 @@ class VIMS:
     def cet(self):
         """Contour ephemeris time."""
         return np.hstack([
-            self.et[0, 0],      # Top-Left corner
-            self.et[0, :],      # Top edge
-            self.et[0, -1],     # Top-Right corner
-            self.et[:, -1],     # Right edge
-            self.et[-1, -1],    # Bottom-Right corner
+            self.et[0, 0],  # Top-Left corner
+            self.et[0, :],  # Top edge
+            self.et[0, -1],  # Top-Right corner
+            self.et[:, -1],  # Right edge
+            self.et[-1, -1],  # Bottom-Right corner
             self.et[-1, ::-1],  # Bottom edge
-            self.et[-1, 0],     # Bottom-Left corner
-            self.et[::-1, 0],   # Left edge
-            self.et[0, 0],      # Top-Left corner
+            self.et[-1, 0],  # Bottom-Left corner
+            self.et[::-1, 0],  # Left edge
+            self.et[0, 0],  # Top-Left corner
         ])
 
     @property
@@ -1253,9 +1271,7 @@ class VIMS:
     def calt(self):
         """Planetocentric contour altitude from the main target body center."""
         dist = norm(self._cxyz)
-        return np.max([
-            np.zeros(np.shape(dist)), dist - self.target_radius
-        ], axis=0)
+        return np.max([np.zeros(np.shape(dist)), dist - self.target_radius], axis=0)
 
     @property
     def cortho(self):
@@ -1357,9 +1373,10 @@ class VIMS:
     def ralt(self):
         """Planetocentric corners altitude from the main target body center."""
         dist = norm(self._rxyz)
-        return np.reshape(np.max([
-            np.zeros(np.shape(dist)), dist - self.target_radius
-        ], axis=0), (self.NL, self.NS, 4))
+        return np.reshape(
+            np.max([np.zeros(np.shape(dist)), dist - self.target_radius], axis=0),
+            (self.NL, self.NS, 4),
+        )
 
     @property
     def rlimb(self):
@@ -1458,9 +1475,10 @@ class VIMS:
     def falt(self):
         """Planetocentric footprints altitude from the main target body center."""
         dist = norm(self._fxyz)
-        return np.reshape(np.max([
-            np.zeros(np.shape(dist)), dist - self.target_radius
-        ], axis=0), (self.NL, self.NS, 9))
+        return np.reshape(
+            np.max([np.zeros(np.shape(dist)), dist - self.target_radius], axis=0),
+            (self.NL, self.NS, 9),
+        )
 
     @property
     def flimb(self):
@@ -1506,8 +1524,10 @@ class VIMS:
 
         """
         if not (self.bands[0] <= b <= self.bands[-1]):
-            raise VIMSError(f'Band `{b}` invalid. Must be '
-                            f'between {self.bands[0]} and {self.bands[-1]}')
+            raise VIMSError(
+                f'Band `{b}` invalid. Must be '
+                f'between {self.bands[0]} and {self.bands[-1]}'
+            )
 
         return np.argmin(np.abs(self.bands - b))
 
@@ -1536,8 +1556,10 @@ class VIMS:
 
         """
         if not (self.wvlns[0] <= w <= self.wvlns[-1]):
-            raise VIMSError(f'Wavelength `{w}` invalid. Must be '
-                            f'between {self.wvlns[0]} and {self.wvlns[-1]}')
+            raise VIMSError(
+                f'Wavelength `{w}` invalid. Must be '
+                f'between {self.wvlns[0]} and {self.wvlns[-1]}'
+            )
 
         return np.argmin(np.abs(self.wvlns - w))
 
@@ -1646,13 +1668,15 @@ class VIMS:
 
         """
         if fname is None:
-            suffix = f'{index}'\
-                .replace(':', '-')\
-                .replace(',', '_')\
-                .replace('(', '')\
-                .replace(')', '')\
-                .replace('\'', '')\
+            suffix = (
+                f'{index}'
+                .replace(':', '-')
+                .replace(',', '_')
+                .replace('(', '')
+                .replace(')', '')
+                .replace("'", '')
                 .replace(' ', '')
+            )
 
             fname = f'{self}_{suffix}.jpg'
 
@@ -1666,8 +1690,7 @@ class VIMS:
     def dist_pt(self, lon_w, lat):
         """Haversine distances between a geographic point and all the pixels."""
         return np.ma.array(
-            hav_dist(lon_w, lat, self.lon, self.lat, self.target_radius),
-            mask=self.limb
+            hav_dist(lon_w, lat, self.lon, self.lat, self.target_radius), mask=self.limb
         )
 
     def get_pixel(self, lon_w, lat):
@@ -1724,9 +1747,11 @@ class VIMS:
         middle = self.pixels[self.NS // 2, self.NL // 2]
         last = self.pixels[self.NS, self.NL]
 
-        if (first.specular_lonlat not in self.contour
-                and middle.specular_lonlat not in self.contour
-                and last.specular_lonlat not in self.contour):
+        if (
+            first.specular_lonlat not in self.contour
+            and middle.specular_lonlat not in self.contour
+            and last.specular_lonlat not in self.contour
+        ):
             return []
 
         first_pix = self.get_pixel(*first.specular_lonlat)
@@ -1835,9 +1860,11 @@ class VIMS:
                 }
 
         """
-        return Star(et=self.et_median,
-                    obs=-self._sun_position(self.et_median),  # Observer: Cassini -> Sun
-                    **star_obj)
+        return Star(
+            et=self.et_median,
+            obs=-self._sun_position(self.et_median),  # Observer: Cassini -> Sun
+            **star_obj,
+        )
 
     @property
     def vis_background(self):
@@ -1857,8 +1884,7 @@ class VIMS:
     @property
     def _background(self):
         """Select background based on cube channel (NB, NL)."""
-        return self.ir_background.T if self._is_ir else \
-            self.vis_background.T
+        return self.ir_background.T if self._is_ir else self.vis_background.T
 
     @property
     def background(self):
@@ -1897,7 +1923,8 @@ class VIMS:
             return ir_hot_pixels(self._background, frac=frac, tol=tol)
 
         raise NotImplementedError(
-            'Hot pixel detection is not implemented for the VISIBLE channel.')
+            'Hot pixel detection is not implemented for the VISIBLE channel.'
+        )
 
     def w_hot_pixels(self, frac=95, tol=2.5):
         """Locate the wavelength of the hot pixel from the background.
@@ -1934,4 +1961,5 @@ class VIMS:
             return self.wvlns[self.hot_pixels() - 97]
 
         raise NotImplementedError(
-            'Hot pixel detection is not implemented for the VISIBLE channel.')
+            'Hot pixel detection is not implemented for the VISIBLE channel.'
+        )

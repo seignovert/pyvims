@@ -33,8 +33,10 @@ class ReleasesParser(HTMLParser):
             self.error('No links found during parsing.')
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}> '
-                f'{len(self)} link{"s" if len(self) > 1 else ""} found.')
+        return (
+            f'<{self.__class__.__name__}> '
+            f'{len(self)} link{"s" if len(self) > 1 else ""} found.'
+        )
 
     def __len__(self):
         return len(self.results)
@@ -120,8 +122,10 @@ class ReleaseParser(HTMLParser):
             self.error('No data folders found during parsing.')
 
     def __repr__(self):
-        return (f'<{self.__class__.__name__}> '
-                f'{len(self)} data folder{"s" if len(self) > 1 else ""} found.')
+        return (
+            f'<{self.__class__.__name__}> '
+            f'{len(self)} data folder{"s" if len(self) > 1 else ""} found.'
+        )
 
     def __len__(self):
         return len(self.results)

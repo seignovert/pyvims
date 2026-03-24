@@ -4,8 +4,12 @@ import numpy as np
 
 from .angles import DEC, RA
 from .coordinates import salt, slat, slon
-from .corners import (VIMSPixelCorners, VIMSPixelFootprint,
-                      VIMSPixelsCorners, VIMSPixelsFootprint)
+from .corners import (
+    VIMSPixelCorners,
+    VIMSPixelFootprint,
+    VIMSPixelsCorners,
+    VIMSPixelsFootprint,
+)
 from .errors import VIMSError
 from .misc.vertices import area
 from .projections.lambert import xy as lambert
@@ -60,11 +64,13 @@ class VIMSPixel:
         if isinstance(val, (int, float, str, slice)):
             return self._cube[val][self.j, self.i]
 
-        raise VIMSError('\n - '.join([
-            'Invalid format. Use:',
-            'INT -> Band image',
-            'FLOAT -> Wavelength image',
-        ]))
+        raise VIMSError(
+            '\n - '.join([
+                'Invalid format. Use:',
+                'INT -> Band image',
+                'FLOAT -> Wavelength image',
+            ])
+        )
 
     def __matmul__(self, val):
         return self[val]
@@ -116,7 +122,8 @@ class VIMSPixel:
 
         if not 1 <= sample <= self._cube.NS:
             raise VIMSError(
-                f'Sample `{sample}` invalid. Must be between 1 and {self._cube.NS}')
+                f'Sample `{sample}` invalid. Must be between 1 and {self._cube.NS}'
+            )
 
         self.__s = sample
 
@@ -145,7 +152,8 @@ class VIMSPixel:
 
         if not 1 <= line <= self._cube.NL:
             raise VIMSError(
-                f'Line `{line}` invalid. Must be between 1 and {self._cube.NL}')
+                f'Line `{line}` invalid. Must be between 1 and {self._cube.NL}'
+            )
 
         self.__l = line
 
@@ -338,9 +346,7 @@ class VIMSPixel:
     def specular_pt(self):
         """Specular point location at the time of the pixel acquisition."""
         if self.__spec is None:
-            self.__spec = specular_location(self.sc_pt,
-                                            self.ss_pt,
-                                            self.target_radius)
+            self.__spec = specular_location(self.sc_pt, self.ss_pt, self.target_radius)
         return self.__spec
 
     @property
@@ -366,31 +372,34 @@ class VIMSPixel:
     @property
     def is_specular(self):
         """Calculate if the specular point is within the pixel."""
-        return False if self.limb or self.specular_angle is None \
+        return (
+            False
+            if self.limb or self.specular_angle is None
             else self.specular_lonlat in self
+        )
 
     @property
     def specular_dist(self):
         """Haversine distance between the pixel and the specular reflection."""
-        return None if not self.specular_angle else hav_dist(*self.lonlat,
-                                                             *self.specular_lonlat,
-                                                             self.target_radius)
+        return (
+            None
+            if not self.specular_angle
+            else hav_dist(*self.lonlat, *self.specular_lonlat, self.target_radius)
+        )
 
     @property
     def sun_footprint(self):
         """Specular footprint of the sun at the time of the pixel acquisition."""
         if self.__sun_footprint is None:
-            self.__sun_footprint = specular_footprint(self.sc_pt,
-                                                      self.ss_pt,
-                                                      self.target_radius)
+            self.__sun_footprint = specular_footprint(
+                self.sc_pt, self.ss_pt, self.target_radius
+            )
         return self.__sun_footprint
 
     @property
     def _sun_footprint_r(self):
         """Specular footprint radius extent on the ground (km)."""
-        return hav_dist(*self.sun_footprint,
-                        *self.specular_lonlat,
-                        self.target_radius)
+        return hav_dist(*self.sun_footprint, *self.specular_lonlat, self.target_radius)
 
     @property
     def sun_footprint_a(self):
@@ -406,7 +415,7 @@ class VIMSPixel:
     def sun_footprint_area(self):
         """Sun footprint area on the ground (km^2)."""
         vertices = lambert(*self.sun_footprint, *self._cube.sc).T
-        return area(vertices) * self.target_radius ** 2
+        return area(vertices) * self.target_radius**2
 
 
 class VIMSPixels:
@@ -446,10 +455,12 @@ class VIMSPixels:
         if len(val) == 2:
             return self.get_pixel(*val)
 
-        raise VIMSError('\n - '.join([
-            'Invalid format. Use:',
-            '[INT, INT] -> Sample, Line pixel',
-        ]))
+        raise VIMSError(
+            '\n - '.join([
+                'Invalid format. Use:',
+                '[INT, INT] -> Sample, Line pixel',
+            ])
+        )
 
     def __call__(self, *args, **kwargs):
         """Return pixels collection."""

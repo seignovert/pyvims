@@ -54,11 +54,15 @@ def rgb(r, g, b, imin=None, imax=None):
         8 bits RGB image.
 
     """
-    return np.moveaxis(np.vstack([
-        [_clip(r, imin=imin, imax=imax)],
-        [_clip(g, imin=imin, imax=imax)],
-        [_clip(b, imin=imin, imax=imax)]
-    ]), 0, 2)
+    return np.moveaxis(
+        np.vstack([
+            [_clip(r, imin=imin, imax=imax)],
+            [_clip(g, imin=imin, imax=imax)],
+            [_clip(b, imin=imin, imax=imax)],
+        ]),
+        0,
+        2,
+    )
 
 
 def rgba(r, g, b, a):
@@ -81,9 +85,7 @@ def rgba(r, g, b, a):
         8 bits RGBA image.
 
     """
-    return np.moveaxis(np.vstack([
-        [_clip(r)], [_clip(g)], [_clip(b)], [_clip(a)]
-    ]), 0, 2)
+    return np.moveaxis(np.vstack([[_clip(r)], [_clip(g)], [_clip(b)], [_clip(a)]]), 0, 2)
 
 
 def save_img(fname, data, ir_hr=False, npix=256, quality=65, interp='bicubic'):
@@ -126,7 +128,7 @@ def save_img(fname, data, ir_hr=False, npix=256, quality=65, interp='bicubic'):
 
     fig = plt.figure(frameon=False, dpi=npix, figsize=(nx, ny))
 
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
     ax.set_axis_off()
     fig.add_axes(ax)
 

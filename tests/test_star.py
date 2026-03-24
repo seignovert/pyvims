@@ -2,9 +2,9 @@
 
 from numpy.testing import assert_array_almost_equal as assert_array
 
-from pyvims.star import Star
-
 from pytest import approx, fixture
+
+from pyvims.star import Star
 
 
 @fixture
@@ -12,10 +12,12 @@ def et():
     """Observation ephemeris time."""
     return 277399264.66979694
 
+
 @fixture
 def obs():
     """Observer position in J2000 frame."""
     return [1.33762199e9, -3.50660679e8, -2.03026006e8]
+
 
 @fixture
 def gaia_star():
@@ -29,6 +31,7 @@ def gaia_star():
         'parallax': 5.621437016523866,
         'phot_g_mean_mag': 6.3963637,
     }
+
 
 def test_star_attr(et, obs, gaia_star):
     """Test star attributes."""

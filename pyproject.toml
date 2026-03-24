@@ -35,9 +35,7 @@ dependencies = [
 
 [dependency-groups]
 linter = [
-    "flake8",
-    "Flake8-pyproject",
-    "pylint",
+    "ruff>=0.15",
 ]
 tests = [
     "pytest",
@@ -66,22 +64,91 @@ pyvims = [
 package = true
 default-groups = "all"
 
-[tool.flake8]
-max-line-length = 90
-max-complexity = 25
+# Ruff config
+[tool.ruff]
+line-length = 90
+
+[tool.ruff.format]
+preview = true
+quote-style = "single"
+
+[tool.ruff.lint]
+preview = true
+select = [
+    "F",    # Pyflakes
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "PL",   # Pylint
+    "I",    # isort
+    "N",    # pep8-naming
+    "C90",  # mccabe
+    "UP",   # pyupgrade
+    "S",    # flake8-bandit
+    "A",    # flake8-builtins
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "COM",  # flake8-commas
+    "C4",   # flake8-comprehensions
+    "T20",  # flake8-print
+    "Q",    # flake8-quotes
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+]
 ignore = [
+    "A005",     # disable shadowing a Python builtin module
+    "COM812",   # disable ruff format warning
+    "S603",     # disable subprocess-without-shell-equals-true (see PyCQA/bandit#333)
+    "PLR2004",  # magic-value-comparison
     "E302",
     "D300",
     "D105",
     "D107",
     "D401",
-    "W503",
     "N802",
-    "I100",
     "E741",
     "E743",
     "D402",
 ]
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "S101",     # assert
+]
+
+# Isort configuration
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+relative-imports-order = "closest-to-furthest"
+section-order = [
+  "future",
+  "standard-library",
+  "numpy",
+  "matplotlib",
+  "pytest",
+  "third-party",
+  "first-party",
+  "local-folder",
+]
+
+known-first-party = ["pyvims"]
+
+[tool.ruff.lint.isort.sections]
+numpy = ["numpy"]
+matplotlib = ["matplotlib"]
+pytest = ["pytest"]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "single"
+docstring-quotes = "double"
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-statements = 100
+max-args = 10
+max-public-methods = 30
+allow-dunder-method-names = ["_ipython_key_completions_", "_repr_html_", "_repr_png_"]
 
 [tool.pytest.ini_options]
 addopts = "-vv --color=yes"

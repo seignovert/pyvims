@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from ..vectors import deg180
 from ..interp import cube_interp
+from ..vectors import deg180
 
 
 def ortho_proj(lon, lat, lon_0=0, lat_0=0, r=1, alt=None):

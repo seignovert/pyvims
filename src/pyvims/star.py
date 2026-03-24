@@ -6,9 +6,9 @@ from .angles import DEC, RA
 from .vectors import hat, radec, xyz
 
 
-AU = 1.495978707e8     # 1 Astronomical Unit in [km]
+AU = 1.495978707e8  # 1 Astronomical Unit in [km]
 YR = 86400 * 365.2425  # Number of seconds per years
-MAS = 1 / 3600e3       # Convert [mas] to [deg]
+MAS = 1 / 3600e3  # Convert [mas] to [deg]
 
 
 class Star:
@@ -36,8 +36,19 @@ class Star:
 
     """
 
-    def __init__(self, ra=0, dec=0, pmra=None, pmdec=None, et=None,
-                 parallax=None, obs=None, source_id=None, epoch='J2000', **kwargs):
+    def __init__(
+        self,
+        ra=0,
+        dec=0,
+        pmra=None,
+        pmdec=None,
+        et=None,
+        parallax=None,
+        obs=None,
+        source_id=None,
+        epoch='J2000',
+        **kwargs,
+    ):
         self.ra_2000 = RA(ra)
         self.dec_2000 = DEC(dec)
         self.pmra = pmra
@@ -111,8 +122,11 @@ class Star:
     def radec(self):
         """Star apparent coordinates seen by VIMS."""
         if self.__radec is None:
-            self.__radec = self.radec_et if self.parallax is None or self.obs is None \
+            self.__radec = (
+                self.radec_et
+                if self.parallax is None or self.obs is None
                 else radec(hat(self.xyz - self.obs))
+            )
         return self.__radec
 
     @property

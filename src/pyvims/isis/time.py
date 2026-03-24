@@ -1,7 +1,7 @@
 """Isis time parser."""
 
-import struct
 import binascii
+import struct
 from datetime import datetime as dt
 
 

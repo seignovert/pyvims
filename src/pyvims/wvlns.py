@@ -2,19 +2,23 @@
 
 import numpy as np
 
-from matplotlib.patches import Rectangle
 from matplotlib.collections import PatchCollection
+from matplotlib.patches import Rectangle
 
 from .vars import ROOT_DATA
 
 
-CHANNELS, WLNS, FWHM = np.loadtxt(ROOT_DATA / 'wvlns_std.csv',
-                                  delimiter=',', usecols=(0, 1, 2),
-                                  unpack=True, skiprows=1)
+CHANNELS, WLNS, FWHM = np.loadtxt(
+    ROOT_DATA / 'wvlns_std.csv', delimiter=',', usecols=(0, 1, 2), unpack=True, skiprows=1
+)
 
-YEARS, SHIFT = np.loadtxt(ROOT_DATA / 'wvlns_ir_shift.csv',
-                          delimiter=',', usecols=(0, 1),
-                          unpack=True, skiprows=1)
+YEARS, SHIFT = np.loadtxt(
+    ROOT_DATA / 'wvlns_ir_shift.csv',
+    delimiter=',',
+    usecols=(0, 1),
+    unpack=True,
+    skiprows=1,
+)
 
 
 def VIMS_IR(band=None, year=None, fwhm=False, sigma=False):
@@ -150,12 +154,17 @@ BAD_IR_PIXELS = [
 ]
 
 
-def bad_ir_pixels(ymin=-1, ymax=1, color='grey', alpha=.25, **kwargs):
+def bad_ir_pixels(ymin=-1, ymax=1, color='grey', alpha=0.25, **kwargs):
     """VIMS-IR order-sorting and poor signal/noise channels collection."""
-    return PatchCollection([
-        Rectangle((w_left, ymin), width, ymax - ymin)
-        for (w_left, width) in BAD_IR_PIXELS
-    ], color=color, alpha=alpha, **kwargs)
+    return PatchCollection(
+        [
+            Rectangle((w_left, ymin), width, ymax - ymin)
+            for (w_left, width) in BAD_IR_PIXELS
+        ],
+        color=color,
+        alpha=alpha,
+        **kwargs,
+    )
 
 
 def moving_median(arr, width=3):
@@ -188,9 +197,9 @@ def moving_median(arr, width=3):
     _arr = np.full((n + width, width), np.nan)
 
     for i in range(width):
-        _arr[i:i + n, i] = arr
+        _arr[i : i + n, i] = arr
 
-    return np.nanmedian(_arr[w:w + n], axis=1)
+    return np.nanmedian(_arr[w : w + n], axis=1)
 
 
 def is_hot_pixel(arr, frac=95, tol=2.5):
@@ -333,7 +342,9 @@ def ir_hot_pixels(spectrum, frac=95, tol=2.5):
     # Split IR spectrum in each multiplexer
     ir_spec_1, ir_spec_2 = ir_multiplexer(spectrum)
 
-    return np.sort(np.hstack([
-        CHANNELS[96::2][is_hot_pixel(ir_spec_1, frac=frac, tol=tol)],
-        CHANNELS[97::2][is_hot_pixel(ir_spec_2, frac=frac, tol=tol)],
-    ])).astype(int)
+    return np.sort(
+        np.hstack([
+            CHANNELS[96::2][is_hot_pixel(ir_spec_1, frac=frac, tol=tol)],
+            CHANNELS[97::2][is_hot_pixel(ir_spec_2, frac=frac, tol=tol)],
+        ])
+    ).astype(int)

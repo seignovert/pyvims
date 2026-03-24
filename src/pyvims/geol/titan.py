@@ -32,33 +32,36 @@ class Titan(metaclass=GeolUnits):
     MAP = DATA / 'Titan_geol_map.png'
 
     LEGEND = {
-        0: 'Bassins',       # [1] Ba
+        0: 'Bassins',  # [1] Ba
         10: 'Minor_lakes',  # [3]
-        11: 'Jingpo',       # [3]
-        12: 'Punga_Kivu',   # [3]
-        13: 'Ligeia',       # [3]
-        14: 'Kraken_inf',   # [3]
-        15: 'Kraken_sup',   # [3]
-        25: 'Evaporites',   # [2]
-        50: 'Craters',      # [1] Cr
-        100: 'Dunes',       # [1] Dn
-        150: 'Labyrinth',   # [1] Lb
-        200: 'Hummocky',    # [1] Mt
-        255: 'Plains',      # [1] Pl
+        11: 'Jingpo',  # [3]
+        12: 'Punga_Kivu',  # [3]
+        13: 'Ligeia',  # [3]
+        14: 'Kraken_inf',  # [3]
+        15: 'Kraken_sup',  # [3]
+        25: 'Evaporites',  # [2]
+        50: 'Craters',  # [1] Cr
+        100: 'Dunes',  # [1] Dn
+        150: 'Labyrinth',  # [1] Lb
+        200: 'Hummocky',  # [1] Mt
+        255: 'Plains',  # [1] Pl
     }
 
-    CMAP = UnitsColormap({
-        0: '#0f5cd7',    # Bassins
-        10: '#002d9b',   # Minor lakes
-        11: '#002996',   # Jingpo
-        12: '#002591',   # Punga and Kivu
-        13: '#00228b',   # Ligeia
-        14: '#001e86',   # Kraken-inf
-        15: '#001a81',   # Kraken-sup
-        25: '#ff8a81',   # Evaporites
-        50: '#f10017',   # Craters
-        100: '#8a00a8',  # Dunes
-        150: '#fd00c2',  # Labyrinth
-        200: '#ffab24',  # Hummocky
-        255: '#00e7a9',  # Plains
-    }, name='titan_geol')
+    CMAP = UnitsColormap(
+        {
+            0: '#0f5cd7',  # Bassins
+            10: '#002d9b',  # Minor lakes
+            11: '#002996',  # Jingpo
+            12: '#002591',  # Punga and Kivu
+            13: '#00228b',  # Ligeia
+            14: '#001e86',  # Kraken-inf
+            15: '#001a81',  # Kraken-sup
+            25: '#ff8a81',  # Evaporites
+            50: '#f10017',  # Craters
+            100: '#8a00a8',  # Dunes
+            150: '#fd00c2',  # Labyrinth
+            200: '#ffab24',  # Hummocky
+            255: '#00e7a9',  # Plains
+        },
+        name='titan_geol',
+    )

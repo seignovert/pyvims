@@ -1,10 +1,10 @@
 """Geological units module."""
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
-
-import numpy as np
 
 from ..misc.vertices import path_gc_lonlat
 from ..projections.equirectangular import pixel_area as equi_pixel_area
@@ -51,12 +51,12 @@ def geol_units(img, lon_w, lat, legend=None):
 class GeolUnits(type):
     """Geological map units."""
 
-    R = None       # Planet radius [km]
-    MAP = None     # Geol map image
+    R = None  # Planet radius [km]
+    MAP = None  # Geol map image
     LEGEND = None  # Units mapping dict
 
     EXTENT = [360, 0, -90, 90]  # Map extent
-    NPT = 8                     # Great circle interpolation factor
+    NPT = 8  # Great circle interpolation factor
 
     __img = None
     __lonlat = None
@@ -68,7 +68,7 @@ class GeolUnits(type):
     def __repr__(cls):
         return '\n - '.join([
             f'<{cls.__class__.__name__}> {cls} | Units:',
-            *cls.LEGEND.values()
+            *cls.LEGEND.values(),
         ])
 
     def __call__(cls, *args, legend=True):
@@ -157,9 +157,8 @@ class GeolUnits(type):
         if cls.__lonlat is None:
             h, w = cls.shape
             cls.__lonlat = np.meshgrid(
-                np.linspace(0, 360, w)[::-1],
-                np.linspace(-90, 90, h)[::-1],
-                copy=False)
+                np.linspace(0, 360, w)[::-1], np.linspace(-90, 90, h)[::-1], copy=False
+            )
         return cls.__lonlat
 
     @property
@@ -259,9 +258,9 @@ class GeolUnits(type):
 
             units[name] += 100 * area / total_area
 
-        return {k: v for k, v, in sorted(units.items(), key=lambda x: x[1], reverse=True)}
+        return {k: v for k, v in sorted(units.items(), key=lambda x: x[1], reverse=True)}
 
-    def mask(cls, pixel, color='w', alpha=.9, reverse=False, **kwargs):
+    def mask(cls, pixel, color='w', alpha=0.9, reverse=False, **kwargs):
         """Create a hole mask patch of the pixel to put on top of the geol. map."""
         path = cls.pixel_gc_path(pixel)
         h, w = cls.shape
@@ -272,10 +271,10 @@ class GeolUnits(type):
             [0, -90],
             [0, 90],
             [360, 90],
-        ][::(-1 if reverse else 1)]
+        ][:: (-1 if reverse else 1)]
 
         vertices = bg + list(path.vertices)
 
         codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY] + list(path.codes)
 
-        return PathPatch(Path(vertices, codes), color=color, alpha=alpha, ** kwargs)
+        return PathPatch(Path(vertices, codes), color=color, alpha=alpha, **kwargs)

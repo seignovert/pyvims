@@ -108,8 +108,10 @@ class Flyby:
 
     def __lt__(self, other):
         if not isinstance(other, type(self)):
-            raise TypeError(f"'<' not supported between instances "
-                            f"of '{type(self)}' and '{type(other)}'")
+            raise TypeError(
+                f"'<' not supported between instances "
+                f"of '{type(self)}' and '{type(other)}'"
+            )
         return self.ca < other.ca
 
     @property

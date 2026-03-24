@@ -2,9 +2,9 @@
 
 import numpy as np
 
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 from matplotlib.collections import PatchCollection
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 from ..planets import PLANETS
 
@@ -32,8 +32,10 @@ class Projection:
         if len(args) == 2 or (len(args) == 3 and self.PROJ4 == 'ortho'):
             return self.lonlat(*args) if invert else self.xy(*args)
 
-        raise ValueError('A `PatchCollection`, `PathPatch`, `Patch` '
-                         'or (lon_w, lat) attributes are required.')
+        raise ValueError(
+            'A `PatchCollection`, `PathPatch`, `Patch` '
+            'or (lon_w, lat) attributes are required.'
+        )
 
     @staticmethod
     def _cs(angle):
@@ -175,9 +177,17 @@ class Projection:
             edgecolors=collection.get_edgecolors(),
         )
 
-    def meridians(self, lons=None, exclude=None,
-                  lon_min=0, lon_max=359, dlon=30,
-                  lat_min=-80, lat_max=80, nlat=50):
+    def meridians(
+        self,
+        lons=None,
+        exclude=None,
+        lon_min=0,
+        lon_max=359,
+        dlon=30,
+        lat_min=-80,
+        lat_max=80,
+        nlat=50,
+    ):
         """Projected meridians grid."""
         if lons is None:
             lons = np.arange(lon_min, lon_max, dlon)
@@ -187,14 +197,27 @@ class Projection:
         if exclude is None or isinstance(exclude, (int, float)):
             exclude = [] if exclude is None else [exclude]
 
-        return np.moveaxis([
-            self(lon, np.linspace(lat_min, lat_max, nlat)) for lon in lons
-            if lon not in exclude
-        ], 0, 2)
+        return np.moveaxis(
+            [
+                self(lon, np.linspace(lat_min, lat_max, nlat))
+                for lon in lons
+                if lon not in exclude
+            ],
+            0,
+            2,
+        )
 
-    def parallels(self, lats=None, exclude=None,
-                  lat_min=-80, lat_max=80, dlat=10,
-                  lon_min=0, lon_max=360, nlon=50):
+    def parallels(
+        self,
+        lats=None,
+        exclude=None,
+        lat_min=-80,
+        lat_max=80,
+        dlat=10,
+        lon_min=0,
+        lon_max=360,
+        nlon=50,
+    ):
         """Orthographic parallels grid."""
         if lats is None:
             lats = np.arange(lat_min, lat_max + dlat, dlat)
@@ -204,10 +227,15 @@ class Projection:
         if exclude is None or isinstance(exclude, (int, float)):
             exclude = [] if exclude is None else [exclude]
 
-        return np.moveaxis([
-            self(np.linspace(lon_min, lon_max, nlon), lat) for lat in lats
-            if lat not in exclude
-        ], 0, 2)
+        return np.moveaxis(
+            [
+                self(np.linspace(lon_min, lon_max, nlon), lat)
+                for lat in lats
+                if lat not in exclude
+            ],
+            0,
+            2,
+        )
 
 
 class GroundProjection(Projection):
@@ -238,8 +266,7 @@ class GroundProjection(Projection):
         self.radius = radius
 
     def __repr__(self):
-        return (f'<{self}> Target: {self.target}'
-                f'\n\tProj4: `{self.proj4}`')
+        return f'<{self}> Target: {self.target}\n\tProj4: `{self.proj4}`'
 
     @property
     def lat_0(self):
@@ -296,8 +323,13 @@ class GroundProjection(Projection):
     @target.setter
     def target(self, name):
         """Set target name."""
-        self.__target = 'Undefined' if name is None \
-            else name if name not in PLANETS else PLANETS[name]
+        self.__target = (
+            'Undefined'
+            if name is None
+            else name
+            if name not in PLANETS
+            else PLANETS[name]
+        )
 
     @property
     def radius(self):
