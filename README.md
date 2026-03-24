@@ -88,6 +88,7 @@ uv run pylint
 Check that all the tests pass successfully:
 ```bash
 uv run pytest
+uv run pytest --nbval-lax notebooks/
 ```
 
 ## Disclaimer
