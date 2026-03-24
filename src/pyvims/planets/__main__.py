@@ -28,7 +28,7 @@ class Planets(type):
 
         raise KeyError(f'Planet `{item}` undefined.')
 
-    def __missing__(self, item):
+    def __missing__(cls, item):
         return item
 
 
