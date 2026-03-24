@@ -1,6 +1,5 @@
 """PDS html parser."""
 
-import typing
 from html.parser import HTMLParser
 
 from .errors import PDSError
@@ -84,8 +83,8 @@ class ReleasesParser(HTMLParser):
             self.results.append((data, self.__last_link))
             self.__last_link = None
 
-    @typing.override
-    def error(self, message):
+    @staticmethod
+    def error(message):
         """Parsing error.
 
         Parameters
@@ -186,8 +185,8 @@ class ReleaseParser(HTMLParser):
             self.results.append(data)
             self.__last_link = False
 
-    @typing.override
-    def error(self, message):
+    @staticmethod
+    def error(message):
         """Parsing error.
 
         Parameters
