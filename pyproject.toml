@@ -1,0 +1,115 @@
+[project]
+name = "pyvims"
+version = "1.0.5"
+authors = [
+    { name = "Benoît Seignovert", email = "benoit.seignovert@univ-nantes.fr" },
+]
+maintainers = [
+    { name = "Benoît Seignovert", email = "benoit.seignovert@univ-nantes.fr" },
+]
+description = "Python package to manipulate the Cassini VIMS data"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["cassini", "vims", "titan"]
+license = "BSD-3-Clause"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+dependencies = [
+    "numpy>=1.17,<2",
+    "matplotlib>=3.1",
+    "Pillow",
+    "scipy",
+    "tqdm",
+    "requests",
+    "pvl",
+]
+
+[dependency-groups]
+linter = [
+    "flake8",
+    "Flake8-pyproject",
+    "pylint",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+    "requests-mock",
+    "nbval",
+]
+deploy = [
+    "bump-my-version>=1.2",
+]
+
+[project.urls]
+Repository = "https://github.com/seignovert/pyvims/"
+
+[project.scripts]
+pds = "pyvims.pds.cli:cli"
+
+[tool.setuptools.package-data]
+pyvims = [
+    "calib/*",
+    "data/*",
+    "geol/*",
+]
+
+[tool.uv]
+package = true
+default-groups = "all"
+
+[tool.flake8]
+max-line-length = 90
+max-complexity = 25
+ignore = [
+    "E302",
+    "D300",
+    "D105",
+    "D107",
+    "D401",
+    "W503",
+    "N802",
+    "I100",
+    "E741",
+    "E743",
+    "D402",
+]
+
+[tool.pytest.ini_options]
+addopts = "-vv --color=yes"
+testpaths = ["tests"]
+
+[tool.coverage.report]
+include = [
+	"pyvims/*.py",
+]
+skip_covered = true
+show_missing = true
+exclude_lines = [
+    "def __repr__",
+    "def __new__",
+    "pragma: no cover",
+    "raise NotImplementedError",
+]
+
+[tool.bumpversion]
+current_version = "1.0.5"
+commit = true
+tag = true
+tag_name = "{new_version}"
+sign_tags = true
+
+
+[[tool.bumpversion.files]]
+filename = "src/pyvims/__version__.py"
+
+[[tool.bumpversion.files]]
+filename = "README.md"

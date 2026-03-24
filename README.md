@@ -68,6 +68,28 @@ If you use this package for your research, please cite it as:
 > Seignovert et al. - PyVIMS (Version 1.0.5) -
 > [Zenodo](https://zenodo.org/badge/latestdoi/126732857)
 
+## Local development
+
+This project is managed with [uv](https://docs.astral.sh/uv/).
+If you want to contribute to this project, you need to install it first.
+Then clone [this repo](https://github.com/seignovert/pyvims):
+
+```bash
+git clone https://github.com/seignovert/pyvims
+cd pyvims
+```
+
+Lint the content of the project with `flake8`:
+```bash
+uv run flake8 src tests
+uv run pylint
+```
+
+Check that all the tests pass successfully:
+```bash
+uv run pytest
+```
+
 ## Disclaimer
 
 This project is not supported or endorsed by either JPL or NASA. The
