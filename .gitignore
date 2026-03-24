@@ -64,6 +64,3 @@ kernels/
 # Tox
 AUTHORS
 ChangeLog
-
-# Pip
-src/
