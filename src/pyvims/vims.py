@@ -38,7 +38,7 @@ from .wget import wget
 from .wvlns import ir_hot_pixels
 
 
-def _parse(val):
+def _parse(val):  # noqa: C901 FIXME
     """Parse index values based on type or format."""
     if isinstance(val, (int, float, slice, np.int64)):
         return val
@@ -189,10 +189,7 @@ class VIMS:
     @root.setter
     def root(self, root):
         if root is None:
-            if 'VIMS_DATA' in os.environ:
-                root = os.environ['VIMS_DATA']
-            else:
-                root = os.getcwd()
+            root = os.environ['VIMS_DATA'] if 'VIMS_DATA' in os.environ else os.getcwd()
 
         elif not os.path.isdir(root):
             raise OSError(f'Folder `{root}` does not exists.')
@@ -259,7 +256,7 @@ class VIMS:
         except HTTPError:
             raise FileNotFoundError(
                 f'`{self.fname}` is not available on the VIMS Data Portal.'
-            )
+            ) from None
 
     @property
     def isis(self):

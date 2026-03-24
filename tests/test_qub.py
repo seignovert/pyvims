@@ -27,7 +27,7 @@ def test_qub_loader(qub):
     assert str(qub) == '1815243432_1'
     assert qub.fname == 'v1815243432_1.qub'
     assert qub.prefix == 'v'
-    assert qub.suffix == ''
+    assert not qub.suffix
     assert qub.is_file
     assert qub.is_qub
     assert qub.md5 == '58a3ac2623d1d103e0077da1b0e56cf3'

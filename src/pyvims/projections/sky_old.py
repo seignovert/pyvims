@@ -81,7 +81,7 @@ def xy(ra, dec, m_sky):
 def radec(x, y, m_sky):
     """Project vector from sky tangant plane to RA/DEC coordinates."""
     u = np.array([np.ones(np.shape(x)), x, y])
-    u = u / np.linalg.norm(u, axis=0)
+    u /= np.linalg.norm(u, axis=0)
     v = np.dot(np.transpose(m_sky), u)
     ra = np.degrees(np.arctan2(v[1], v[0]))
     dec = np.degrees(np.arcsin(v[2]))

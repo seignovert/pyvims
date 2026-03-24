@@ -1,6 +1,7 @@
 """PDS releases."""
 
 import os
+import sys
 
 import numpy as np
 
@@ -64,7 +65,7 @@ class PDS:
         return len(self.__releases)
 
     def __contains__(self, item):
-        return True if self.locate(item) else False
+        return bool(self.locate(item))
 
     def __getitem__(self, item):
         urls = self.locate(item)
@@ -130,13 +131,13 @@ class PDS:
 
         """
         if self.verbose:
-            print(f'Download list of releases from `{self.url}`.')
+            sys.stdout.write(f'Download list of releases from `{self.url}`.\n')
 
         try:
             html = wget_txt(self.url)
             results = ReleasesParser(html, src=self.src, keyword=self._keyword)
         except PDSError:
-            raise PDSError(f'No releases found in {self.url}')
+            raise PDSError(f'No releases found in {self.url}') from None
 
         releases = []
         for data, link in results:
@@ -144,7 +145,7 @@ class PDS:
             release = link.split('/')[-2]
             releases.append((release, int(start), int(stop), link))
 
-        with open(self.filename, 'w') as f:
+        with open(self.filename, 'w', encoding='utf-8') as f:
             f.write(f'release, start, stop, url, src:{self.url}\n')
             f.write('\n'.join([', '.join([str(r) for r in row]) for row in releases]))
 
@@ -152,7 +153,7 @@ class PDS:
 
     def load_csv(self):
         """Load CSV file."""
-        with open(self.filename) as f:
+        with open(self.filename, encoding='utf-8') as f:
             src_url = f.readlines()[1].split(':')[1]
 
         if 'jpl.nasa.gov' in src_url:
@@ -299,7 +300,7 @@ class PDSRelease:
         return len(self.__folders)
 
     def __contains__(self, item):
-        return True if self.link(item) else False
+        return bool(self.link(item))
 
     def __getitem__(self, item):
         folders = self.link(item)
@@ -343,7 +344,7 @@ class PDSRelease:
     def download(self):
         """Download a specific release."""
         if self.verbose:
-            print(f'Download release {self} from {self.src.upper()}.')
+            sys.stdout.write(f'Download release {self} from {self.src.upper()}.\n')
 
         # Get PDS url based on source
         self.url = self._pds.link(self.name)
@@ -358,7 +359,7 @@ class PDSRelease:
                 raise ValueError('Release parse is only available for JPL sources.')
 
         except PDSError:
-            raise PDSError(f'No release folders found in {url}')
+            raise PDSError(f'No release folders found in {url}') from None
 
         folders = []
         for data in results:
@@ -366,7 +367,7 @@ class PDSRelease:
             link = url + data
             folders.append((data, int(start), int(stop), link))
 
-        with open(self.filename, 'w') as f:
+        with open(self.filename, 'w', encoding='utf-8') as f:
             f.write(f'start, stop, url, src:{url}\n')
             f.write('\n'.join([', '.join([str(r) for r in row]) for row in folders]))
 
@@ -374,7 +375,7 @@ class PDSRelease:
 
     def load_csv(self):
         """Load CSV file."""
-        with open(self.filename) as f:
+        with open(self.filename, encoding='utf-8') as f:
             self.url = f.readlines()[1].split(':')[1]
 
         self.__folders = np.loadtxt(

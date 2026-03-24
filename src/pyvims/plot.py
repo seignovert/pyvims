@@ -12,7 +12,7 @@ from .vectors import deg180, deg360
 
 @FuncFormatter
 def _fmt_lon(x, pos=None):
-    s = '' if x in [0, 180, -180] else ('W' if x > 0 else 'E')
+    s = '' if x in {0, 180, -180} else ('W' if x > 0 else 'E')
     return f'{abs(x):.0f}°{s}'
 
 
@@ -83,9 +83,8 @@ def plot_cube(c, *args, **kwargs):
             'band(s), wavelength(s), (S, L) coordinates or keyword'
         )
 
-    if len(args) > 1:
-        if 'bands' in args:
-            kwargs['as_bands'] = True
+    if len(args) > 1 and 'bands' in args:
+        kwargs['as_bands'] = True
 
     if isinstance(args[0], (int, float, str)):
         if 'sky' in args:
@@ -133,9 +132,9 @@ def plot_cube(c, *args, **kwargs):
 
             return plot_img(c, args[0], **kwargs)
 
-    if isinstance(args[0], list):
-        if isinstance(args[0][0], tuple):
-            return plot_spectra(c, *args[0], **kwargs)
+    if isinstance(args[0], list) and isinstance(args[0][0], tuple):
+        return plot_spectra(c, *args[0], **kwargs)
+    return None
 
 
 def plot_img(
@@ -236,8 +235,8 @@ def plot_img(
 
 def plot_spectrum(
     c,
-    S,
-    L,
+    s,
+    l,
     offset=0,
     color=None,
     as_bands=False,
@@ -257,9 +256,9 @@ def plot_spectrum(
     ----------
     c: pyvims.VIMS
         Cube to plot.
-    S: int
+    s: int
         Spectrum sample location (``1`` to ``NS``).
-    L: int
+    l: int
         Spectrum line location (``1`` to ``NL``).
     offset: float, optional
         Spectrum offset.
@@ -305,15 +304,15 @@ def plot_spectrum(
         xhotpix = c.w_hot_pixels()
 
     if label is None:
-        label = f'S={S}, L={L}'
+        label = f'S={s}, L={l}'
 
-    ax.plot(x, c[S, L].spectrum + offset, label=label, color=color)
+    ax.plot(x, c[s, l].spectrum + offset, label=label, color=color)
 
     if hot_pixels:
         [ax.axvline(x, ls='--', lw=0.5, color='r') for x in xhotpix]
 
     if title is None:
-        title = f'{c} at S={S}, L={L}'
+        title = f'{c} at S={s}, L={l}'
 
     if title:
         ax.set_title(title)
@@ -346,7 +345,7 @@ def _extract(n, key, kwargs, default=None):
         Default value.
 
     """
-    if key in kwargs.keys():
+    if key in kwargs:
         values = kwargs[key]
         del kwargs[key]
 
@@ -398,13 +397,13 @@ def plot_spectra(c, *coordinates, legend=True, **kwargs):
     title = _extract(0, 'title', kwargs, default=f'{c}')
     hotpixs = _extract(n, 'hot_pixels', kwargs, default=False)
 
-    for (S, L), offset, color, label, hotpix in zip(
-        coordinates, offsets, colors, labels, hotpixs
+    for (s, l), offset, color, label, hotpix in zip(
+        coordinates, offsets, colors, labels, hotpixs, strict=False
     ):
         ax = plot_spectrum(
             c,
-            S,
-            L,
+            s,
+            l,
             offset=offset,
             color=color,
             label=label,

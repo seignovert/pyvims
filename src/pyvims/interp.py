@@ -258,7 +258,7 @@ def cube_interp_filled(xy, data, res, contour, method='cubic'):
     if isinstance(x, np.ma.core.MaskedArray):
         xx, yy, dd = x[~x.mask], y[~y.mask], data[~x.mask]
     else:
-        xx, yy, data = x, y, data
+        xx, yy, dd = x, y, data
 
     # Cube interpolation without the contour
     z = griddata((xx, yy), dd, grid, method='cubic')

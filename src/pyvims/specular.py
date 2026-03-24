@@ -1,5 +1,7 @@
 """Specular reflexion module."""
 
+import sys
+
 import numpy as np
 
 from .quaternions import q_rot
@@ -48,7 +50,7 @@ def specular_angle(beta, dist, radius, debug=False):
     roots = np.roots([1, b, c, d, e])
 
     if debug:
-        print(f'<SPECULAR ANGLE> Roots: {roots}')
+        sys.stdout.write(f'<SPECULAR ANGLE> Roots: {roots}\n')
 
     cond = (np.abs(roots.imag) < 1e-6) & (np.abs(roots) <= 1)
 
@@ -64,8 +66,10 @@ def specular_angle(beta, dist, radius, debug=False):
     )
 
     if debug:
-        print(f'<SPECULAR ANGLE> Alphas: {np.degrees(alphas)}')
-        print(f'<SPECULAR ANGLE> Betas: {np.degrees(betas)}')
+        sys.stdout.write(
+            f'<SPECULAR ANGLE> Alphas: {np.degrees(alphas)}\n'
+            f'<SPECULAR ANGLE> Betas: {np.degrees(betas)}\n'
+        )
 
     if np.min(diff) > 1e-2:
         raise ValueError(

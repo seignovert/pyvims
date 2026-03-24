@@ -1,6 +1,7 @@
 """PDS html parser."""
 
 from html.parser import HTMLParser
+from typing import override
 
 from .errors import PDSError
 
@@ -83,6 +84,7 @@ class ReleasesParser(HTMLParser):
             self.results.append((data, self.__last_link))
             self.__last_link = None
 
+    @override
     def error(self, message):
         """Parsing error.
 
@@ -184,6 +186,7 @@ class ReleaseParser(HTMLParser):
             self.results.append(data)
             self.__last_link = False
 
+    @override
     def error(self, message):
         """Parsing error.
 

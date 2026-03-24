@@ -28,6 +28,9 @@ class Planets(type):
 
         raise KeyError(f'Planet `{item}` undefined.')
 
+    def __missing__(self, item):
+        return item
+
 
 class PLANETS(metaclass=Planets):
     """Global Planets object."""

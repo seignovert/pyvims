@@ -2,6 +2,7 @@
 
 import os
 import re
+import sys
 
 import numpy as np
 
@@ -82,7 +83,7 @@ def add(maps, keys, attr, value):
         return
 
     for i, key in enumerate(keys):
-        if key not in maps.keys():
+        if key not in maps:
             maps[key] = {}
         maps[key][attr] = value[i] if isinstance(value, tuple) else value
 
@@ -135,7 +136,7 @@ def parse_readme(filename):
         List of all the maps available in the README.
 
     """
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         lines = f.read().splitlines()
 
     maps = {}
@@ -149,10 +150,10 @@ def parse_readme(filename):
         elif line.startswith('* Filename:'):
             filenames = parse(r'`([\w\.\-\s/\\]+)`', line)
 
-            files = tuple([os.path.basename(fname) for fname in filenames])
-            roots = tuple([os.path.dirname(fname) for fname in filenames])
+            files = tuple(os.path.basename(fname) for fname in filenames)
+            roots = tuple(os.path.dirname(fname) for fname in filenames)
 
-            keys = tuple([basename(f) for f in files])
+            keys = tuple(basename(f) for f in files)
 
             add(maps, keys, 'fname', files)
             add(maps, keys, 'root', roots)
@@ -192,13 +193,13 @@ def remove_from_readme(filename, fname):
         List of all the maps available in the README.
 
     """
-    with open(filename) as f:
+    with open(filename, encoding='utf-8') as f:
         lines = f.read().splitlines()
 
     new = []
     buffer = []
     include = True
-    for i, line in enumerate(lines):
+    for line in lines:
         if line.startswith('##'):
             if buffer:
                 new += buffer
@@ -209,7 +210,7 @@ def remove_from_readme(filename, fname):
         elif line.startswith('* Filename:'):
             filenames = parse(r'`([\w\.\-\s/\\]+)`', line)
 
-            files = tuple([basename(fname) for fname in filenames])
+            files = tuple(basename(fname) for fname in filenames)
 
             if fname in files:
                 include = False
@@ -221,7 +222,7 @@ def remove_from_readme(filename, fname):
     if buffer:
         new += buffer
 
-    with open(filename, 'w') as f:
+    with open(filename, 'w', encoding='utf-8') as f:
         f.write('\n'.join(new))
 
 
@@ -240,7 +241,7 @@ class MapsDetails(type):
         return len(cls.maps())
 
     def __contains__(cls, item):
-        return item in cls.maps().keys()
+        return item in cls.maps()
 
     def __iter__(cls):
         return iter(cls.maps())
@@ -249,7 +250,7 @@ class MapsDetails(type):
         try:
             return Map(**cls.maps()[item])
         except KeyError:
-            raise KeyError(f'Unknown map `{item}`.')
+            raise KeyError(f'Unknown map `{item}`.') from None
 
     @classmethod
     def maps(cls):
@@ -312,29 +313,29 @@ class MapsDetails(type):
 
         key = basename(m)
 
-        if key in cls.maps().keys():
+        if key in cls.maps():
             if update:
                 cls.remove(key)
             else:
                 raise ValueError(f'A map is already registered with the name: `{key}`.')
 
-        with open(cls.filename(), 'a') as f:
+        with open(cls.filename(), 'a', encoding='utf-8') as f:
             f.write(f'\n{m.markdown}')
 
         cls.__maps[key] = dict(m)
 
-        print(f'Image `{key}` saved in MAPS registry.')
+        sys.stdout.write(f'Image `{key}` saved in MAPS registry.\n')
 
     @classmethod
     def remove(cls, fname):
         """Remove a map file from README."""
         key = basename(fname)
 
-        if key in cls.maps().keys():
+        if key in cls.maps():
             remove_from_readme(cls.filename(), key)
             del cls.__maps[key]
 
-            print(f'Image `{key}` removed from MAPS registry.')
+            sys.stdout.write(f'Image `{key}` removed from MAPS registry.\n')
 
     @classmethod
     def reload(cls):
@@ -407,8 +408,7 @@ class Map:
         ])
 
     def __iter__(self):
-        for k, v in self.as_dict.items():
-            yield k, v
+        yield from self.as_dict.items()
 
     def __call__(self, *args):
         if len(args) == 1:
@@ -558,9 +558,8 @@ class Map:
     @property
     def n_pole(self):
         """Pole observered for polar projection."""
-        if self.__n_pole is None:
-            if self._proj == 'stereo':
-                self.__n_pole = self.data_extent[3] > 0
+        if self.__n_pole is None and self._proj == 'stereo':
+            self.__n_pole = self.data_extent[3] > 0
         return self.__n_pole
 
     @property
@@ -570,10 +569,10 @@ class Map:
 
     @property
     def _proj(self):
-        if self.proj in [None, 'equi', 'equirectangular', 'plate carrée', 'lonlat']:
+        if self.proj in {None, 'equi', 'equirectangular', 'plate carrée', 'lonlat'}:
             return 'lonlat'
 
-        if self.proj in ['stereo', 'stereographic']:
+        if self.proj in {'stereo', 'stereographic'}:
             return 'stereo'
 
         raise ValueError(f'Projection `{self.proj}` is not available.')
@@ -581,7 +580,7 @@ class Map:
     @property
     def extent(self):
         """Projected data extent."""
-        if self._proj in ['lon_w_lat', 'lon_e_lat']:
+        if self._proj in {'lon_w_lat', 'lon_e_lat'}:
             return self.data_extent
 
         if self._proj == 'stereo':
@@ -937,7 +936,7 @@ class MapAxis:
 
     def set_xyticklabels(
         self,
-        lats=[60, 70, 80],
+        lats=None,
         lon_w=45,
         color='lightgray',
         xticklabels=None,
@@ -953,6 +952,8 @@ class MapAxis:
             West longitude to display meridian values.
 
         """
+        if lats is None:
+            lats = [60, 70, 80]
         self.ax.set_xticklabels(
             self.bg.lonlabels() if xticklabels is None else xticklabels
         )
@@ -973,7 +974,7 @@ class MapAxis:
 
     def set_xylim(self, bl_lon_w=None, bl_lat=None, tr_lon_w=None, tr_lat=None):
         """Set X-Y axis limits based on map dimensions."""
-        if None in [bl_lon_w, bl_lat, tr_lon_w, tr_lat]:
+        if None in {bl_lon_w, bl_lat, tr_lon_w, tr_lat}:
             self.ax.set_xlim(self.bg.xlim)
             self.ax.set_ylim(self.bg.ylim)
         else:
@@ -984,8 +985,8 @@ class MapAxis:
 
     def grid(
         self,
-        lats=[60, 70, 80],
-        lons=[30, 60, 120, 150, 210, 240, 310, 340],
+        lats=None,
+        lons=None,
         lat_min=60,
         lat_max=80,
         nlats=21,
@@ -1013,6 +1014,10 @@ class MapAxis:
             Grid line width.
 
         """
+        if lons is None:
+            lons = [30, 60, 120, 150, 210, 240, 310, 340]
+        if lats is None:
+            lats = [60, 70, 80]
         self.ax.grid(color=color, lw=lw, **kwargs)
 
         if self.bg._proj == 'stereo':

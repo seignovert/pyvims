@@ -110,10 +110,7 @@ class QUB:
     @root.setter
     def root(self, root):
         if root is None:
-            if 'VIMS_DATA' in os.environ:
-                root = os.environ['VIMS_DATA']
-            else:
-                root = os.getcwd()
+            root = os.environ['VIMS_DATA'] if 'VIMS_DATA' in os.environ else os.getcwd()
 
         elif not os.path.isdir(root):
             raise OSError(f'Folder `{root}` does not exists.')
@@ -138,7 +135,7 @@ class QUB:
     @property
     def is_qub(self):
         """Check if the file is a valid QUB."""
-        with open(self.filename) as f:
+        with open(self.filename, encoding='utf-8') as f:
             head = f.read(512)
 
         return '^QUBE' in head
@@ -264,7 +261,7 @@ class QUB:
             _names = [_names]
 
         out = []
-        for name, t, b in zip(_names, _type, _bytes):
+        for name, t, b in zip(_names, _type, _bytes, strict=False):
             arch = '>' if t == 'SUN_INTEGER' else '<'  # Big | Little endian
 
             if b == 2:

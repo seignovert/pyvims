@@ -26,14 +26,13 @@ class ISISLabels(dict):
         if key not in self:
             raise KeyError(f'Label `{key}` not found in labels.')
 
-        if key in self.labels.keys():
+        if key in self.labels:
             return self.labels[key]
 
         values = []
         for _, value in self.items():
-            if isinstance(value, type(self)):
-                if key in value:
-                    values.append(value[key])
+            if isinstance(value, type(self)) and key in value:
+                values.append(value[key])
 
         if len(values) == 1:
             return values[0]
@@ -46,7 +45,7 @@ class ISISLabels(dict):
         if self.__labels is None:
             self.__labels = {}
             for key, value in self.__pvl:
-                if key not in ['Table', 'Label', 'History', 'OriginalLabel']:
+                if key not in {'Table', 'Label', 'History', 'OriginalLabel'}:
                     if isinstance(value, dict):
                         self.__labels[key] = ISISLabels(value)
                     else:

@@ -276,7 +276,7 @@ def pds_time(time):
             try:
                 return dt_date(time)
             except ValueError:
-                raise ValueError(f'Invalid pattern `{time}`.')
+                raise ValueError(f'Invalid pattern `{time}`.') from None
 
 
 def cassini_time(time):

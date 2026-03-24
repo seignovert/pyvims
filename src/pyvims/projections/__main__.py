@@ -323,13 +323,7 @@ class GroundProjection(Projection):
     @target.setter
     def target(self, name):
         """Set target name."""
-        self.__target = (
-            'Undefined'
-            if name is None
-            else name
-            if name not in PLANETS
-            else PLANETS[name]
-        )
+        self.__target = 'Undefined' if name is None else PLANETS[name]
 
     @property
     def radius(self):

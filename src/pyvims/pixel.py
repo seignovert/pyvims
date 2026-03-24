@@ -519,7 +519,9 @@ class VIMSPixels:
             If the sample or line provided does not match the cube dimension.
 
         """
-        for i, imax, name in zip([s, l], [self.NS, self.NL], ['Sample', 'Line']):
+        for i, imax, name in zip(
+            [s, l], [self.NS, self.NL], ['Sample', 'Line'], strict=False
+        ):
             if not isinstance(i, (int, np.int64)):
                 raise TypeError(f'{name} must be an `integer`.')
             if not 1 <= i <= imax:

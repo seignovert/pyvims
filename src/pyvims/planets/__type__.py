@@ -29,7 +29,7 @@ class Planet(type):
     @property
     def radii(cls):
         """Planet RADII (a, b, c) [km]."""
-        return tuple([abc[0] for abc in cls.RADII])
+        return tuple(abc[0] for abc in cls.RADII)
 
     @property
     def a(cls):

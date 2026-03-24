@@ -57,7 +57,7 @@ def test_star_empty():
     """Test star for empty values."""
     star = Star()
 
-    assert str(star) == ''
+    assert not str(star)
     assert star.radec_2000 == (0, 0)
     assert star.dyr == 0
     assert star.mu_ra == 0

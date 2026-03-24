@@ -1,5 +1,6 @@
 """VIMS Noodle module."""
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -140,18 +141,18 @@ class VIMSNoodle:
     def NS(self):
         """Max sample width."""
         return (
-            max([cube.NS for cube in self])
+            max(cube.NS for cube in self)
             if self.vstack
-            else sum([cube.NS for cube in self])
+            else sum(cube.NS for cube in self)
         )
 
     @property
     def NL(self):
         """Summed number of lines."""
         return (
-            sum([cube.NL for cube in self])
+            sum(cube.NL for cube in self)
             if self.vstack
-            else max([cube.NL for cube in self])
+            else max(cube.NL for cube in self)
         )
 
     @property
@@ -174,7 +175,7 @@ class VIMSNoodle:
     def _load_data(self):
         """Load data cube from all cube list."""
         if self.verbose:
-            print('Loading data…')
+            sys.stdout.write('Loading data…\n')
 
         data = np.zeros(self.shape)
 
@@ -188,6 +189,6 @@ class VIMSNoodle:
                 k += cube.NS
 
         if self.verbose:
-            print('Done!')
+            sys.stdout.write('Done!\n')
 
         return data

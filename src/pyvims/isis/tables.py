@@ -61,7 +61,7 @@ class ISISFields:
         if key not in self:
             raise KeyError(f'Key `{key}` not found.')
 
-        if key in self.labels.keys():
+        if key in self.labels:
             return self.labels[key]
 
         return self.fields[key]
@@ -150,13 +150,13 @@ class ISISTable:
         return self.__pvl['Records']
 
     def __contains__(self, key):
-        return key in self.fields.keys()
+        return key in self.fields
 
     def __getitem__(self, key):
         if key not in self.fields:
             raise KeyError(f'Key `{key}` not found.')
 
-        if key in self.fields.labels.keys():
+        if key in self.fields.labels:
             return self.fields[key]
 
         return self.data[key]
@@ -227,13 +227,13 @@ class ISISTables:
         return '\n - '.join([f'<{self.__class__.__name__}> Available:', *self.keys()])
 
     def __contains__(self, key):
-        return key in self.tables.keys()
+        return key in self.tables
 
     def __getitem__(self, key):
         try:
             return self.tables[key]
         except KeyError:
-            raise KeyError(f'Item `{key}` not found in tables.')
+            raise KeyError(f'Item `{key}` not found in tables.') from None
 
     def __getattr__(self, key):
         return self[key]

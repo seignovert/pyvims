@@ -15,9 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - A CHANGELOG 🙌
 
 ### Changed
-- Remove `setup.py` and `setup.cfg` in favor of `pyproject.toml`
-- Remove `requirements.txt` in favor of `uv.lock`
-- Remove `flake8` and `pylint` linters in favor of `ruff`
+- Remove `setup.py` and `setup.cfg` in favor of `pyproject.toml`.
+- Remove `requirements.txt` in favor of `uv.lock`.
+- Remove `flake8` and `pylint` linters in favor of `ruff`.
 
 
 [Release 1.0.5 - 2024-10-22][1.0.5]

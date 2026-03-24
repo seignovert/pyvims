@@ -109,7 +109,30 @@ ignore = [
     "E743",
     "D402",
 ]
+
 [tool.ruff.lint.per-file-ignores]
+"notebooks/*.ipynb" = [
+    "T20",  # flake8-print
+]
+"src/*.py" = [
+    # FIXME
+    "PLW1641",  # Object does not implement `__hash__` method
+    "S113",     # Probable use of `requests` call without timeout
+    "PLR0904",  # Too many public methods (> 30)
+    "PLR0911",  # Too many return statements (> 6)
+    "PLR0912",  # Too many branches (> 12)
+    "PLR0913",  # Too many arguments in function definition (> 10)
+    "PLR0914",  # Too many local variables (> 15)
+    "PLR0917",  # Too many positional arguments (> 10)
+]
+"src/pyvims/plot.py" = [
+    # FIXME
+    "C901",  # too complex (14 > 10)
+]
+"src/pyvims/pds/times.py" = [
+    # FIXME
+    "PLC1901",
+]
 "tests/*.py" = [
     "S101",     # assert
 ]

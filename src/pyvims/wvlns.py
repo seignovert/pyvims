@@ -305,7 +305,7 @@ def ir_multiplexer(spectrum):
         if len(spectrum) == 256:
             return spectrum[::2], spectrum[1::2]
 
-    if np.ndim(spectrum) in [2, 3]:
+    if np.ndim(spectrum) in {2, 3}:
         return ir_multiplexer(median_spectrum(spectrum))
 
     raise ValueError(f'Invalid spectrum dimension: `{np.shape(spectrum)}`.')

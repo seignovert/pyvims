@@ -25,6 +25,7 @@ class MetaFlybys(type):
         for flyby in cls.flybys:
             if key == flyby:
                 return flyby
+        return None
 
     def __matmul__(cls, t):
         """Get the closest."""

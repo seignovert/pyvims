@@ -356,12 +356,12 @@ class VIMSCamera:
 
     def __new__(cls, channel, mode, offsets, swaths):
 
-        if channel not in ['VIS', 'IR']:
+        if channel not in {'VIS', 'IR'}:
             raise VIMSCameraError(
                 f'Unknown channel `{channel}`. Only `VIS` and `IR` are available'
             )
 
-        if mode not in ['NORMAL', 'HI-RES']:
+        if mode not in {'NORMAL', 'HI-RES'}:
             raise VIMSCameraError(
                 f'Unknown sampling mode `{mode}`. '
                 'Only `NORMAL` and `HI-RES` are available'

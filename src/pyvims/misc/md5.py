@@ -36,7 +36,7 @@ def get_md5(data, string=False) -> str:
 
         return get_md5(data.read_bytes())
 
-    return hashlib.md5(data).hexdigest()  # nosec: B303
+    return hashlib.md5(data).hexdigest()  # noqa: S324
 
 
 def check_md5(data, md5: str) -> bool:

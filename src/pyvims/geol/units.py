@@ -228,7 +228,7 @@ class GeolUnits(type):
         # Loop through each individual path.
         pixel_units = []
         pixel_area = []
-        for i, j in zip(start, stop):
+        for i, j in zip(start, stop, strict=False):
             cond = slice(i, j)
             _path = Path(verts[cond], codes[cond])
             _pixel_units, _pixel_area = cls.slice_img_path(_path)
@@ -258,7 +258,7 @@ class GeolUnits(type):
 
             units[name] += 100 * area / total_area
 
-        return {k: v for k, v in sorted(units.items(), key=lambda x: x[1], reverse=True)}
+        return dict(sorted(units.items(), key=lambda x: x[1], reverse=True))
 
     def mask(cls, pixel, color='w', alpha=0.9, reverse=False, **kwargs):
         """Create a hole mask patch of the pixel to put on top of the geol. map."""

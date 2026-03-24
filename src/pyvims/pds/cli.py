@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 
 from .releases import PDS
 from ..wget import wget
@@ -51,15 +52,15 @@ def cli(argv=None):
             if args.download:
                 fname = data.split('/')[-1]
                 if os.path.exists(fname) and not args.overwrite:
-                    print(
+                    sys.stdout.write(
                         f'The file `{fname}` already exists. '
-                        'Skip download, add `-o` to overwrite it.'
+                        'Skip download, add `-o` to overwrite it.\n'
                     )
                 else:
                     wget(data, filename=fname, overwrite=args.overwrite)
-                    print(f'File `{fname}` downloaded.')
+                    sys.stdout.write(f'File `{fname}` downloaded.\n')
             else:
-                print(data)
+                sys.stdout.write(f'{data}\n')
 
         except IndexError:
-            print(f'File `{name}` is not available on the PDS.')
+            sys.stdout.write(f'File `{name}` is not available on the PDS.\n')

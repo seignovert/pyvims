@@ -53,14 +53,14 @@ Cube VIMS:
 """[1:].encode()  # Discard the first line return
 
 
-def _hdr(NS, NL, offset):
+def _hdr(ns, nl, offset):
     """ENVI header file.
 
     Parameters
     ----------
-    NS: int
+    ns: int
         Number of samples.
-    NL: int
+    nl: int
         Number of lines.
     offset: int
         Header size.
@@ -79,8 +79,8 @@ def _hdr(NS, NL, offset):
     return f"""ENVI
 description = {{
   ENVI File, Created [{now}]}}
-samples = {NS}
-lines   = {NL}
+samples = {ns}
+lines   = {nl}
 bands   = 22
 header offset = {offset}
 file type = ENVI Standard

@@ -26,13 +26,13 @@ class ISISHistory:
         return '\n - '.join([f'<{self.__class__.__name__}>', *self.keys()])
 
     def __contains__(self, key):
-        return key in self.history.keys()
+        return key in self.history
 
     def __getitem__(self, key):
         try:
             return self.history[key]
         except KeyError:
-            raise KeyError(f'Item `{key}` not found in history.')
+            raise KeyError(f'Item `{key}` not found in history.') from None
 
     def __getattr__(self, key):
         return self[key]

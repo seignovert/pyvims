@@ -78,7 +78,9 @@ def test_geometry_save():
 
     assert fout.exists()
 
-    assert fout.read_text() == '{"type": "Point", "coordinates": [30, 10]}'
+    assert (
+        fout.read_text(encoding='utf-8') == '{"type": "Point", "coordinates": [30, 10]}'
+    )
 
     with raises(FileExistsError):
         geo.save('test')

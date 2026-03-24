@@ -1,6 +1,7 @@
 """Abstract GeoJson dict module."""
 
 import json
+import sys
 from pathlib import Path
 
 
@@ -48,4 +49,4 @@ class GeoJson:
         f.write_text(self.json)
 
         if verbose:
-            print(f'Geojson saved in `{str(f)}`.')
+            sys.stdout.write(f'Geojson saved in `{str(f)}`.\n')

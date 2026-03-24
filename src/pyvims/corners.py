@@ -328,7 +328,7 @@ class VIMSPixelsCorners:
 
     def paths_mask(self, mask):
         """List of corners paths with a mask."""
-        return [c.path if m else None for c, m in zip(self, mask.ravel())]
+        return [c.path if m else None for c, m in zip(self, mask.ravel(), strict=False)]
 
     def collection(
         self,
@@ -340,10 +340,12 @@ class VIMSPixelsCorners:
         cmap=None,
         alt=False,
         sky=False,
-        mask=[],
+        mask=None,
         **kwargs,
     ):
         """Get the collection of all the corners patches on the ground."""
+        if mask is None:
+            mask = []
         patches = [
             PathPatch(path)
             for path in (
@@ -358,10 +360,7 @@ class VIMSPixelsCorners:
         ]
 
         if not isinstance(facecolors, str):
-            if facecolors is None:
-                data = self._pixels._cube[index]  # pylint: disable=protected-access
-            else:
-                data = facecolors
+            data = self._pixels._cube[index] if facecolors is None else facecolors
 
             if cmap is None:
                 if np.ndim(data) == 2:

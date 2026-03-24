@@ -79,7 +79,7 @@ def equi_grid(glon, glat, npix=1440):
     x = np.arange(x0 + 0.5 * pix, x1, pix)
     y = np.arange(y0 + 0.5 * pix, y1, pix)
 
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(x, y)  # noqa: N806
     grid = (X, Y)
     extent = [x0, x1, y1, y0]
 

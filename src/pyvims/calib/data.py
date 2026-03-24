@@ -1,6 +1,6 @@
 """VIMS calibration data module.
 
-Source: https://pds-imaging.jpl.nasa.gov/data/cassini/cassini_orbiter/vims-calibration-files/vims-pipeline-RC19-files-2018/  # noqa:501
+Source: https://pds-imaging.jpl.nasa.gov/data/cassini/cassini_orbiter/vims-calibration-files/vims-pipeline-RC19-files-2018/
 
 """
 
