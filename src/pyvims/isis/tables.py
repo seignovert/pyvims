@@ -106,7 +106,7 @@ class ISISFields:
                 names += [str(field)]
             else:
                 for i in range(len(field)):
-                    names += [f'{field}_{i+1}']
+                    names += [f'{field}_{i + 1}']
         return names
 
     @property
