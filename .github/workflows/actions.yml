@@ -11,6 +11,7 @@ on:
     - '**.py'
     - '!**/__version__.py'
     - 'pyproject.toml'
+    - 'notebooks/*.ipynb'
     - '.github/workflows/actions.yml'
 
 jobs:
