@@ -59,7 +59,7 @@ Binder](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/pla
 
 If you use this package for your research, please cite it as:
 
-> Seignovert et al. - PyVIMS (Version 1.1.0) -
+> Seignovert et al. - PyVIMS (Version 1.1.1) -
 > [Zenodo](https://zenodo.org/badge/latestdoi/126732857)
 
 ## Local development

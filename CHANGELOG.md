@@ -9,7 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 [Unreleased][new]
 -----------------
-[new]: https://github.com/seignovert/pyvims/compare/1.1.0...main
+[new]: https://github.com/seignovert/pyvims/compare/1.1.1...main
+
+
+[Release 1.1.1 - 2026/03/25][1.1.1]
+-----------------------------------
+[1.1.1]: https://github.com/seignovert/pyvims/releases/tag/1.1.1
 
 ### Changed
 - Upgrade to `numpy > 2`.
