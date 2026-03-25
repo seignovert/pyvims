@@ -108,8 +108,8 @@ def test_cassini_time():
 
 def test_cassini2utc():
     """Test Cassini time to UTC converter."""
-    assert str(cassini2utc('v1487096932_1')) == '2005-02-14 18:02:29'
-    assert str(cassini2utc(1483230358.172)) == '2005-01-01 00:00:00'
+    assert str(cassini2utc('v1487096932_1')) == '2005-02-14 18:02:29+00:00'
+    assert str(cassini2utc(1483230358.172)) == '2005-01-01 00:00:00+00:00'
 
 
 def test_utc2cassini():

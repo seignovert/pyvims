@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 ### Changed
 - Upgrade to `numpy > 2`.
 
+### Fixed
+- Depreciation warning from stdlib `datetime` and `numpy`.
+
 
 [Release 1.1.0 - 2026-03-24][1.1.0]
 -----------------------------------

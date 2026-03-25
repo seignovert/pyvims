@@ -7,8 +7,7 @@ Cassini time are extracted from kernels:
 """
 
 import re
-from datetime import datetime as dt
-from datetime import timezone as tz
+from datetime import datetime as dt, timezone as tz
 
 import numpy as np
 
@@ -339,7 +338,7 @@ def cassini2utc(time, decimals=0):
 
     """
     timestamp = np.interp(cassini_time(time), CASSINI[2], CASSINI[1])
-    return dt.utcfromtimestamp(np.round(timestamp, decimals=decimals))
+    return dt.fromtimestamp(np.round(timestamp, decimals=decimals), tz.utc)
 
 
 def utc2cassini(time):

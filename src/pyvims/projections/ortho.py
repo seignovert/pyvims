@@ -83,7 +83,7 @@ class Orthographic(GroundProjection):
         y = self.r * (self.clat0 * slat - self.slat0 * clat * cdlon)
 
         if np.ndim(g) > 0:
-            cond = np.less(g, -self.EPSILON, where=~np.isnan(g)) | np.isnan(g)
+            cond = np.less(g, -self.EPSILON, where=~np.isnan(g), out=None) | np.isnan(g)
             x[cond] = None
             y[cond] = None
 
@@ -144,7 +144,7 @@ class Orthographic(GroundProjection):
         lat = np.degrees(lat)
 
         if np.ndim(rh) > 0:
-            cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh)) | np.isnan(rh)
+            cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh), out=None) | np.isnan(rh)
             lon_w[cond] = self.lon_w_0
             lat[cond] = self.lat_0
 
