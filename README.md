@@ -85,6 +85,11 @@ uv run pytest
 uv run pytest --nbval-lax notebooks/
 ```
 
+**Maintainer**: Bump project version:
+```bash
+uv run bump-my-version bump [major|minor|patch]
+```
+
 ## Disclaimer
 
 This project is distributed under BSD 3-Clause open-source license.

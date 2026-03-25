@@ -194,9 +194,9 @@ exclude_lines = [
 [tool.bumpversion]
 current_version = "1.1.0"
 commit = true
-# tag = true
-# tag_name = "{new_version}"
-# sign_tags = true
+tag = true
+tag_name = "{new_version}"
+sign_tags = true
 
 
 [[tool.bumpversion.files]]
@@ -204,3 +204,23 @@ filename = "src/pyvims/__version__.py"
 
 [[tool.bumpversion.files]]
 filename = "README.md"
+
+## Bump changelog
+
+[[tool.bumpversion.files]]
+filename = "CHANGELOG.md"
+search = """
+[Unreleased][new]
+-----------------
+[new]: https://github.com/seignovert/pyvims/compare/{current_version}...main
+"""
+replace = """
+[Unreleased][new]
+-----------------
+[new]: https://github.com/seignovert/pyvims/compare/{new_version}...main
+
+
+[Release {new_version} - {now:%Y/%m/%d}][{new_version}]
+-----------------------------------
+[{new_version}]: https://github.com/seignovert/pyvims/releases/tag/{new_version}
+"""
