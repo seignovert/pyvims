@@ -8,7 +8,8 @@
 
 [![PyPI](https://img.shields.io/badge/PyPI-pyvims-blue.svg?logo=python&logoColor=white)](https://pypi.org/project/pyvims)
 [![Conda-Forge](https://img.shields.io/badge/conda--forge-pyvims-blue.svg?logo=condaforge&logoColor=white)](https://anaconda.org/conda-forge/pyvims)
-[![Binder](https://badgen.net/badge/Binder/Live%20Demo/blue?icon=terminal)](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb)
+[![JupyterLite](https://img.shields.io/badge/JupyterLite-demo-blue?logo=jupyter&logoColor=white)](https://notebook.link/@seignovert/pyvims)
+[![Binder](https://badgen.net/badge/Binder/demo/blue?icon=terminal)](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb)
 [![Zenodo](https://zenodo.org/badge/126732857.svg)](https://zenodo.org/badge/latestdoi/126732857)
 
 Python package to manipulate the Cassini VIMS data.
@@ -50,10 +51,8 @@ datetime.datetime(2005, 2, 14, 18, 5, 0, 976500)
 ```
 
 For more details, take a look to the [static Jupyter
-NoteBook](https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/main/notebooks/pyvims.ipynb)
-where more examples of usage are provided. You can also try this [live
-demo on
-Binder](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb).
+NoteBook](https://nbviewer.jupyter.org/github/seignovert/pyvims/blob/main/notebooks/pyvims.ipynb) where more examples of usage are provided.
+An interactive version is also available in [JupyterLite](https://notebook.link/@seignovert/pyvims) (simplified at the moment) or on [Binder](https://mybinder.org/v2/gh/seignovert/pyvims/main?filepath=notebooks/playground.ipynb).
 
 ## Citation
 
