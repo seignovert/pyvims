@@ -24,7 +24,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Atmospheric Science",
 ]
 dependencies = [
-    "numpy>=1.17,<2",
+    "numpy>2",
     "matplotlib>=3.1",
     "Pillow",
     "scipy",
