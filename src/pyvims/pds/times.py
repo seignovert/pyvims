@@ -7,7 +7,8 @@ Cassini time are extracted from kernels:
 """
 
 import re
-from datetime import datetime as dt, timezone as tz
+from datetime import datetime as dt
+from datetime import timezone as tz
 
 import numpy as np
 

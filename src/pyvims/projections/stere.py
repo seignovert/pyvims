@@ -102,7 +102,9 @@ class Stereographic(GroundProjection):
             lon_w = np.arctan2(sinc * x, rh * self.clat0 * cosc - self.slat0 * sinc * y)
 
         if np.ndim(rh) > 0:
-            cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh), out=None) | np.isnan(rh)
+            cond = np.less_equal(
+                rh, self.EPSILON, where=~np.isnan(rh), out=None
+            ) | np.isnan(rh)
             lon_w[cond] = 0
             lat[cond] = np.radians(self.lat_0)
 

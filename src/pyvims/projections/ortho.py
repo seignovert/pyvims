@@ -144,7 +144,9 @@ class Orthographic(GroundProjection):
         lat = np.degrees(lat)
 
         if np.ndim(rh) > 0:
-            cond = np.less_equal(rh, self.EPSILON, where=~np.isnan(rh), out=None) | np.isnan(rh)
+            cond = np.less_equal(
+                rh, self.EPSILON, where=~np.isnan(rh), out=None
+            ) | np.isnan(rh)
             lon_w[cond] = self.lon_w_0
             lat[cond] = self.lat_0
 
